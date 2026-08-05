@@ -26,9 +26,9 @@ def parse_df2_map():
         if buildings or x:
             results.append(
                 {
-                    "data-xcoord": x,
-                    "data-ycoord": y,
-                    "data-buildings": buildings,
+                    "x": x,
+                    "y": y,
+                    "buildings": buildings,
                 }
             )
     # 假設你從網頁爬下來的原始資料是 raw_item
@@ -38,9 +38,8 @@ def parse_df2_map():
 
     for item in results:
         # 1. 把字串座標轉成整數 (int)
-        x_val = int(item.get("data-xcoord", 0))
-        y_val = int(item.get("data-ycoord", 0))
-
+        x_val = int(item.get("x", 0))
+        y_val = int(item.get("y", 0))
         # 2. 把建築物字串轉成陣列 (List)，如果有多個建築可以用逗號split，或者直接包成單元素陣列
         b_raw = item.get("data-buildings", "")
         # 如果本來就是字串，把它轉成陣列格式 ["建築名稱"]
