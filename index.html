@@ -10,12 +10,12 @@
     import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyD6iCrgLn-5yh4bE4zudbaZ-lbzt4m-37w",
-      authDomain: "df2-mission-system.firebaseapp.com",
-      projectId: "df2-mission-system",
-      storageBucket: "df2-mission-system.firebasestorage.app",
-      messagingSenderId: "950389132060",
-      appId: "1:950389132060:web:2577b9cb0724cb6c9388d9"
+      apiKey: "你的API_KEY",
+      authDomain: "你的專案.firebaseapp.com",
+      projectId: "你的專案ID",
+      storageBucket: "你的專案.appspot.com",
+      messagingSenderId: "你的SenderID",
+      appId: "你的AppID"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -23,6 +23,7 @@
 
     window.db = db;
     window.COL_QUESTS = "quests";
+    window.COL_MAP = "map";
     window.FirebaseTools = { collection, addDoc, updateDoc, doc, onSnapshot };
     
     initApp();
@@ -93,7 +94,7 @@
 
   <div class="container">
     <div class="sidebar">
-      <h2>📜 任務與即時同步 <span id="sync-status" style="font-size: 0.7rem; color: #4caf50;">(任務連線中...)</span></h2>
+      <h2>📜 任務與即時同步 <span id="sync-status" style="font-size: 0.7rem; color: #4caf50;">(連線中...)</span></h2>
 
       <div class="form-group">
         <span style="font-size: 0.85rem; color: #4caf50; font-weight: bold;">➕ 新增任務與備註</span>
@@ -122,16 +123,7 @@
 
   <script>
     let globalQuestData = [];
-    
-    // 🗺️ 將地圖資料直接寫死在前端，節省 100% 的地圖 Firebase 讀取額度！
-    let globalRouteMapData = [
-      { x: 3, y: 2, buildings: ["Haley Cottage"] },
-      { x: 5, y: 4, buildings: ["Dallbow Police Station"] },
-      { x: 8, y: 6, buildings: ["General Store"] },
-      { x: 12, y: 10, buildings: ["Medical Clinic"] }
-      // 你可以在這裡填入或由後續格式擴充更多固定的地圖建築資料
-    ]; 
-
+    let globalRouteMapData = []; 
     let activeHighlightCoords = new Set();
     let lockedBuildingsSet = new Set(); 
     let nearRouteCoords = new Set(); 
@@ -151,11 +143,22 @@
     function initApp() {
       const { collection, onSnapshot } = window.FirebaseTools;
 
-      // 🗺️ 由於地圖資料已寫死在前端，此處不再向 Firebase 請求 map 集合，完全零讀取消耗！
-      renderMap(globalRouteMapData);
-      updateSystemDisplay();
+      onSnapshot(collection(window.db, window.COL_MAP), (snapshot) => {
+        globalRouteMapData = [];
+        snapshot.forEach((doc) => {
+          const raw = doc.data();
+          globalRouteMapData.push({
+            x: parseInt(raw["data-xcoord"] || raw.x || 0),
+            y: parseInt(raw["data-ycoord"] || raw.y || 0),
+            buildings: typeof raw["data-buildings"] === 'string' 
+              ? raw["data-buildings"].split(',').map(s => s.trim()).filter(Boolean) 
+              : (raw.buildings || [])
+          });
+        });
+        renderMap(globalRouteMapData);
+        updateSystemDisplay();
+      });
 
-      // 📜 僅對動態變動的任務資料保持 Firebase 即時監聽
       onSnapshot(collection(window.db, window.COL_QUESTS), (snapshot) => {
         globalQuestData = [];
         snapshot.forEach((doc) => {
@@ -246,6 +249,7 @@
       }
     }
 
+    // 尋找路線附近 2 格內，且「包含任務」的格子
     function updateNearRouteCoords() {
       nearRouteCoords.clear();
       if (customLines.length === 0) return;
@@ -264,6 +268,7 @@
         }
       });
 
+      // 建立現有任務建築的對照集合
       const questBuildingSet = new Set();
       globalQuestData.forEach(q => {
         if (q.building) questBuildingSet.add(cleanBuildingName(q.building));
@@ -280,6 +285,7 @@
           }
         }
         
+        // 必須同時符合「在路線 2 格內」且「該格子包含任務建築」
         if (isNear && node.buildings && node.buildings.some(b => questBuildingSet.has(cleanBuildingName(b)))) {
           nearRouteCoords.add(`${node.x},${node.y}`);
         }
@@ -354,6 +360,7 @@
         if (targetCell) targetCell.classList.add('highlight');
       });
 
+      // 渲染附近 2 格內且有任務的格子為淺藍色半透明
       nearRouteCoords.forEach(coordKey => {
         const [x, y] = coordKey.split(',');
         const targetCell = document.getElementById(`cell-${x}-${y}`);

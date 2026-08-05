@@ -164,7 +164,7 @@ cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
 
 # 2. 連線到 Firestore 資料庫
-db = firestore.client()
+db = firestore.client(database_id='df2mapv2')
 
 
 def delete_collection(coll_ref, batch_size):
@@ -191,7 +191,7 @@ def update_all_quests(new_data_list):
   batch = db.batch()
   count = 0
 
-  for item in new_data_list:
+  for item in results:
     doc_ref = collection_ref.document()
     batch.set(doc_ref, item)
     count += 1

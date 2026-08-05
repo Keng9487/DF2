@@ -61,7 +61,7 @@ if not firebase_admin._apps:
   cred = credentials.Certificate("serviceAccountKey.json")
   firebase_admin.initialize_app(cred)
 
-db = firestore.client()
+db = firestore.client(database_id='df2mapv2')
 
 
 def delete_collection(coll_ref, batch_size):
