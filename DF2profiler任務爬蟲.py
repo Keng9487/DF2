@@ -1,16 +1,20 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
-from bs4 import BeautifulSoup
 import requests
+from bs4 import BeautifulSoup
 
+# ==================================================
+# 1. 爬蟲與資料處理邏輯
+# ==================================================
 URL = "https://df2profiler.com/gamemap/?sirius"
 res = requests.get(URL)
 soup = BeautifulSoup(res.text, "lxml")
-# 不包含主線
+
+# 不包含主線任務
 quest = soup("span", {"data-forever": "0"}, {"data-daily": "0"})
 
 
-# 根據quest類型抓取不同建築及城市
+# 根據 quest 類型抓取不同建築及城市
 def get_parameters(task_type):
   parameter_mapping = {
       "Blood Sample*4": (mission_building, mission_city),
@@ -137,19 +141,23 @@ replacements = [
 ]
 
 for mission in quest:
-  giver_city = clean_text(
-      mission.find("strong").find_next("span").get("data-district"), replacements
-  )
-  giver_building = clean_text(
-      mission.find("strong").find_next("span").get("data-building"), replacements
-  )
+  giver_city_elem = mission.find("strong")
+  if giver_city_elem and giver_city_elem.find_next("span"):
+    giver_city = clean_text(
+        giver_city_elem.find_next("span").get("data-district", ""), replacements
+    )
+    giver_building = clean_text(
+        giver_city_elem.find_next("span").get("data-building", ""), replacements
+    )
+  else:
+    giver_city, giver_building = "", ""
 
   mission_city = mission.get("data-district")
-  if mission_city != None:
+  if mission_city is not None:
     mission_city = clean_text(mission_city, replacements)
 
   mission_building = mission.get("data-building")
-  if mission_building != None:
+  if mission_building is not None:
     mission_building = clean_text(mission_building, replacements)
 
   task_type = get_task_type(mission.text)
@@ -166,38 +174,69 @@ for mission in quest:
         {"building": building, "city": city, "task_type": task_type}
     )
 
-# --- Firebase 雲端上傳設定 ---
+print(f"爬蟲完成，共抓取到 {len(results)} 筆任務資料。")
+
+
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+# ==================================================
+# Firebase 初始化
+# ==================================================
 cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
 
-# 連線至指定的 database_id
-db = firestore.client(database_id="df2mapv2")
+db = firestore.client()
+COLLECTION_NAME = "task"
 
+# ==================================================
+# 1. 刪除 Collection 裡面的舊文件 (Batch Delete)
+# ==================================================
+print(f"正在清空 '{COLLECTION_NAME}' 集合中的舊資料...")
 
-def upload_scraped_data(data_list):
-  """將爬蟲抓取的多筆資料批次上傳到 Firestore"""
-  if not data_list:
-    print("沒有資料需要上傳。")
-    return
+collection_ref = db.collection(COLLECTION_NAME)
 
-  # 變更集合名稱為 tasks 較符合任務資料語意
-  collection_ref = db.collection("tasks")
+while True:
+  # 每次抓取最多 500 筆文件進行刪除 (Firestore 單次 batch 上限為 500)
+  docs = list(collection_ref.limit(500).stream())
 
-  # Firestore 批次寫入限制一次最多 500 筆，這裡採分批處理以防資料量過大
-  chunk_size = 500
-  for i in range(0, len(data_list), chunk_size):
-    chunk = data_list[i : i + chunk_size]
-    batch = db.batch()
+  if not docs:
+    break
 
-    for item in chunk:
-      doc_ref = collection_ref.document()  # 自動產生文件 ID
-      batch.set(doc_ref, item)
+  delete_batch = db.batch()
+  for doc in docs:
+    delete_batch.delete(doc.reference)
 
-    batch.commit()
+  delete_batch.commit()
+  print(f"已清理 {len(docs)} 筆舊資料...")
 
-  print(f"成功上傳共 {len(data_list)} 筆資料到 Firestore (`df2mapv2`)！")
+print("舊資料清理完成！\n")
 
+# ==================================================
+# 2. 上傳新爬到的資料 (Batch Write)
+# ==================================================
+print(f"開始上傳新的 {len(results)} 筆爬蟲資料...")
 
-# 執行上傳
-if __name__ == "__main__":
-  upload_scraped_data(results)
+write_batch = db.batch()
+count = 0
+
+for item in results:
+  # 加入伺服器時間戳記
+  item["updated_at"] = firestore.SERVER_TIMESTAMP
+
+  # 自動生成 Document ID 並加入批次寫入
+  doc_ref = collection_ref.document()
+  write_batch.set(doc_ref, item)
+
+  count += 1
+
+  # 每 500 筆分批 commit 一次
+  if count % 500 == 0:
+    write_batch.commit()
+    write_batch = db.batch()
+
+# 寫入剩餘未滿 500 筆的資料
+if count % 500 != 0:
+  write_batch.commit()
+
+print(f"全部完成！成功刪除舊資料，並上傳 {count} 筆新資料至 Firestore。")

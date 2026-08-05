@@ -12,6 +12,7 @@
     const firebaseConfig = {
       apiKey: "AIzaSyD6iCrgLn-5yh4bE4zudbaZ-lbzt4m-37w",
       authDomain: "df2-mission-system.firebaseapp.com",
+      databaseURL: "https://df2-mission-system-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "df2-mission-system",
       storageBucket: "df2-mission-system.firebasestorage.app",
       messagingSenderId: "950389132060",
@@ -22,7 +23,8 @@
     const db = getFirestore(app);
 
     window.db = db;
-    window.COL_QUESTS = "quests";
+    // ⚠️ 修改點 1: 確保與 Python 爬蟲上傳的集合名稱一致 ('missions')
+    window.COL_QUESTS = "task";
     window.COL_MAP = "map";
     window.FirebaseTools = { collection, addDoc, updateDoc, doc, onSnapshot };
     
@@ -403,7 +405,9 @@
         matchedQuests.forEach(q => {
           const status = q.active ? " (✅ 已完成)" : "";
           const noteText = q.notes ? ` | 📝 備註: <span style="color:#ff9800;">${q.notes}</span>` : "";
-          html += `<li><b>${q.type || '任務'}</b> - 城市: <i>${q.city || '未知'}</i> (建築: ${q.building})${status}${noteText}</li>`;
+          // ⚠️ 修改點 2: 相容 task_type 欄位
+          const taskType = q.task_type || q.type || '任務';
+          html += `<li><b>${taskType}</b> - 城市: <i>${q.city || '未知'}</i> (建築: ${q.building})${status}${noteText}</li>`;
         });
         html += `</ul>`;
       } else {
@@ -474,11 +478,14 @@
         const safeBuildingName = (q.building || '').replace(/'/g, "\\'");
         const isNear = isQuestNearRoute(q.building);
 
+        // ⚠️ 修改點 3: 相容 task_type 欄位
+        const taskType = q.task_type || q.type || '任務';
+
         const card = document.createElement('div');
         card.className = `quest-card ${q.active ? 'active' : ''} ${isNear ? 'near-route' : ''}`;
         card.innerHTML = `
           <h3 style="cursor: pointer; color: ${isNear ? '#03a9f4' : '#4caf50'};" onclick="locateQuestByBuilding('${safeBuildingName}')">
-            📌 ${q.type || '任務'} ${isNear ? ' 🌟(路線周邊2格)' : ''} ${q.active ? '(v 已完成)' : ''}
+            📌 ${taskType} ${isNear ? ' 🌟(路線周邊2格)' : ''} ${q.active ? '(v 已完成)' : ''}
           </h3>
           <div class="quest-meta">
             🏢 建築: <b>${q.building}</b><br>
@@ -519,12 +526,13 @@
     async function addNewQuest() {
       const city = document.getElementById('new-city').value.trim();
       const building = document.getElementById('new-building').value.trim();
-      const type = document.getElementById('new-type').value.trim();
+      const task_type = document.getElementById('new-type').value.trim();
       const notes = document.getElementById('new-notes').value.trim();
-      if (!building || !type) { alert('請填寫建築與任務類型'); return; }
+      if (!building || !task_type) { alert('請填寫建築與任務類型'); return; }
       const { collection, addDoc } = window.FirebaseTools;
       try {
-        await addDoc(collection(window.db, window.COL_QUESTS), { city, building, type, notes, active: false });
+        // ⚠️ 修改點 4: 手動新增時同步寫入 task_type 欄位
+        await addDoc(collection(window.db, window.COL_QUESTS), { city, building, task_type, notes, active: false });
         alert('新增成功！');
       } catch (err) { console.error(err); }
     }
@@ -534,7 +542,7 @@
       const filtered = globalQuestData.filter(q => 
         (q.building || '').toLowerCase().includes(query) || 
         (q.city || '').toLowerCase().includes(query) || 
-        (q.type || '').toLowerCase().includes(query) || 
+        (q.task_type || q.type || '').toLowerCase().includes(query) || 
         (q.notes || '').toLowerCase().includes(query)
       );
       renderQuests(filtered);
