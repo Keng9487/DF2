@@ -23,7 +23,7 @@
     const db = getFirestore(app);
 
     window.db = db;
-    // ⚠️ 修改點 1: 確保與 Python 爬蟲上傳的集合名稱一致 ('missions')
+    // ⚠️ 修改點 1: 確保與 Python 爬蟲上傳的集合名稱一致 ('task')
     window.COL_QUESTS = "task";
     window.COL_MAP = "map";
     window.FirebaseTools = { collection, addDoc, updateDoc, doc, onSnapshot };
