@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dead Frontier 2 互動地圖 & Firebase 即時共享系統</title>
+  
+  <!-- 引入 Firebase 核心 SDK (v10 模組化版本) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // ==========================================
+    // 🛑 請將下方替換為你從 Firebase 複製的設定！
+    // ==========================================
+    const firebaseConfig = {
+    apiKey: "AIzaSyD6iCrgLn-5yh4bE4zudbaZ-lbzt4m-37w",
+    authDomain: "df2-mission-system.firebaseapp.com",
+    projectId: "df2-mission-system",
+    storageBucket: "df2-mission-system.firebasestorage.app",
+    messagingSenderId: "950389132060",
+    appId: "1:950389132060:web:2577b9cb0724cb6c9388d9"
+    };
+
+    // 初始化 Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // 讓全域可以呼叫
+    window.db = db;
+    window.COL_QUESTS = "quests"; // 任務集合名稱
+    window.COL_MAP = "map";       // 地圖集合名稱
+    window.FirebaseTools = { collection, addDoc, updateDoc, doc, onSnapshot };
+    
+    // 啟動主程式
+    initApp();
+  </script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", Arial, sans-serif; color: #e0e0e0; min-height: 100vh; display: flex; flex-direction: column; padding: 20px; background: #121212; }
+    header { margin-bottom: 20px; text-align: center; }
+    header h1 { font-size: 2rem; color: #4caf50; }
+    .container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; width: 100%; }
+    
+    .sidebar { flex: 1; max-width: 380px; background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(8px); border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 12px; }
+    .sidebar h2 { font-size: 1.2rem; color: #ff9800; }
+    
+    .form-group { display: flex; flex-direction: column; gap: 6px; background: #1a1a1a; padding: 10px; border-radius: 6px; border: 1px solid #444; }
+    .form-group input { width: 100%; padding: 8px; background: #121212; border: 1px solid #555; border-radius: 4px; color: #fff; outline: none; font-size: 0.85rem; }
+    .form-group input:focus { border-color: #4caf50; }
+    .btn-add { background: #4caf50; color: #fff; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+    .btn-add:hover { background: #45a049; }
+
+    .search-box { width: 100%; padding: 10px; background: #121212; border: 1px solid #444; border-radius: 4px; color: #fff; outline: none; }
+    .search-box:focus { border-color: #ff9800; }
+    
+    .quest-list { flex: 1; max-height: 360px; overflow-y: auto; padding-right: 5px; }
+    
+    .quest-card { background: #262626; padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #ff9800; transition: all 0.2s ease; }
+    .quest-card.active { background: #3a2e1b; border-left-color: #ff5722; }
+    .quest-card h3 { font-size: 0.95rem; color: #fff; margin-bottom: 4px; cursor: pointer; }
+    .quest-meta { font-size: 0.8rem; color: #aaa; line-height: 1.4; margin-bottom: 8px; }
+    
+    .note-box { display: flex; gap: 5px; margin-top: 6px; }
+    .note-box input { flex: 1; padding: 5px; background: #121212; border: 1px solid #444; border-radius: 3px; color: #fff; font-size: 0.75rem; }
+    .note-box button { padding: 4px 8px; background: #ff9800; border: none; border-radius: 3px; color: #000; font-weight: bold; cursor: pointer; font-size: 0.75rem; }
+    .note-box button:hover { background: #e68900; }
+
+    .map-section { flex: 2; display: flex; flex-direction: column; gap: 15px; }
+    .map-wrapper { position: relative; background: #000; padding: 0; border: none; overflow: hidden; width: 960px; height: 576px; background-image: url('map_bg.jpg'); background-size: 960px 576px; background-position: top left; background-repeat: no-repeat; }
+    .map-table { position: absolute; top: 0; left: 0; z-index: 2; border-collapse: collapse; border-spacing: 0; table-layout: fixed; width: 960px; height: 576px; }
+    .map-table td { width: 32px; height: 32px; min-width: 32px; max-width: 32px; min-height: 32px; max-height: 32px; padding: 0; margin: 0; border: 1px solid rgba(255, 255, 255, 0.15); background-color: transparent; cursor: pointer; }
+    .map-table td:nth-child(6n) { border-right: 2px solid rgba(255, 255, 255, 0.5); }
+    .map-table tr:nth-child(6n) td { border-bottom: 2px solid rgba(255, 255, 255, 0.5); }
+    .map-table td:hover { background-color: rgba(255, 255, 255, 0.2); }
+    
+    /* 任務未完成的紅色亮燈 */
+    .map-table td.highlight { background-color: rgba(255, 0, 0, 0.5) !important; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6); }
+
+    /* 📌 點擊任務後鎖定的黃色半透明底色特效（支援多重保留） */
+    .map-table td.quest-locked-highlight {
+      background-color: rgba(255, 215, 0, 0.65) !important; /* 金黃色半透明底色 */
+      box-shadow: inset 0 0 0 2px #fff !important; /* 白色內框 */
+    }
+
+    #info-panel { background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(8px); border: 1px solid #333; padding: 15px; border-radius: 8px; min-height: 90px; font-size: 0.9rem; line-height: 1.5; width: 960px; }
+    #info-panel strong { color: #ff9800; }
+    #info-panel ul { margin-top: 5px; padding-left: 20px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Dead Frontier 2 互動地圖 & Firebase 即時共享系統</h1>
+  </header>
+
+  <div class="container">
+    <div class="sidebar">
+      <h2>📜 任務與即時同步 <span id="sync-status" style="font-size: 0.7rem; color: #4caf50;">(連線中...)</span></h2>
+      
+      <div class="form-group">
+        <span style="font-size: 0.85rem; color: #4caf50; font-weight: bold;">➕ 新增任務與備註</span>
+        <input type="text" id="new-city" placeholder="輸入城市 (例如: Dallbow)">
+        <input type="text" id="new-building" placeholder="輸入建築名稱 (例如: Haley Cottage)">
+        <input type="text" id="new-type" placeholder="輸入任務類型 (例如: Find Item)">
+        <input type="text" id="new-notes" placeholder="初始備註 (選填)">
+        <button class="btn-add" onclick="addNewQuest()">確認新增</button>
+      </div>
+
+      <input type="text" id="search" class="search-box" placeholder="搜尋建築、城市、任務或備註..." oninput="filterQuests()">
+      <div id="quest-list" class="quest-list">載入中...</div>
+    </div>
+
+    <div class="map-section">
+      <div class="map-wrapper">
+        <table id="map-table" class="map-table"></table>
+      </div>
+      <div id="info-panel">請點擊任務或將滑鼠移至地圖格子上檢視內容與備註...</div>
+    </div>
+  </div>
+
+  <script>
+    let globalQuestData = [];
+    let globalRouteMapData = []; // 雲端動態讀取的地圖資料
+    let activeHighlightCoords = new Set();
+    let lockedBuildingsSet = new Set(); // 記錄所有被手動點擊鎖定高亮的建築名稱（支援多重保留）
+
+    function cleanBuildingName(name) {
+      if (!name) return '';
+      return name
+        .toLowerCase()
+        .replace(/\s*\([^)]*\)/g, '') // 移除括號
+        .replace(/[^a-z0-9\u4e00-\u9fa5]/g, '') // 保留英文、數字與中文
+        .trim();
+    }
+
+    function initApp() {
+      const { collection, onSnapshot } = window.FirebaseTools;
+
+      // 🔥 1. 即時監聽雲端的「地圖資料 (map)」
+      onSnapshot(collection(window.db, window.COL_MAP), (snapshot) => {
+        globalRouteMapData = [];
+        snapshot.forEach((doc) => {
+          const raw = doc.data();
+          // 自動適應你的爬蟲格式進行轉換
+          globalRouteMapData.push({
+            x: parseInt(raw["data-xcoord"] || raw.x || 0),
+            y: parseInt(raw["data-ycoord"] || raw.y || 0),
+            buildings: typeof raw["data-buildings"] === 'string' 
+              ? raw["data-buildings"].split(',').map(s => s.trim()).filter(Boolean) 
+              : (raw.buildings || [])
+          });
+        });
+        renderMap(globalRouteMapData);
+        updateSystemDisplay();
+      }, (error) => {
+        console.error("地圖同步錯誤:", error);
+      });
+
+      // 🔥 2. 即時監聽雲端的「任務資料 (quests)」
+      onSnapshot(collection(window.db, window.COL_QUESTS), (snapshot) => {
+        globalQuestData = [];
+        snapshot.forEach((doc) => {
+          globalQuestData.push({ id: doc.id, ...doc.data() });
+        });
+
+        updateSystemDisplay();
+        document.getElementById('sync-status').innerText = "(Firebase 即時連線)";
+        document.getElementById('sync-status').style.color = "#4caf50";
+      }, (error) => {
+        console.error("任務同步錯誤:", error);
+        document.getElementById('sync-status').innerText = "(連線異常)";
+        document.getElementById('sync-status').style.color = "#ff5252";
+      });
+    }
+
+    function renderMap(mapRawData) {
+      const tableContainer = document.getElementById('map-table');
+      tableContainer.innerHTML = '';
+
+      const nodeMap = new Map();
+      mapRawData.forEach(item => nodeMap.set(`${item.x},${item.y}`, item));
+
+      for (let y = 1; y <= 18; y++) {
+        const tr = document.createElement('tr');
+        for (let x = 1; x <= 30; x++) {
+          const td = document.createElement('td');
+          td.id = `cell-${x}-${y}`;
+          const nodeData = nodeMap.get(`${x},${y}`);
+
+          td.addEventListener('mouseenter', () => displayCoordInfo(nodeData));
+          tr.appendChild(td);
+        }
+        tableContainer.appendChild(tr);
+      }
+      updateMapHighlights();
+    }
+
+    function updateSystemDisplay() {
+      activeHighlightCoords.clear();
+      const questMapByBuilding = new Map();
+
+      globalQuestData.forEach(q => {
+        if (q.building) {
+          const cleanKey = cleanBuildingName(q.building);
+          if (!questMapByBuilding.has(cleanKey)) questMapByBuilding.set(cleanKey, []);
+          questMapByBuilding.get(cleanKey).push(q);
+        }
+      });
+
+      // 檢查地圖紅燈
+      globalRouteMapData.forEach(node => {
+        let hasActive = false;
+        if (node.buildings) {
+          node.buildings.forEach(bName => {
+            const cleanName = cleanBuildingName(bName);
+            if (questMapByBuilding.has(cleanName)) {
+              const matches = questMapByBuilding.get(cleanName);
+              if (matches.some(q => q.active === true)) hasActive = true;
+            }
+          });
+        }
+        if (hasActive) activeHighlightCoords.add(`${node.x},${node.y}`);
+      });
+
+      updateMapHighlights();
+      renderQuests(globalQuestData);
+    }
+
+    function updateMapHighlights() {
+      // 1. 清除所有格子的特效
+      document.querySelectorAll('.map-table td').forEach(td => {
+        td.classList.remove('highlight');
+        td.classList.remove('quest-locked-highlight');
+      });
+
+      // 2. 渲染原本未完成任務的紅色亮燈
+      activeHighlightCoords.forEach(coordKey => {
+        const [x, y] = coordKey.split(',');
+        const targetCell = document.getElementById(`cell-${x}-${y}`);
+        if (targetCell) targetCell.classList.add('highlight');
+      });
+
+      // 3. 迴圈檢查所有被手動點擊鎖定的建築，全部加上黃色半透明底色（實現多重保留）
+      if (lockedBuildingsSet.size > 0) {
+        globalRouteMapData.forEach(node => {
+          if (node.buildings && node.buildings.some(b => cleanBuildingName(b) && lockedBuildingsSet.has(cleanBuildingName(b)))) {
+            const targetCell = document.getElementById(`cell-${node.x}-${node.y}`);
+            if (targetCell) {
+              targetCell.classList.add('quest-locked-highlight');
+            }
+          }
+        });
+      }
+    }
+
+    function displayCoordInfo(data) {
+      const infoPanel = document.getElementById('info-panel');
+      if (!data || !data.buildings || data.buildings.length === 0) {
+        infoPanel.innerHTML = `<strong>位置資訊</strong>: 空地 / 無建築`;
+        return;
+      }
+
+      let html = `<strong>🏢 建築物：</strong> ${data.buildings.join(', ')}<br>`;
+      
+      let matchedQuests = [];
+      data.buildings.forEach(bName => {
+        const cleanName = cleanBuildingName(bName);
+        globalQuestData.forEach(q => {
+          if (cleanBuildingName(q.building) === cleanName) matchedQuests.push(q);
+        });
+      });
+
+      if (matchedQuests.length > 0) {
+        html += `<b style="color:#4caf50;">🎯 包含任務與備註：</b><ul>`;
+        matchedQuests.forEach(q => {
+          const status = q.active ? " (✅ 已完成)" : "";
+          const noteText = q.notes ? ` | 📝 備註: <span style="color:#ff9800;">${q.notes}</span>` : "";
+          html += `<li><b>${q.type || '任務'}</b> - 城市: <i>${q.city || '未知'}</i> (建築: ${q.building})${status}${noteText}</li>`;
+        });
+        html += `</ul>`;
+      } else {
+        html += `<span style="color:#888;">此區域無當前任務</span>`;
+      }
+
+      infoPanel.innerHTML = html;
+    }
+
+    function locateQuestByBuilding(targetBuildingName) {
+      if (!targetBuildingName) return;
+      const cleanTarget = cleanBuildingName(targetBuildingName);
+
+      // 如果這個建築已經被鎖定了，再次點擊就將它「取消鎖定」
+      if (lockedBuildingsSet.has(cleanTarget)) {
+        lockedBuildingsSet.delete(cleanTarget);
+        updateMapHighlights();
+        document.getElementById('info-panel').innerHTML = `<strong>提示</strong>: 已取消建築「<b>${targetBuildingName}</b>」的黃色底色鎖定。`;
+        return;
+      }
+
+      // 如果還沒被鎖定，就把它加入鎖定清單中（保留之前的，繼續疊加！）
+      lockedBuildingsSet.add(cleanTarget);
+
+      // 在地圖資料中尋找哪一個格子包含這個建築物
+      let foundNode = null;
+      for (const node of globalRouteMapData) {
+        if (node.buildings && node.buildings.some(b => cleanBuildingName(b) === cleanTarget)) {
+          foundNode = node;
+          break;
+        }
+      }
+
+      const infoPanel = document.getElementById('info-panel');
+
+      if (foundNode) {
+        displayCoordInfo(foundNode);
+        updateMapHighlights();
+        infoPanel.innerHTML = `<span style="color: #ff9800; font-weight: bold;">📍 已鎖定地圖座標 (${foundNode.x}, ${foundNode.y}) 的黃色半透明底色（支援多重保留）。</span><br>` + infoPanel.innerHTML;
+      } else {
+        lockedBuildingsSet.delete(cleanTarget);
+        updateMapHighlights();
+        infoPanel.innerHTML = `<strong>⚠️ 定位失敗</strong>: 在目前的地圖資料中找不到建築物「<b>${targetBuildingName}</b>」的座標。`;
+      }
+    }
+
+    function renderQuests(quests) {
+      const questListContainer = document.getElementById('quest-list');
+      questListContainer.innerHTML = '';
+
+      if (!quests || quests.length === 0) {
+        questListContainer.innerHTML = '<div style="color:#888;">目前沒有任務資料</div>';
+        return;
+      }
+
+      quests.forEach(q => {
+        const card = document.createElement('div');
+        card.className = `quest-card ${q.active ? 'active' : ''}`;
+        
+        card.innerHTML = `
+          <h3 style="cursor: pointer; color: #4caf50;" onclick="locateQuestByBuilding('${q.building}')" title="點擊在地圖上鎖定/保留此建築底色">
+            📌 ${q.type || '任務'} ${q.active ? '(已完成)' : ''}
+          </h3>
+          <div class="quest-meta" style="cursor: pointer;" onclick="locateQuestByBuilding('${q.building}')" title="點擊在地圖上鎖定/保留此建築底色">
+            🏢 建築: <b>${q.building}</b><br>
+            🏙️ 城市: ${q.city || '未知'}
+          </div>
+          <div class="note-box">
+            <input type="text" id="note-input-${q.id}" value="${q.notes || ''}" placeholder="輸入備註...">
+            <button onclick="saveNote('${q.id}')">儲存備註</button>
+          </div>
+          <div style="margin-top: 6px; display: flex; justify-content: space-between; align-items: center;">
+            <button style="background: #333; color: #ff9800; border: 1px solid #555; padding: 3px 8px; border-radius: 3px; cursor: pointer; font-size: 0.75rem;" onclick="toggleQuestActive('${q.id}', ${!q.active})">
+              ${q.active ? '↩️ 標記未完成' : '✅ 標記已完成'}
+            </button>
+            <span style="font-size: 0.7rem; color: #ff9800; cursor: pointer;" onclick="locateQuestByBuilding('${q.building}')">📍 點擊地圖鎖定/取消</span>
+          </div>
+        `;
+        questListContainer.appendChild(card);
+      });
+    }
+
+    async function toggleQuestActive(docId, newState) {
+      const { doc, updateDoc } = window.FirebaseTools;
+      try {
+        const questRef = doc(window.db, window.COL_QUESTS, docId);
+        await updateDoc(questRef, { active: newState });
+      } catch (err) {
+        console.error("更新狀態失敗:", err);
+      }
+    }
+
+    async function saveNote(docId) {
+      const inputEl = document.getElementById(`note-input-${docId}`);
+      if (!inputEl) return;
+      const newNote = inputEl.value.trim();
+
+      const { doc, updateDoc } = window.FirebaseTools;
+      try {
+        const questRef = doc(window.db, window.COL_QUESTS, docId);
+        await updateDoc(questRef, { notes: newNote });
+        alert('備註已即時同步更新！');
+      } catch (err) {
+        console.error("儲存備註失敗:", err);
+      }
+    }
+
+    async function addNewQuest() {
+      const city = document.getElementById('new-city').value.trim();
+      const building = document.getElementById('new-building').value.trim();
+      const type = document.getElementById('new-type').value.trim();
+      const notes = document.getElementById('new-notes').value.trim();
+
+      if (!building || !type) {
+        alert('請至少填寫「建築名稱」與「任務類型」！');
+        return;
+      }
+
+      document.getElementById('new-city').value = '';
+      document.getElementById('new-building').value = '';
+      document.getElementById('new-type').value = '';
+      document.getElementById('new-notes').value = '';
+
+      const { collection, addDoc } = window.FirebaseTools;
+      try {
+        await addDoc(collection(window.db, window.COL_QUESTS), {
+          city: city,
+          building: building,
+          type: type,
+          notes: notes,
+          active: false
+        });
+        alert('新任務已成功新增至雲端！');
+      } catch (err) {
+        console.error("新增失敗:", err);
+      }
+    }
+
+    function filterQuests() {
+      const query = document.getElementById('search').value.toLowerCase().trim();
+      const filtered = globalQuestData.filter(q => {
+        const bName = (q.building || '').toLowerCase();
+        const cName = (q.city || '').toLowerCase();
+        const tType = (q.type || '').toLowerCase();
+        const nNote = (q.notes || '').toLowerCase();
+
+        return bName.includes(query) || cName.includes(query) || tType.includes(query) || nNote.includes(query);
+      });
+      renderQuests(filtered);
+    }
+  </script>
+</body>
+</html>
