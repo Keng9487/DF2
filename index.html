@@ -99,34 +99,48 @@
       gap: 8px;
     }
 
+    /* === 控制區塊與篩選器樣式 === */
     .controls-row {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 10px;
       margin-bottom: 15px;
-      align-items: center;
       background: #121316;
       padding: 12px;
       border-radius: 4px;
       border: 1px solid #22262e;
     }
 
-    input[type="text"] {
+    .filters-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #8b949e;
+    }
+
+    input[type="text"], select {
       background-color: #0f1012;
       border: 1px solid #30363d;
       color: #e6edf3;
-      padding: 8px 12px;
+      padding: 6px 10px;
       border-radius: 4px;
       font-size: 13px;
       outline: none;
     }
 
-    input[type="text"]:focus {
+    input[type="text"]:focus, select:focus {
       border-color: #58a6ff;
     }
 
     .search-box {
-      flex-grow: 1;
       width: 100%;
     }
 
@@ -166,7 +180,6 @@
       color: #79c0ff;
     }
 
-    /* 設定第三欄（備註）固定寬度，防止多行資料拉變形表格 */
     .hud-table th:nth-child(4),
     .hud-table td:nth-child(4) {
       width: 220px;
@@ -259,7 +272,7 @@
       overflow: hidden;
       max-width: 100%;
       border-radius: 4px;
-      background-image: url('./map_bg.jpg');
+      background-image: url('./map.jpg');
       background-size: 100% 100%;
       background-position: center;
       background-repeat: no-repeat;
@@ -352,7 +365,6 @@
       border-color: #2ea043;
     }
 
-    /* === 多行文字輸入框（Textarea）專用樣式 === */
     .note-container {
       display: flex;
       flex-direction: column;
@@ -371,7 +383,7 @@
       border-radius: 4px;
       font-size: 12px;
       font-family: inherit;
-      resize: vertical; /* 允許使用者手動上下調整高度，不影響寬度 */
+      resize: vertical;
       outline: none;
     }
 
@@ -392,8 +404,36 @@
     <div class="panel-box">
       <div class="panel-title">📜 Mission HUD Table</div>
 
+      <!-- 控制列：關鍵字搜尋 + 多條件下拉選單篩選器 -->
       <div class="controls-row">
         <input type="text" id="search" class="search-box" placeholder="🔍 搜尋建築、城市、任務類型或備註..." oninput="filterQuests()">
+        
+        <div class="filters-group">
+          <div class="filter-item">
+            <label for="filter-city">城市:</label>
+            <select id="filter-city" onchange="filterQuests()">
+              <option value="">全部城市</option>
+            </select>
+          </div>
+
+          <div class="filter-item">
+            <label for="filter-type">類型:</label>
+            <select id="filter-type" onchange="filterQuests()">
+              <option value="">全部類型</option>
+            </select>
+          </div>
+
+          <div class="filter-item">
+            <label for="filter-status">狀態:</label>
+            <select id="filter-status" onchange="filterQuests()">
+              <option value="">全部狀態</option>
+              <option value="pending">⭕ 未完成</option>
+              <option value="completed">✅ 已完成</option>
+            </select>
+          </div>
+
+          <button class="btn-action" style="margin-left: auto;" onclick="resetFilters()">重設篩選</button>
+        </div>
       </div>
 
       <div class="table-responsive">
@@ -478,8 +518,37 @@
         snapshot.forEach((doc) => {
           globalQuestData.push({ id: doc.id, ...doc.data() });
         });
+        updateFilterOptions();
         updateSystemDisplay();
         document.getElementById('sync-status').innerText = "(Firebase 即時連線)";
+      });
+    }
+
+    // 自動更新篩選器的下拉選項內容
+    function updateFilterOptions() {
+      const citySelect = document.getElementById('filter-city');
+      const typeSelect = document.getElementById('filter-type');
+
+      const currentCity = citySelect.value;
+      const currentType = typeSelect.value;
+
+      const cities = new Set();
+      const types = new Set();
+
+      globalQuestData.forEach(q => {
+        if (q.city) cities.add(q.city);
+        const t = q.task_type || q.type;
+        if (t) types.add(t);
+      });
+
+      citySelect.innerHTML = '<option value="">全部城市</option>';
+      Array.from(cities).sort().forEach(c => {
+        citySelect.innerHTML += `<option value="${c}" ${c === currentCity ? 'selected' : ''}>${c}</option>`;
+      });
+
+      typeSelect.innerHTML = '<option value="">全部類型</option>';
+      Array.from(types).sort().forEach(t => {
+        typeSelect.innerHTML += `<option value="${t}" ${t === currentType ? 'selected' : ''}>${t}</option>`;
       });
     }
 
@@ -526,7 +595,7 @@
           updateNearRouteCoords();
           updateMapHighlights();
           renderCustomLines();
-          renderHUDTable(globalQuestData);
+          filterQuests();
           document.getElementById('panel-msg').innerHTML = `<span style="color: #4caf50; font-weight: bold;">✏️ 已新增路線，並自動標記周邊 2 格內有任務的建築！</span>`;
         }
       } else {
@@ -552,7 +621,7 @@
             updateNearRouteCoords();
             updateMapHighlights();
             renderCustomLines();
-            renderHUDTable(globalQuestData);
+            filterQuests();
             document.getElementById('panel-msg').innerHTML = `<span style="color: #f44336; font-weight: bold;">🗑️ 已取消路線段並更新範圍</span>`;
           } else {
             actionStartCoord = { x, y };
@@ -653,7 +722,7 @@
 
       updateNearRouteCoords();
       updateMapHighlights();
-      renderHUDTable(globalQuestData);
+      filterQuests();
     }
 
     function updateMapHighlights() {
@@ -756,7 +825,7 @@
         updateMapHighlights();
       }
 
-      renderHUDTable(globalQuestData);
+      filterQuests();
     }
 
     function isQuestNearRoute(questBuilding) {
@@ -780,7 +849,7 @@
       tbody.innerHTML = '';
 
       if (!quests || quests.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #888;">目前沒有任務資料</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #888;">沒有符合條件的任務資料</td></tr>';
         return;
       }
 
@@ -797,7 +866,6 @@
         if (isLocked) tr.classList.add('row-locked');
 
         tr.addEventListener('click', (e) => {
-          // 排除點擊輸入框、按鈕或拖曳高度欄時觸發地圖鎖定
           if (['TEXTAREA', 'INPUT', 'BUTTON'].includes(e.target.tagName)) return;
           locateQuestByBuilding(safeBuildingName);
         });
@@ -885,15 +953,41 @@
       } catch (err) { console.error(err); }
     }
 
+    // === 複合型多條件篩選函式 ===
     function filterQuests() {
       const query = document.getElementById('search').value.toLowerCase().trim();
-      const filtered = globalQuestData.filter(q => 
-        (q.building || '').toLowerCase().includes(query) || 
-        (q.city || '').toLowerCase().includes(query) || 
-        (q.task_type || q.type || '').toLowerCase().includes(query) || 
-        (q.notes || '').toLowerCase().includes(query)
-      );
+      const cityFilter = document.getElementById('filter-city').value;
+      const typeFilter = document.getElementById('filter-type').value;
+      const statusFilter = document.getElementById('filter-status').value;
+
+      const filtered = globalQuestData.filter(q => {
+        const matchesQuery = !query || 
+          (q.building || '').toLowerCase().includes(query) || 
+          (q.city || '').toLowerCase().includes(query) || 
+          (q.task_type || q.type || '').toLowerCase().includes(query) || 
+          (q.notes || '').toLowerCase().includes(query);
+
+        const matchesCity = !cityFilter || q.city === cityFilter;
+        
+        const qType = q.task_type || q.type || '';
+        const matchesType = !typeFilter || qType === typeFilter;
+
+        let matchesStatus = true;
+        if (statusFilter === 'pending') matchesStatus = !q.active;
+        if (statusFilter === 'completed') matchesStatus = !!q.active;
+
+        return matchesQuery && matchesCity && matchesType && matchesStatus;
+      });
+
       renderHUDTable(filtered);
+    }
+
+    function resetFilters() {
+      document.getElementById('search').value = '';
+      document.getElementById('filter-city').value = '';
+      document.getElementById('filter-type').value = '';
+      document.getElementById('filter-status').value = '';
+      filterQuests();
     }
   </script>
 </body>
