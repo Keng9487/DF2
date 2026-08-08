@@ -1,0 +1,2702 @@
+[
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "1",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "1",
+        "data-buildings": "Haley Cottage (House)"
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "1",
+        "data-buildings": "Odom Residence (House)"
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "1",
+        "data-buildings": "Poole Cottage (House)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "1",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "1",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "1",
+        "data-buildings": "Matthews Residence (House)"
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "1",
+        "data-buildings": "Serrano Residence (House)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "1",
+        "data-buildings": "Potts Residence (House),Mullen Household (House)"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "1",
+        "data-buildings": "Obrien Lodge (House)"
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "1",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "1",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "1",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "1",
+        "data-buildings": "Holman Lodge (House),Stephens Household (House)"
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "1",
+        "data-buildings": "Boone Cottage (House)"
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "1",
+        "data-buildings": "Middleton Cottage (House)"
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "1",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "1",
+        "data-buildings": "Lee Household (House)"
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "1",
+        "data-buildings": "James Residence (House),Moore Household (House)"
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "1",
+        "data-buildings": "Tran Household (House)"
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "1",
+        "data-buildings": "Haynes Cottage (House)"
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "1",
+        "data-buildings": "Le Household (House)"
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "1",
+        "data-buildings": "Page Residence (House)"
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "1",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "1",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "1",
+        "data-buildings": "Carlson Household (House)"
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "1",
+        "data-buildings": "Lawson Cottage (House)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "1",
+        "data-buildings": "Burch Household (House)"
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "1",
+        "data-buildings": "Mcconnell Cottage (House),King Household (House)"
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "1",
+        "data-buildings": "Hammond Lodge (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "2",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "2",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "2",
+        "data-buildings": "Kenneth's Hideout,Landry Lodge (House)"
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "2",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "2",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "2",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "2",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "2",
+        "data-buildings": "House Household (House)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "2",
+        "data-buildings": "Larsen's Residence"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "2",
+        "data-buildings": "Sunken Bunker"
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "2",
+        "data-buildings": "Campos Residence (House)"
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "2",
+        "data-buildings": "Petersen Residence (House),Burgess Cottage (House)"
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "2",
+        "data-buildings": "Elliott Mansion (Mansion)"
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "2",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "2",
+        "data-buildings": "Massey Cottage (House)"
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "2",
+        "data-buildings": "Barnes Lodge (House)"
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "2",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "2",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "2",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "2",
+        "data-buildings": "Le Residence (House),Pitts Residence (House)"
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "2",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "2",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "2",
+        "data-buildings": "Hester Household (House),Spencer Household (House)"
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "2",
+        "data-buildings": "Wilkins Residence (House),Terrell Lodge (House)"
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "2",
+        "data-buildings": "Fleming Cottage (House),Garner Household (House)"
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "2",
+        "data-buildings": "Terry Residence (House)"
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "2",
+        "data-buildings": "Travis Household (House)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "2",
+        "data-buildings": "Noble Lodge (House),Walter Household (House)"
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "2",
+        "data-buildings": "Alston Household (House)"
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "2",
+        "data-buildings": "Brock Household (House),Mathis Cottage (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "3",
+        "data-buildings": "Owens Residence (House)"
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "3",
+        "data-buildings": "Whitley Household (House)"
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "3",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "3",
+        "data-buildings": "Lopez Lodge (House)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "3",
+        "data-buildings": "Holloway Household (House)"
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "3",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "3",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "3",
+        "data-buildings": "Burke Residence (House)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "3",
+        "data-buildings": "Gilbert Lodge (House),Ryan Residence (House)"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "3",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "3",
+        "data-buildings": "Rose Lodge (House)"
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "3",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "3",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "3",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "3",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "3",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "3",
+        "data-buildings": "Green Residence (House)"
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "3",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "3",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "3",
+        "data-buildings": "Stevenson Cottage (House)"
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "3",
+        "data-buildings": "Griffin Cottage (House)"
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "3",
+        "data-buildings": "Sawyer Lodge (House),Wan Household (House)"
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "3",
+        "data-buildings": "Riddle Residence (House)"
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "3",
+        "data-buildings": "Kane Residence (House)"
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "3",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "3",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "3",
+        "data-buildings": "Rosario Residence (House)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "3",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "3",
+        "data-buildings": "Hood Lodge (House)"
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "3",
+        "data-buildings": "Rivas Household (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "4",
+        "data-buildings": "Mccarthy Cottage (House)"
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "4",
+        "data-buildings": "Patrick Residence (House)"
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "4",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "4",
+        "data-buildings": "Nelson and Co Associates (Office),Santiago Residence (House),Oakman Shipping GmbH (Industrial)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "4",
+        "data-buildings": "Spamcom Network LLC (Office),Silent Dusk Motel (Hotel),Haney Cottage (House),Giles Residence (House),Rich Residence (House),Rosales and Co Advocacy (Office),Kirk Cottage (House)"
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "4",
+        "data-buildings": "Nailmill Lumber Inc (Industrial),Jolie's Inn (Restaurant),Elyse's Store (Shop),Nailfix Oil Corp (Industrial),Brakegrip Machinary Inc (Industrial),Shine Field Complex (Apartment),Sunset Lake Village (Apartment)"
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "4",
+        "data-buildings": "Stockfit Sorting Office Corp (Industrial),Frederick's Dish (Restaurant),Ellie's Market (Shop),Quickfit Factory Plc (Industrial),Atlasstone Machinary Ltd (Industrial),Tempblade Supplies Plc (Office),Fishify Direct LLC (Office)"
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "4",
+        "data-buildings": "Hines Household (House),Atlasfix Shipping LLC (Industrial),Gold Cloud Hotel and Spa (Hotel),Diego's Bar (Restaurant),Valora's Kitchen (Restaurant)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "4",
+        "data-buildings": "Nikita's Shop (Shop),The Duke's Lantern (Restaurant),Warm Stop Inn (Hotel)"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "4",
+        "data-buildings": "Oliver's Watering Hole (Restaurant),Wendelin's Deli (Shop),Emilio's Diner (Restaurant),Gerald's Deli (Shop),Robin's Eatery (Restaurant),Aiden's Bar (Restaurant),Crown Court Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "4",
+        "data-buildings": "Garrison's Outlet (Shop),Regina's Table (Restaurant),Angelica's Bar (Restaurant),Myra's Bar and Grill (Restaurant),The King's Table (Restaurant),Spining Network Ltd (Office),Higgins Lodge (House)"
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "4",
+        "data-buildings": "Sandoval Household (House),Atlasweld Rubber LLC (Industrial),Albandale Park Police Department (Police),The Lion's Fork (Restaurant),Carson's Store (Shop)"
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "4",
+        "data-buildings": "Combs Household (House),Jensen Household (House),Overwood Care Center (Hospital),Murphy's Shop (Shop),The Round Arms (Restaurant)"
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "4",
+        "data-buildings": "Nailweld Mechanics LLC (Industrial),Zach's Market (Shop),Justus's Shop (Shop),Hammer Mechanics Inc (Industrial),Bear Freight LLC (Industrial),Brass Wall Heights (Apartment),Sleepy Stop Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "4",
+        "data-buildings": "Madden Cottage (House),Ramsey Household (House),Overwood Police Department (Police),Reid's Coffee House (Restaurant),The Fisherman's Tankard (Restaurant)"
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "4",
+        "data-buildings": "Archnet Express LLC (Office),Mcgee Lodge (House),Bay Lake Gardens (Apartment),Raccoonman Office Space LLC (Office),Randy's Market (Shop),Zane's Bar (Restaurant),Shine Place Complex (Apartment)"
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "4",
+        "data-buildings": "Byers Residence (House),Freddy's Outlet (Shop),Wesley's Emporium (Shop),Star Space Complex (Apartment),Doyle and Sons Partners (Office)"
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "4",
+        "data-buildings": "Oakstone Factory Inc (Industrial),Ryan and Co Associates (Office),Verna's Outlet (Shop),Bianca's Shop (Shop),Roy and Son Partners (Office)"
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "4",
+        "data-buildings": "Morse Household (House),Eli's Inn (Restaurant),Greg's Inn (Restaurant),Bright Space Complex (Apartment),Sleepy Dusk Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "4",
+        "data-buildings": "Moore Lodge (House),Glenn's Market (Shop),Shay's Outlet (Shop),Star Wall Apartments (Apartment),Sleepy Dawn Motel (Hotel)"
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "4",
+        "data-buildings": "Sparkle View Heights (Apartment),Warm Dawn Inn (Hotel),Sanchez Household (House),Wallace Lodge (House),Jordan Household (House),Hinton and Sons Accountancy (Office),Green Household (House)"
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "4",
+        "data-buildings": "Greywood Star Hotel,Park View Villas (Apartment),Greywood Field Units (Apartment),Journey Dawn Inn (Hotel),Calhoun Residence (House),Point Ridge Village (Apartment),Sweet Block Apartments (Apartment)"
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "4",
+        "data-buildings": "Richmond Lodge (House),Phillip's Store (Shop),Mason's Store (Shop),Sweet Field Apartments (Apartment),Harrison Cantrell Attorneys (Office)"
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "4",
+        "data-buildings": "Screw Storage LLC (Industrial),Ebony Court Hotel (Hotel),The High Mead (Restaurant),Omar's Diner (Restaurant),Arkbyte Direct Inc (Office)"
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "4",
+        "data-buildings": "Stockman Storage Corp (Industrial),Hana's Watering Hole (Restaurant),The High Head (Restaurant),Vang Cottage (House),Acosta Cottage (House),Bruce Residence (House),Journey Stop Inn (Hotel)"
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "4",
+        "data-buildings": "Crown Pillar Hotel (Hotel),Rosalind's Table (Restaurant),Damien's Cafe (Restaurant),Shine Block Apartments (Apartment),Silver Lake Square (Apartment),Ark Express Inc (Office),Lerwillbury Police Department (Police)"
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "4",
+        "data-buildings": "Bearfit Oil LLC (Industrial),Stockweld Machinary LLC (Industrial),Brightdale Technology LLC (Office),Vianne's Pub (Restaurant),Gloria's Table (Restaurant)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "4",
+        "data-buildings": "Tyler Household (House)"
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "4",
+        "data-buildings": "Gallegos Residence (House)"
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "4",
+        "data-buildings": "Guthrie Lodge (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "5",
+        "data-buildings": "Bell Household (House)"
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "5",
+        "data-buildings": "Nielsen Residence (House),Rush Residence (House)"
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "5",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "5",
+        "data-buildings": "Ginny's Store (Shop),Jayden's Diner (Restaurant),Edmund's Emporium (Shop),Joseph's Dish (Restaurant),Byron's Grill (Restaurant),Zoomify Media GmbH (Office),Matthews Household (House)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "5",
+        "data-buildings": "Wande's Deli (Shop),Daniel's Market (Shop),Shawn's Store (Shop),Layla's Tavern (Restaurant),Olina's Outlet (Shop)"
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "5",
+        "data-buildings": "Evans Household (House),Marshall's Table (Restaurant),Dylan's Market (Shop),Gracie's Eatery (Restaurant),Phil's Outlet (Shop)"
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "5",
+        "data-buildings": "Lightnet Supplies LLC (Office),Mckee Lodge (House),The Hunter's Inn (Restaurant),Jenna's Market (Shop),Sanchez Davenport Consultancy (Office)"
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "5",
+        "data-buildings": "Hayes Cottage (House),Eve's Bar and Grill (Restaurant),Leonard Household (House),Sage's Coffee House (Restaurant),Moonlight Sunset Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "5",
+        "data-buildings": "Contreras Household (House),Brianna's Dish (Restaurant),Collin's Coffee House (Restaurant),Kevin's Watering Hole (Restaurant),Vienna's Dish (Restaurant),Grand Petal Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "5",
+        "data-buildings": "Ransacked Shop,Edgar's Inn (Restaurant),Bobby's Emporium (Shop),Keegan's Tavern (Restaurant),Gearstone Factory Corp (Industrial),Todd's Shop (Shop)"
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "5",
+        "data-buildings": "The Royal Pitcher (Restaurant),Louis's Cafe (Restaurant),Nola's Outlet (Shop),Irina's Bar (Restaurant),The Sportman's Seat (Restaurant),Frederick's Shop (Shop),Walling Solutions GmbH (Office)"
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "5",
+        "data-buildings": "Ferrell Cottage (House),The Fisherman's Ale (Restaurant),The Sportman's Lantern (Restaurant),The Sportman's Fork (Restaurant),The Wanderer's Fork (Restaurant),Compton Household (House)"
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "5",
+        "data-buildings": "Home Court Square (Apartment),Park Drive Villas (Apartment),Wiley Cottage (House),Delila's Market (Shop),Layla's Deli (Shop),Obrien Soto Accountancy (Office)"
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "5",
+        "data-buildings": "Brakestone Warehouse LLC (Industrial),Iris's Deli (Shop),Anthony's Donuts (Restaurant),Gearmill Oil Inc (Industrial),Boarmill Freight Ltd (Industrial),Stockscape Supplies Inc (Office),Sparkle Block Apartments (Apartment)"
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "5",
+        "data-buildings": "Preston Residence (House),Braden Residence (House),Autumn Gate Hotel and Spa (Hotel),The Royal Ale (Restaurant),The Duke's Inn (Restaurant)"
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "5",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "5",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "5",
+        "data-buildings": "Olsen Lodge (House)"
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "5",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "5",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "5",
+        "data-buildings": "Gear Machinary GmbH (Industrial),The Lord's Table (Restaurant),The Sailor's Goblet (Restaurant),Boarfix Machines GmbH (Industrial),Nailco Steel LLC (Industrial),Point View Gardens (Apartment),Star Dawn Motel (Hotel)"
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "5",
+        "data-buildings": "Dustin's Table (Restaurant),Alexander's Watering Hole (Restaurant),Yates Lodge (House),Nita's Table (Restaurant),Sleepy Dusk Motel (Hotel),Armify Mail Corp (Office),Sea Space Complex (Apartment)"
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "5",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "5",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "5",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "5",
+        "data-buildings": "Mark's Shop (Shop),The Explorer's Plate (Restaurant),Raccooncom Supplies Corp (Office)"
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "5",
+        "data-buildings": "Sharon's Grill (Restaurant),The King's Plate (Restaurant),Deleon Household (House),Kristina's Watering Hole (Restaurant),Lerwillbury Wall Units (Apartment),Sea View Units (Apartment),Bear Payments Corp (Office)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "5",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "5",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "5",
+        "data-buildings": "Nixon Household (House),Shields Residence (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "6",
+        "data-buildings": "Russo Residence (House)"
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "6",
+        "data-buildings": "Mcintyre Residence (House)"
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "6",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "6",
+        "data-buildings": "Ravenwall Heights Emergency Unit (Hospital),Stanley's Inn (Restaurant),Reese's Eatery (Restaurant),Ravenwall Heights Field Heights (Apartment),Park Ridge Gardens (Apartment),Travel Dreams Inn (Hotel),Ravenwall Heights Medical Center (Hospital)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "6",
+        "data-buildings": "Ravenwall Heights Community Hospital,Simon Cottage (House),Nicolette's Watering Hole (Restaurant),Charles's Grill (Restaurant),Farrah's Market (Shop),Ray's Deli (Shop)"
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "6",
+        "data-buildings": "Burch Household (House),Ilsa's Tavern (Restaurant),Georgette's Dish (Restaurant),Matt's Outlet (Shop),Irma's Outlet (Shop)"
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "6",
+        "data-buildings": "Whitaker Lodge (House),Deana's Donuts (Restaurant),Rose Household (House),Harry's Bar (Restaurant),Road Dreams Inn (Hotel)"
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "6",
+        "data-buildings": "Hendrix Residence (House)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "6",
+        "data-buildings": "Shaw Residence (House),Matt's Table (Restaurant),Bailey Residence (House),Robin's Bar (Restaurant),Star Comfort Motel (Hotel)"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "6",
+        "data-buildings": "Mason Residence,Cosy Stop Motel (Hotel),Silent Dreams Hotel (Hotel),Austin's Diner (Restaurant),Hilary's Store (Shop),Ivy Leaf Hotel and Spa (Hotel)"
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "6",
+        "data-buildings": "Zoomco Realty Ltd (Office),Bearify Realty Corp (Office),Road Comfort Inn (Hotel),Wheeler Household (House),Stockmill Freight Corp (Industrial)"
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "6",
+        "data-buildings": "Health Haven Private Clinic,Desiree's Bar and Grill (Restaurant),Jake's Table (Restaurant),Trey's Inn (Restaurant),Filipa's Emporium (Shop),Wyatt's Grill (Restaurant),Rebekah's Shop (Shop)"
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "6",
+        "data-buildings": "Evan's Bar (Restaurant),Christopher's Outlet (Shop),Moses's Bar and Grill (Restaurant),Gabe's Emporium (Shop),Nala's Inn (Restaurant),Bearbit Express GmbH (Office),Thomas Residence (House)"
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "6",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "6",
+        "data-buildings": "The Explorer's Dish (Restaurant),Gareth's Coffee House (Restaurant),Lara Residence (House),Howie's Table (Restaurant),Warm Sleeper Motel (Hotel),Meadow Ridge Villas (Apartment),Star Block Complex (Apartment)"
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "6",
+        "data-buildings": "Bearweld Steel Plc (Industrial),Welch Household (House),Michaela's Market (Shop),Ruben's Deli (Shop),Sweet Space Apartments (Apartment)"
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "6",
+        "data-buildings": "Bush Household (House)"
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "6",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "6",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "6",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "6",
+        "data-buildings": "Weber Cottage (House),Bryant's Dish (Restaurant),Shaffer Household (House),Sawgrip Rubber Plc (Industrial),Oak Warehouse Inc (Industrial)"
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "6",
+        "data-buildings": "Oprah's Emporium (Shop),Oliana's Dish (Restaurant),Sparkle View Units (Apartment)"
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "6",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "6",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "6",
+        "data-buildings": "Sweet Dawn Hotel (Hotel),Terry Lodge (House),Saw Warehouse Inc (Industrial)"
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "6",
+        "data-buildings": "Comer and Son Inc,Moonlight Dusk Motel (Hotel),Travel Nights Hotel (Hotel),Banks Residence (House),Boarman Machinary Corp (Industrial)"
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "6",
+        "data-buildings": "Cosy Dusk Motel (Hotel),Cosy Dusk Inn (Hotel),Alvarado Residence (House),Mclean Household (House),Norton Lodge (House),Hall Floyd Law (Office),Zimmerman Residence (House)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "6",
+        "data-buildings": "Mullen Residence (House)"
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "6",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "6",
+        "data-buildings": "Randall Household (House),Mccoy Household (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "7",
+        "data-buildings": "Goodman Lodge (House)"
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "7",
+        "data-buildings": "Mcgee Lodge (House),Suarez Lodge (House)"
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "7",
+        "data-buildings": "Booth Household (House),Morrow Lodge (House)"
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "7",
+        "data-buildings": "Nash Cottage (House),Oakfix Shipping Corp (Industrial),Dallbow Care Hospital (Hospital),Alex's Eatery (Restaurant),The Sailor's Goblet (Restaurant)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "7",
+        "data-buildings": "Elliott's Burger (Restaurant),Joyce's Market (Shop),The Round Catch (Restaurant),The Queen's Fork (Restaurant),The Duke's Tankard (Restaurant),Greta's Deli (Shop),Warm Sunset Motel (Hotel)"
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "7",
+        "data-buildings": "Larry's Deli (Shop),Kaydee's Deli (Shop),Kelly's Pub (Restaurant),Stockman Rubber Corp (Industrial),The Baron's Catch (Restaurant),The Explorer's Seat (Restaurant)"
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "7",
+        "data-buildings": "The High Bowl (Restaurant),The Huntsman's Lantern (Restaurant),Armnet Realty Ltd (Office)"
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "7",
+        "data-buildings": "Bates Lodge (House)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "7",
+        "data-buildings": "Coopertown Psychiatric Center (Hospital),Delila's Market (Shop),Kirsten's Shop (Shop),Ridge Field Apartments (Apartment),Starbyte Solutions Ltd (Office),Oak View Apartments (Apartment),Autumn View Hotel and Spa (Hotel)"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "7",
+        "data-buildings": "Danny's Tavern (Restaurant),Parker's Grill (Restaurant),Noreen's Bar (Restaurant),Sawco Sorting Office Ltd (Industrial),The Huntsman's Ale (Restaurant),The Explorer's Seat (Restaurant)"
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "7",
+        "data-buildings": "Hyde Household (House),Nailmend Steel GmbH (Industrial),Screwfit Plant Inc (Industrial)"
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "7",
+        "data-buildings": "Whitney Household (House),Douglas's Bar and Grill (Restaurant),Wiggins Residence (House),Stockmill Warehouse LLC (Industrial),Strongfix Sorting Office Inc (Industrial)"
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "7",
+        "data-buildings": "Mclaughlin Cottage (House),Raul's Donuts (Restaurant),Nelson Lodge (House),Mae's Tavern (Restaurant),Star Sunset Motel (Hotel)"
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "7",
+        "data-buildings": "Bruce Lodge (House)"
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "7",
+        "data-buildings": "Howe Household (House),Bear Rubber LLC (Industrial),Richbow Hunt Emergency Center (Hospital),The Round Tankard (Restaurant),Leonardo's Table (Restaurant)"
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "7",
+        "data-buildings": "J S Industrial,Joan's Market (Shop),Grace's Cafe (Restaurant),Alexander's Outlet (Shop),Alan's Donuts (Restaurant),Agatha's Emporium (Shop)"
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "7",
+        "data-buildings": "Travel Cabin Motel (Hotel),Bellton Supplies LLC (Office),Paige's Coffee House (Restaurant),Kyla's Donuts (Restaurant),Sweet Cabin Motel (Hotel)"
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "7",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "7",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "7",
+        "data-buildings": "Hollie's Shop (Shop),Sergio's Emporium (Shop),Shine View Units (Apartment),Jayden's Outlet (Shop),Nicholai's Grill (Restaurant),Ivan's Diner (Restaurant)"
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "7",
+        "data-buildings": "Torrance Household,Bulkton Mail LLC (Office),Warm Dawn Motel (Hotel),Bright Income GmbH (Office),Brakeweld Plant LLC (Industrial)"
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "7",
+        "data-buildings": "Stockweld Oil Inc (Industrial),Brakehead Sorting Office Inc (Industrial),Spinman Realty Plc (Office),Edward's Store (Shop),The Stallion's Dish (Restaurant)"
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "7",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "7",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "7",
+        "data-buildings": "Silver Oak Hotel and Spa (Hotel),Ella's Market (Shop),Remy's Pub (Restaurant),Breeze Field Complex (Apartment),Settled Ridge Gardens (Apartment),Sky View Apartments (Apartment),Archbrook Psychiatric Hospital (Hospital)"
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "7",
+        "data-buildings": "Mayo Residence (House),Norris Cottage (House),Archbrook Medical Hospital (Hospital),The Queen's Fork (Restaurant),Gigi's Emporium (Shop)"
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "7",
+        "data-buildings": "Archbrook Emergency Hospital (Hospital),Maxwell's Bar (Restaurant),Liliana's Shop (Shop),Light Block Apartments (Apartment),Star Comfort Inn (Hotel),Sweet Dreams Inn (Hotel),Archbrook Care Hospital (Hospital)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "7",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "7",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "7",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "8",
+        "data-buildings": "Gates Cottage (House),Jackson Household (House)"
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "8",
+        "data-buildings": "Chambers Residence (House)"
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "8",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "8",
+        "data-buildings": "Hawkins Household (House),Walden's Grill (Restaurant),Roth Residence (House),Nailmill Oil LLC (Industrial),Atlasgrip Storage Ltd (Industrial)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "8",
+        "data-buildings": "Playstop,Velazquez Residence (House),The Lion's Tavern (Restaurant),Holden's Emporium (Shop),Mikayla's Outlet (Shop),Poole Residence (House)"
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "8",
+        "data-buildings": "Kennedy Cottage (House),Courtney's Pub (Restaurant),Zimmerman Cottage (House),Bill's Table (Restaurant),Rhodes Cottage (House),Martin's Table (Restaurant),Boyd Residence (House),Oliver's Burger (Restaurant)"
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "8",
+        "data-buildings": "Shaun's Coffee House (Restaurant),Julie's Donuts (Restaurant),Edward's Outlet (Shop),The Knight's Ale (Restaurant),Octavia's Store (Shop),Evelyn's Cafe (Restaurant),Wallnet Media Plc (Office)"
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "8",
+        "data-buildings": "Dickson Household (House),Nikko's Diner (Restaurant),Sutton Residence (House),Sylvia's Inn (Restaurant),Lightify Office Space Ltd (Office)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "8",
+        "data-buildings": "Burgess Residence (House),Sierra's Shop (Shop),Fredrik's Bar (Restaurant),Nita's Store (Shop),The Explorer's Table (Restaurant),Mathis Cottage (House)"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "8",
+        "data-buildings": "Morrison Residence (House),Ronald's Table (Restaurant),Austin's Outlet (Shop),Harold's Outlet (Shop),Gilbert's Watering Hole (Restaurant),Coopertown Care Unit (Hospital)"
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "8",
+        "data-buildings": "Earl's Emporium (Shop),Veronica's Pub (Restaurant),Breeze View Heights (Apartment),Remy's Cafe (Restaurant),Evelyn's Kitchen (Restaurant),Austin's Dish (Restaurant)"
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "8",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "8",
+        "data-buildings": "Garner Household (House),Jessica's Eatery (Restaurant),Peck Cottage (House),Fran's Pub (Restaurant),Sleepy Dreams Motel (Hotel)"
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "8",
+        "data-buildings": "Travel Nights Motel (Hotel),Morrow Residence (House),Zoombyte Payments Inc (Office),Star Sleeper Motel (Hotel),Neil's Market (Shop),Tessa's Shop (Shop),Brass Block Units (Apartment)"
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "8",
+        "data-buildings": "Road Dreams Hotel (Hotel),Moonlight Dreams Motel (Hotel),Raccoonblade Office Space Inc (Office),Mclean Residence (House),Jackman Factory Corp (Industrial)"
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "8",
+        "data-buildings": "Sapphire Serenity,Miranda's Deli (Shop),Helen's Outlet (Shop),Barbara's Deli (Shop),Maximilian's Outlet (Shop),Hope's Shop (Shop),Illias's Diner (Restaurant)"
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "8",
+        "data-buildings": "Richbow Hunt Memorial Hospital (Hospital),Helene's Emporium (Shop),Freddy's Coffee House (Restaurant),Bright Place Apartments (Apartment),Archify Mail Inc (Office),Sleepy Sunset Hotel (Hotel),Gold Court Hotel and Spa (Hotel)"
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "8",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "8",
+        "data-buildings": "Molina Residence (House)"
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "8",
+        "data-buildings": "Talia's Grill (Restaurant),Hazel's Emporium (Shop),Willis Residence (House),Thomas's Tavern (Restaurant),Mountain Lake Apartments (Apartment),Gold Ridge Apartments (Apartment),Fishblade Technology GmbH (Office)"
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "8",
+        "data-buildings": "Nolan Cottage (House),Rose Residence (House),Moran Lodge (House)"
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "8",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "8",
+        "data-buildings": "Adrian's Bar (Restaurant),Layla's Cafe (Restaurant),Shine Place Apartments (Apartment),Abbey's Diner (Restaurant),Francisco's Dish (Restaurant),Frederica's Store (Shop)"
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "8",
+        "data-buildings": "York Household (House),Gear Mechanics LLC (Industrial),Duntsville Police Department (Police),Gloria's Bar (Restaurant),Manel's Tavern (Restaurant)"
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "8",
+        "data-buildings": "The Knight's Inn (Restaurant),Madeline's Store (Shop),Sparkle Space Apartments (Apartment)"
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "8",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "8",
+        "data-buildings": "Hammerweld Storage Corp (Industrial),The Queen's Seat (Restaurant),Romeo's Market (Shop),Kent Residence (House),Frederick Residence (House),Dorsey Cottage (House),Sounding Payments GmbH (Office)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "8",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "8",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "8",
+        "data-buildings": "Cantu Lodge (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "9",
+        "data-buildings": "Fuller Residence (House)"
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "9",
+        "data-buildings": "Dailey Residence"
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "9",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "9",
+        "data-buildings": "Dallbow Police Department,Road Dreams Inn (Hotel),Silent Dreams Inn (Hotel),Sky Field Heights (Apartment),Brass Block Heights (Apartment),Harvey Cottage (House)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "9",
+        "data-buildings": "Copper View Apartments (Apartment),Pleasant Court Apartments (Apartment),Ingram Household (House),The King's Mead (Restaurant),Mark's Deli (Shop),Ivy Leaf Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "9",
+        "data-buildings": "The High Bowl (Restaurant),The Wanderer's Arms (Restaurant),The Stallion's Inn (Restaurant),Tyson's Shop (Shop),Percy's Grill (Restaurant),Julia's Emporium (Shop),Guthrie and Sons Accountancy (Office)"
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "9",
+        "data-buildings": "Ramsey Lodge (House),Oakco Shipping Inc (Industrial),Zeusfit Sorting Office Inc (Industrial)"
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "9",
+        "data-buildings": "Mcpherson Household (House),Darlene's Watering Hole (Restaurant),Sherman Household (House),Jonathan's Shop (Shop),Christina's Emporium (Shop),Breeze Place Complex (Apartment)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "9",
+        "data-buildings": "Copper Martini,Kyra's Coffee House (Restaurant),Vincent's Cafe (Restaurant),Federico's Outlet (Shop),Brakehead Rubber Inc (Industrial),Lisa's Emporium (Shop)"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "9",
+        "data-buildings": "Silver View Apartments (Apartment),Warm Cabin Hotel (Hotel),Sweet Dreams Hotel (Hotel),Meadow Ridge Square (Apartment)"
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "9",
+        "data-buildings": "Whitfield Lodge (House)"
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "9",
+        "data-buildings": "Lightton Office Space Inc (Office),Bellnet Mail LLC (Office),The Explorer's Pitcher (Restaurant),Kobe's Deli (Shop),Bright Field Apartments (Apartment)"
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "9",
+        "data-buildings": "Juliana's Outlet (Shop),Veronica's Deli (Shop),Paul Household (House),Esteban's Bar and Grill (Restaurant),Travel Cabin Hotel (Hotel),Free Data Processing Plc (Office),Sounddale Solutions GmbH (Office)"
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "9",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "9",
+        "data-buildings": "Rodriquez Residence (House),Sawhead Machinary Ltd (Industrial),Richbow Hunt Police Department (Police),The Lord's Ale (Restaurant),The Huntsman's Seat (Restaurant)"
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "9",
+        "data-buildings": "Palehaven City's Archives,The Queen's Plate (Restaurant),Anastasia's Store (Shop),The Stallion's Bowl (Restaurant),Edgar's Bar and Grill (Restaurant),The Hunter's Table (Restaurant),Roger's Table (Restaurant)"
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "9",
+        "data-buildings": "Sunset View Village (Apartment),Pleasant Court Apartments (Apartment),Braden Lodge (House),Glenda's Market (Shop),The Fisherman's Pitcher (Restaurant),Jade Cloud Hotel and Spa (Hotel)"
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "9",
+        "data-buildings": "Breeze Wall Apartments (Apartment),Santana Household (House),Sleepy Cabin Inn (Hotel),Freebit Solutions Ltd (Office),Carrie's Emporium (Shop),Manel's Deli (Shop),Bright Place Heights (Apartment)"
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "9",
+        "data-buildings": "Weber Residence (House),Cote Residence (House),Duntsville Psychiatric Hospital (Hospital),The Duke's Goblet (Restaurant),Laurel's Store (Shop)"
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "9",
+        "data-buildings": "Screwco Mechanics Plc (Industrial),Kathryn's Bar and Grill (Restaurant),Haley's Store (Shop),Bearfix Factory Ltd (Industrial),Zeusfit Sorting Office GmbH (Industrial),Warm Sleeper Motel (Hotel),Travel Dreams Motel (Hotel)"
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "9",
+        "data-buildings": "Levine Cottage (House)"
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "9",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "9",
+        "data-buildings": "Saffron Cloud Hotel (Hotel),Bryson's Emporium (Shop),Niki's Donuts (Restaurant),Stone View Heights (Apartment),Road Nights Motel (Hotel),Silver View Square (Apartment),Royal Palace Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "9",
+        "data-buildings": "Drowned Mine,Keenan's Market (Shop),Lily's Diner (Restaurant),Taylor's Watering Hole (Restaurant),Stock Plant GmbH (Industrial),The Sportman's Fork (Restaurant)"
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "9",
+        "data-buildings": "Archbrook Emergency Unit (Hospital),Gillian's Grill (Restaurant),Belle's Store (Shop),Star Block Apartments (Apartment),Star Wall Apartments (Apartment),Copper Wall Complex (Apartment),Archbrook Police Department (Police)"
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "9",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "9",
+        "data-buildings": "Frostman Express Plc (Office),Briggs Nichols Advocacy (Office),Gold Cloud Hotel and Spa (Hotel)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "9",
+        "data-buildings": "Black Household (House),Mcknight Household (House)"
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "9",
+        "data-buildings": "Nix Mansion"
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "9",
+        "data-buildings": "Cunningham Residence (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "10",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "10",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "10",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "10",
+        "data-buildings": "Gray Cottage (House),Walter's Cafe (Restaurant),Gutierrez Household (House),Hugh's Donuts (Restaurant),Guerrero and Sons Advocacy (Office)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "10",
+        "data-buildings": "Donovan Cottage (House),Peyton's Grill (Restaurant),Josh's Pub (Restaurant),Edward's Burger (Restaurant),Olena's Shop (Shop)"
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "10",
+        "data-buildings": "Starblade Mail LLC (Office),Fishing Data Processing GmbH (Office),Graves Household (House),The Duke's Mead (Restaurant),Michael's Watering Hole (Restaurant),Royal Oak Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "10",
+        "data-buildings": "Welcoming Retreat Apartments,Autumn View Square (Apartment),Dyer Lodge (House),Wilmer's Bar (Restaurant),Hal's Watering Hole (Restaurant),Petty and Son Consultancy (Office)"
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "10",
+        "data-buildings": "Chase Residence (House),Ann's Cafe (Restaurant),Garrison's Market (Shop),Matthew's Deli (Shop),Hazel's Shop (Shop),Ivory View Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "10",
+        "data-buildings": "Stockstone Oil Corp (Industrial),Hickman Lodge (House),Russel's Store (Shop),Ivy's Deli (Shop),Sea Space Complex (Apartment)"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "10",
+        "data-buildings": "Chandler Cottage (House)"
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "10",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "10",
+        "data-buildings": "Niki's Store (Shop),Vincent's Outlet (Shop),Zeusgrip Plant Ltd (Industrial),Jackman Machinary Plc (Industrial),Carpenter Household (House)"
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "10",
+        "data-buildings": "Dead End Shop,Wes's Store (Shop),Rebekah's Eatery (Restaurant),Boarstone Oil Inc (Industrial),The Wanderer's Goblet (Restaurant),The Duke's Fork (Restaurant)"
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "10",
+        "data-buildings": "Roy's Dish (Restaurant),Tabitha's Donuts (Restaurant),Brook's Bar (Restaurant),Ramona's Watering Hole (Restaurant),The Wanderer's Bowl (Restaurant),Torres and Sons Partners (Office),Monroe Cottage (House)"
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "10",
+        "data-buildings": "Wade's Store (Shop),Harmony's Watering Hole (Restaurant),Stephenson Residence (House),Wanda's Bar (Restaurant),Sweet View Apartments (Apartment),Journey Sleeper Inn (Hotel),Breeze Space Apartments (Apartment)"
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "10",
+        "data-buildings": "Brooks Household (House),Jonah's Burger (Restaurant),Wilkerson Residence (House),Arthur's Eatery (Restaurant),Daniela's Bar and Grill (Restaurant),Sky Field Apartments (Apartment)"
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "10",
+        "data-buildings": "Brass Wall Apartments (Apartment),Journey Nights Motel (Hotel),Franco Cottage (House),Larson Lodge (House),Rhodes Residence (House),Moonlight Cabin Inn (Hotel),Fuentes Household (House)"
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "10",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "10",
+        "data-buildings": "Emanuel's Shop (Shop),Emmanuel's Grill (Restaurant),Sweet Wall Complex (Apartment),Noelle's Outlet (Shop),Cindy's Dish (Restaurant),Nelson's Cafe (Restaurant)"
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "10",
+        "data-buildings": "Oakweld Sorting Office Ltd (Industrial),The Sportman's Catch (Restaurant),Aiden's Shop (Shop),Beargrip Factory Corp (Industrial),Jackstone Factory Ltd (Industrial),Sky View Heights (Apartment),Tempgreen Express Ltd (Office)"
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "10",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "10",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "10",
+        "data-buildings": "Grant's Market (Shop),Bea's Shop (Shop),Sky Wall Units (Apartment)"
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "10",
+        "data-buildings": "Shepard Cottage (House),Santiago's Pub (Restaurant),Savannah's Outlet (Shop),The King's Fork (Restaurant),Skylar's Table (Restaurant),Tyson Residence (House)"
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "10",
+        "data-buildings": "The Wanderer's Arms (Restaurant),Ilyssa's Donuts (Restaurant),The Explorer's Arms (Restaurant),Christian's Emporium (Shop)"
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "10",
+        "data-buildings": "Roach Cottage (House)"
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "10",
+        "data-buildings": "Gavin's Market (Shop),Filipa's Grill (Restaurant),Sparkle Wall Complex (Apartment),Princess Court Hotel and Spa (Hotel),Stockhead Sorting Office LLC (Industrial),Atkinson Residence (House),Gil's Coffee House (Restaurant)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "10",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "10",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "10",
+        "data-buildings": "Griffin Household (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "11",
+        "data-buildings": "Dunlap Household (House)"
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "11",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "11",
+        "data-buildings": "Nielsen Residence (House)"
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "11",
+        "data-buildings": "Gates Household (House),Fabiola's Donuts (Restaurant),Tucker Household (House),Brakegrip Lumber Plc (Industrial),Nailman Steel LLC (Industrial)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "11",
+        "data-buildings": "Aguilar Residence (House),David's Bar and Grill (Restaurant),Carroll Cottage (House),Leo's Grill (Restaurant),Lancaster Household (House),Bradley's Inn (Restaurant),Hester Lodge (House),Katrina's Tavern (Restaurant)"
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "11",
+        "data-buildings": "Sears Cottage (House),The Lion's Head (Restaurant),The Fisherman's Lantern (Restaurant),The Sportman's Ale (Restaurant),Cindy's Bar (Restaurant),Zacarias Household (House)"
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "11",
+        "data-buildings": "Delicate Jewelers,Travel Cabin Inn (Hotel),Mountain Lake Village (Apartment),Weaver Household (House),The Royal Tavern (Restaurant),Ebony Palace Hotel and Spa (Hotel)"
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "11",
+        "data-buildings": "Rosanne's Market (Shop),Fiona's Shop (Shop),Sky Place Units (Apartment),Alexander's Kitchen (Restaurant),Autumn's Store (Shop),Mckenzie's Deli (Shop)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "11",
+        "data-buildings": "Mcgee Household (House),Barry Lodge (House)"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "11",
+        "data-buildings": "Castro Cottage (House),Castaneda Residence (House)"
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "11",
+        "data-buildings": "Franks Household (House)"
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "11",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "11",
+        "data-buildings": "Screwco Machinary GmbH (Industrial),Bethany's Deli (Shop),The Sportman's Table (Restaurant),Gearman Lumber Corp (Industrial),Gear Machinary LLC (Industrial),Journey Sunset Hotel (Hotel),Frostgreen Devices GmbH (Office)"
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "11",
+        "data-buildings": "Hailey's Kitchen (Restaurant),Jackson's Eatery (Restaurant),Sage's Deli (Shop),The Fisherman's Fork (Restaurant),Leonardo's Store (Shop),Vaughn and Co Advocacy (Office),Strickland Residence (House)"
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "11",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "11",
+        "data-buildings": "The Duke's Catch (Restaurant),Linda's Store (Shop),Cara's Diner (Restaurant),Eugene's Table (Restaurant)"
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "11",
+        "data-buildings": "Palehaven's Bureau Of Investigation,Sanchez Household (House),Maurice's Pub (Restaurant),Nolan's Pub (Restaurant),Alec's Deli (Shop),Elisha's Coffee House (Restaurant)"
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "11",
+        "data-buildings": "Brakefix Machinary GmbH (Industrial),Nailmend Plant Inc (Industrial),Star Wall Heights (Apartment),Olga's Kitchen (Restaurant),Nikko's Table (Restaurant)"
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "11",
+        "data-buildings": "Russo Residence (House)"
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "11",
+        "data-buildings": "Journey Sunset Hotel (Hotel),Taylor Household (House),Calm Ridge Gardens (Apartment),Sky Space Apartments (Apartment),Kayla's Diner (Restaurant),Donald's Watering Hole (Restaurant),Sky Space Complex (Apartment)"
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "11",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "11",
+        "data-buildings": "Alejandro's Bar and Grill (Restaurant),Paloma's Emporium (Shop),Breeze View Complex (Apartment),Preston's Market (Shop),John's Inn (Restaurant),Carter's Outlet (Shop)"
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "11",
+        "data-buildings": "Dented Ridge Apartments,Brass Space Complex (Apartment),Guerra Household (House),Marshall's Bar (Restaurant),The High Catch (Restaurant),Royal Court Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "11",
+        "data-buildings": "Billy's Bar (Restaurant),Daphne's Store (Shop),Fannie's Shop (Shop),Greta's Shop (Shop)"
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "11",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "11",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "11",
+        "data-buildings": "Moonlight Comfort Motel (Hotel),Warm Stop Inn (Hotel),Silver View Apartments (Apartment)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "11",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "11",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "11",
+        "data-buildings": "Carrillo Household (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "12",
+        "data-buildings": "Pruitt Residence (House)"
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "12",
+        "data-buildings": "Ellis Residence (House)"
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "12",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "12",
+        "data-buildings": "Willie's Dish (Restaurant),Mitchell's Shop (Shop),Ercan's Deli (Shop),Verna's Deli (Shop),Lamar's Emporium (Shop),Cosy Sleeper Hotel (Hotel),Church Household (House)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "12",
+        "data-buildings": "Alvarado Household (House),Lamar's Watering Hole (Restaurant),Tran Household (House),Wendelin's Dish (Restaurant),Crosby Household (House),Olly's Donuts (Restaurant),Buchanan Residence (House),Aidan's Cafe (Restaurant)"
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "12",
+        "data-buildings": "Brady Lodge (House),Marshall's Diner (Restaurant),Ferrell Residence (House),Simone's Tavern (Restaurant),Shields Residence (House),Jayden's Grill (Restaurant),Clarke Cottage (House),Clara's Grill (Restaurant)"
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "12",
+        "data-buildings": "Cain Lodge (House),Strongco Storage Inc (Industrial),Princess State Hotel and Spa (Hotel),The Wanderer's Table (Restaurant),Haley's Emporium (Shop)"
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "12",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "12",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "12",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "12",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "12",
+        "data-buildings": "Guthrie Household (House)"
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "12",
+        "data-buildings": "Burch Household (House),Garrison's Bar (Restaurant),Barr Residence (House),Josie's Tavern (Restaurant),Madden Albert Advocacy (Office)"
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "12",
+        "data-buildings": "Richbow Hunt Care Unit (Hospital),Remy's Emporium (Shop),Irina's Tavern (Restaurant),Sweet Wall Complex (Apartment),Silent Dusk Inn (Hotel),Sky Field Heights (Apartment),Grand View Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "12",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "12",
+        "data-buildings": "Goodman Household (House)"
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "12",
+        "data-buildings": "Richbow Hunt Medical Center (Hospital),Josh's Market (Shop),Trinity's Emporium (Shop),Sparkle Place Apartments (Apartment),Sparkle Field Heights (Apartment),Gold Drive Gardens (Apartment),Richbow Hunt Psychiatric Hospital (Hospital)"
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "12",
+        "data-buildings": "Mohamdi Residence (House),Tyrone's Table (Restaurant),Debra's Donuts (Restaurant),Brianna's Cafe (Restaurant),Evelyn's Shop (Shop),Greer Household (House)"
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "12",
+        "data-buildings": "Bradley Household (House),Randy's Coffee House (Restaurant),Patterson Cottage (House),Atlasweld Storage Inc (Industrial),Boarweld Sorting Office Corp (Industrial)"
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "12",
+        "data-buildings": "Ramirez Household (House),Olinda's Dish (Restaurant),Rhodes Household (House),Oakco Freight Corp (Industrial),Bearmend Oil Inc (Industrial)"
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "12",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "12",
+        "data-buildings": "Simon Lodge (House),Conner Residence (House),Stout Household (House)"
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "12",
+        "data-buildings": "Light Wall Complex (Apartment),Bright Field Apartments (Apartment),Gabrielle's Donuts (Restaurant),Jeff's Market (Shop),Walltech Media Corp (Office)"
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "12",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "12",
+        "data-buildings": "Palmer Household (House)"
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "12",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "12",
+        "data-buildings": "The Hunter's Inn (Restaurant),Jane's Cafe (Restaurant),Soundman Management Inc (Office),Silent Nights Inn (Hotel),Sleepy Cabin Inn (Hotel),Bearblade Income LLC (Office),Jackhead Storage Corp (Industrial),Atlasfix Sorting Office LLC (Industrial)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "12",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "12",
+        "data-buildings": "Russell Residence (House)"
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "12",
+        "data-buildings": "Villarreal Lodge (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "13",
+        "data-buildings": "Marks Residence (House)"
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "13",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "13",
+        "data-buildings": "Knight Cottage (House)"
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "13",
+        "data-buildings": "Torres Household (House),Caitlin's Kitchen (Restaurant),Irwin Household (House),Nailhead Oil Ltd (Industrial),Sawfix Machines GmbH (Industrial)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "13",
+        "data-buildings": "Mole's Lane,Star Sleeper Motel (Hotel),Mercer Residence (House),Lola's Deli (Shop),Miguel's Eatery (Restaurant),Amber Palace Hotel and Spa (Hotel)"
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "13",
+        "data-buildings": "Toni's Market (Shop),Carlos's Burger (Restaurant),Michelle's Market (Shop),Ferris's Bar (Restaurant),The High Lantern (Restaurant),The Queen's Seat (Restaurant),Sweet Dreams Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "13",
+        "data-buildings": "Dawnhill Commons,Journey Nights Inn (Hotel),Delacruz Lodge (House),The Sailor's Tankard (Restaurant),The Hunter's Lantern (Restaurant),Bay View Apartments (Apartment)"
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "13",
+        "data-buildings": "Dawnhill Emergency Center (Hospital),Cooper's Kitchen (Restaurant),Sophie's Store (Shop),Copper Field Apartments (Apartment),Sleepy Stop Hotel (Hotel),Travel Cabin Motel (Hotel),Grand Cloud Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "13",
+        "data-buildings": "Hunter Lodge (House),Ross's Eatery (Restaurant),Robles Lodge (House),David's Dish (Restaurant),Sheppard and Son Consultancy (Office)"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "13",
+        "data-buildings": "Bolton Hodges Consultants (Office),Snow Cottage (House)"
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "13",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "13",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "13",
+        "data-buildings": "Orr Household (House),Oprah's Dish (Restaurant),Middleton Lodge (House),Samuel's Watering Hole (Restaurant),Levine and Sons Consultants (Office)"
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "13",
+        "data-buildings": "Council's Temporary HQ,Debra's Dish (Restaurant),Vianne's Cafe (Restaurant),Niles's Emporium (Shop),The Lord's Tankard (Restaurant),Cory's Burger (Restaurant)"
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "13",
+        "data-buildings": "Haverbrook Psychiatric Unit (Hospital),Malcolm's Deli (Shop),Josephine's Emporium (Shop),Star Wall Apartments (Apartment),Journey Dawn Motel (Hotel),Light View Units (Apartment),Silver Court Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "13",
+        "data-buildings": "The Wanderer's Seat (Restaurant),Todd's Tavern (Restaurant),Sweet Dusk Motel (Hotel)"
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "13",
+        "data-buildings": "Rowland Cottage (House),Charles's Pub (Restaurant),Whitney's Kitchen (Restaurant),Talia's Pub (Restaurant),Russel's Emporium (Shop),Exalted Court Hotel and Spa (Hotel)"
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "13",
+        "data-buildings": "Olina's Burger (Restaurant),Heath's Diner (Restaurant),Fabiola's Bar and Grill (Restaurant),Jackman Oil Ltd (Industrial),The Lion's Ale (Restaurant),Ginny's Outlet (Shop)"
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "13",
+        "data-buildings": "Bart's Mysteries n Trinkets,Pleasant Dale Apartments (Apartment),Silver Lake Apartments (Apartment),Cook Cottage (House),Victor's Store (Shop),Home Ridge Apartments (Apartment)"
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "13",
+        "data-buildings": "South Moorhurst Psychiatric Center (Hospital),Perry's Market (Shop),Russel's Pub (Restaurant),Copper Wall Heights (Apartment),Ridge Place Complex (Apartment),Pleasant Lake Village (Apartment),South Moorhurst Care Hospital (Hospital)"
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "13",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "13",
+        "data-buildings": "Cleveland Lodge (House),Sharp Household (House)"
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "13",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "13",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "13",
+        "data-buildings": "Moses Household (House)"
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "13",
+        "data-buildings": "Kinney Cottage (House)"
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "13",
+        "data-buildings": "Bearmend Storage Plc (Industrial),Paxton's Coffee House (Restaurant),The Wanderer's Seat (Restaurant),Pennington Lodge (House),Estrada Household (House),Mccall Household (House),Herman and Son Consultants (Office)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "13",
+        "data-buildings": "Benjamin Household (House),Townsend Lodge (House)"
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "13",
+        "data-buildings": "Rich Residence (House),Orr Household (House)"
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "13",
+        "data-buildings": "Hart Household (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "14",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "14",
+        "data-buildings": "Donaldson Cottage (House)"
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "14",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "14",
+        "data-buildings": "Felicity's Outlet (Shop),The Sailor's Bowl (Restaurant),Stockman Express Ltd (Office)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "14",
+        "data-buildings": "Dunn Residence (House),Brakeweld Oil Ltd (Industrial),Oakmill Sorting Office Corp (Industrial)"
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "14",
+        "data-buildings": "Marsh Lodge (House),Bill's Tavern (Restaurant),Mathis Lodge (House),Isabelle's Watering Hole (Restaurant),Brianna's Market (Shop),Brass Block Complex (Apartment)"
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "14",
+        "data-buildings": "Star Comfort Inn (Hotel),Sweet Dusk Inn (Hotel),Mendoza Cottage (House),The Round Dish (Restaurant),Collin's Deli (Shop),Renaissance State Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "14",
+        "data-buildings": "Moses Household (House),Ramona's Coffee House (Restaurant),Curtis Residence (House),Lea's Tavern (Restaurant),Warren Cottage (House),Remy's Grill (Restaurant),Melton Lodge (House),Shaw's Cafe (Restaurant)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "14",
+        "data-buildings": "Hinton Household (House),The Hunter's Fork (Restaurant),The Knight's Table (Restaurant),The Round Bowl (Restaurant),Matija's Kitchen (Restaurant),Diaz Household (House)"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "14",
+        "data-buildings": "Atlasman Lumber LLC (Industrial),The Explorer's Inn (Restaurant),Bobby's Inn (Restaurant),Screwhead Rubber Plc (Industrial),Jackfit Machines Inc (Industrial),Point Court Square (Apartment),Brass View Apartments (Apartment)"
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "14",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "14",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "14",
+        "data-buildings": "The Queen's Mead (Restaurant),Frank's Market (Shop),Workman Lodge (House),Deanna's Watering Hole (Restaurant),Sweet Block Apartments (Apartment),Sunny Ridge Villas (Apartment),Warm Dawn Motel (Hotel)"
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "14",
+        "data-buildings": "Collins Household (House),Stefan's Burger (Restaurant),Lorenzo's Pub (Restaurant),Damien's Bar and Grill (Restaurant),Willow's Eatery (Restaurant),Exalted Petal Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "14",
+        "data-buildings": "Simon's Donuts (Restaurant),Reagan's Coffee House (Restaurant),Kate's Outlet (Shop),Brian's Burger (Restaurant),Cameron's Bar and Grill (Restaurant),Hank's Bar and Grill (Restaurant),Haverbrook Medical Hospital (Hospital)"
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "14",
+        "data-buildings": "Creaky Corpse Ltd,Arkblade Solutions GmbH (Office),Freeton Realty Inc (Office),Kerr Lodge (House),Gearhead Steel Inc (Industrial)"
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "14",
+        "data-buildings": "Edison's Diner (Restaurant),Ramona's Outlet (Shop),Ann's Shop (Shop),Portia's Emporium (Shop),Faith's Market (Shop),Yusef's Outlet (Shop),Saffron Hall Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "14",
+        "data-buildings": "Aliyah's Emporium (Shop),Alisha's Market (Shop),Miranda's Watering Hole (Restaurant),Zeusmill Shipping Inc (Industrial),The Queen's Goblet (Restaurant),Faithe's Outlet (Shop)"
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "14",
+        "data-buildings": "Montoya Household (House),Oakweld Warehouse Plc (Industrial),Atlas Oil GmbH (Industrial)"
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "14",
+        "data-buildings": "Strongfit Mechanics Ltd (Industrial),The Fisherman's Inn (Restaurant),The Duke's Mead (Restaurant),Atlasstone Rubber GmbH (Industrial),Oakmill Oil GmbH (Industrial),Spambyte Direct Plc (Office),Warm Comfort Motel (Hotel)"
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "14",
+        "data-buildings": "Rhodes Residence (House)"
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "14",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "14",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "14",
+        "data-buildings": "Pate Household (House)"
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "14",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "14",
+        "data-buildings": "Kelly Residence (House),Peck Household (House)"
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "14",
+        "data-buildings": "Ophelia's Inn (Restaurant),Frederick's Diner (Restaurant),Shine View Apartments (Apartment),Autumn Pillar Hotel (Hotel),Sawfit Sorting Office Corp (Industrial),Chan Residence (House),Gisela's Eatery (Restaurant)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "14",
+        "data-buildings": "Ewing Household (House),Mcmahon Household (House)"
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "14",
+        "data-buildings": "Ross Cottage (House)"
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "14",
+        "data-buildings": "Lancaster Residence (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "15",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "15",
+        "data-buildings": "Jacobs Manor (Mansion)"
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "15",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "15",
+        "data-buildings": "Ivory Palace Hotel (Hotel),Freecom Network Inc (Office),Sweet Sunset Motel (Hotel),Aguilar and Son Law (Office)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "15",
+        "data-buildings": "Walltech Realty GmbH (Office),Zoomblade Supplies LLC (Office),Huffman Lodge (House),Crawford Residence (House),Maddox Household (House),Journey Sleeper Hotel (Hotel),Chen Residence (House)"
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "15",
+        "data-buildings": "Isabelle's Deli (Shop),The King's Mead (Restaurant),Silent Stop Motel (Hotel)"
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "15",
+        "data-buildings": "Danny's Tavern (Restaurant),Daniel's Market (Shop),Moonlight Dawn Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "15",
+        "data-buildings": "Snow Residence (House),Atlasweld Machines LLC (Industrial),Crown View Hotel and Spa (Hotel),Sean's Deli (Shop),Eliana's Market (Shop)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "15",
+        "data-buildings": "Sadie's Emporium (Shop),Charles's Table (Restaurant),Shine Field Apartments (Apartment)"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "15",
+        "data-buildings": "Salas Residence (House),Church Lodge (House),Majestic Hall Hotel and Spa (Hotel),The Knight's Inn (Restaurant),The Round Fork (Restaurant)"
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "15",
+        "data-buildings": "Dawnhill Psychiatric Unit (Hospital),Raccoonscape Realty GmbH (Office),Star Dawn Hotel (Hotel),Spamtech Mail GmbH (Office),Frostcom Media Corp (Office)"
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "15",
+        "data-buildings": "Palmer Residence (House),Zoomblade Direct LLC (Office),Raccoonify Data Processing LLC (Office),Caldwell Lodge (House),Home View Apartments (Apartment),Sleepy Dawn Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "15",
+        "data-buildings": "Nita's Burger (Restaurant),Paloma's Bar (Restaurant),Justus's Market (Shop),Martin's Store (Shop),Derrick's Grill (Restaurant),Bearman Express Ltd (Office),Copeland Household (House)"
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "15",
+        "data-buildings": "Haverbrook Memorial Hospital,Point Court Village (Apartment),Haverbrook Emergency Hospital (Hospital),Garcia Residence (House),Nancy's Bar (Restaurant)"
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "15",
+        "data-buildings": "Valora's Bar and Grill (Restaurant),Francis's Market (Shop),Oscar's Table (Restaurant),Hammerweld Machinary LLC (Industrial),Kenny's Emporium (Shop),Carson's Market (Shop)"
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "15",
+        "data-buildings": "The King's Catch (Restaurant),Pearle's Pub (Restaurant),Turner Lodge (House),Helene's Grill (Restaurant),Star Dusk Motel (Hotel),Sunny Ridge Apartments (Apartment),Road Dreams Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "15",
+        "data-buildings": "Foster Household (House),Hammerfit Sorting Office Ltd (Industrial),Haverbrook Medical Unit (Hospital),Frankie's Emporium (Shop),The High Arms (Restaurant)"
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "15",
+        "data-buildings": "Lester Cottage (House),Lea's Cafe (Restaurant),Mcknight Household (House),Jean's Bar and Grill (Restaurant),Archton Management Inc (Office)"
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "15",
+        "data-buildings": "Mullen Lodge (House),Ralph's Kitchen (Restaurant),Curtis Lodge (House),Bearstone Machines Inc (Industrial),Screwfix Sorting Office Ltd (Industrial)"
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "15",
+        "data-buildings": "Castro Household (House),Nunez Residence (House),South Moorhurst Police Department (Police),Raul's Inn (Restaurant),The Royal Tavern (Restaurant)"
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "15",
+        "data-buildings": "Frostbyte Solutions Inc (Office),Everett Household (House),Placid Drive Square (Apartment),Light Wall Apartments (Apartment),Martha's Shop (Shop),Brittany's Outlet (Shop),Sea Place Complex (Apartment)"
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "15",
+        "data-buildings": "Bulknet Income LLC (Office),Travel Stop Motel (Hotel),Crown Tower Hotel (Hotel)"
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "15",
+        "data-buildings": "Anisha's Shop (Shop),Greta's Deli (Shop),Shine View Apartments (Apartment),Soundnet Office Space LLC (Office),Sunset View Square (Apartment),Travel Dusk Motel (Hotel),Gearfix Lumber LLC (Industrial),Oakstone Sorting Office Inc (Industrial)"
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "15",
+        "data-buildings": "Sweet Wall Heights (Apartment),Potts and Son Attorneys (Office),Royal Rose Hotel and Spa (Hotel)"
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "15",
+        "data-buildings": "Arkco Mail Plc (Office),Weiss Lodge (House),Star Block Heights (Apartment),Gold Court Gardens (Apartment),Joel's Store (Shop),Duke's Store (Shop),Sea Block Apartments (Apartment)"
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "15",
+        "data-buildings": "Conor's Deli (Shop),Erica's Eatery (Restaurant),Duke Cottage (House),Nita's Inn (Restaurant),Meadow Court Gardens (Apartment),Journey Dusk Inn (Hotel),Armblade Express Ltd (Office)"
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "15",
+        "data-buildings": "Elisha's Deli (Shop),Niki's Emporium (Shop),The Sportman's Tankard (Restaurant),Hailey's Burger (Restaurant)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "15",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "15",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "15",
+        "data-buildings": "Dawson Household (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "16",
+        "data-buildings": "Vega Residence (House)"
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "16",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "16",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "16",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "16",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "16",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "16",
+        "data-buildings": "Hardy Residence (House)"
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "16",
+        "data-buildings": "Clarke Household (House)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "16",
+        "data-buildings": "Mayo Household (House)"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "16",
+        "data-buildings": "Joyner Residence (House)"
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "16",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "16",
+        "data-buildings": "Harrell Residence (House)"
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "16",
+        "data-buildings": "Warner Cottage (House)"
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "16",
+        "data-buildings": "Espinoza Household (House)"
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "16",
+        "data-buildings": "Spencer's Household,Peters Household (House)"
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "16",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "16",
+        "data-buildings": "Olsen Household (House)"
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "16",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "16",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "16",
+        "data-buildings": "Thornton Household (House)"
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "16",
+        "data-buildings": "Price Household (House)"
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "16",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "16",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "16",
+        "data-buildings": "Workman Household (House)"
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "16",
+        "data-buildings": "Williamson Household (House)"
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "16",
+        "data-buildings": "Secronom Labs"
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "16",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "16",
+        "data-buildings": "Hodge Lodge (House)"
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "16",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "16",
+        "data-buildings": "Howard Residence (House),Vaughan Household (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "17",
+        "data-buildings": "Terry Cottage (House)"
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "17",
+        "data-buildings": "Abandoned Mansion"
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "17",
+        "data-buildings": "Nelson Residence (House)"
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "17",
+        "data-buildings": "Hodges Cottage (House)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "17",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "17",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "17",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "17",
+        "data-buildings": "Norman Lodge (House)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "17",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "17",
+        "data-buildings": "Roth Residence (House),Mcleod Household (House)"
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "17",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "17",
+        "data-buildings": "Rivera's Hideout"
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "17",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "17",
+        "data-buildings": "Bradshaw Residence (House)"
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "17",
+        "data-buildings": "Sanders Household (House)"
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "17",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "17",
+        "data-buildings": "Young Lodge (House),Pennington Lodge (House)"
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "17",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "17",
+        "data-buildings": "Goodman Household (House),Sutton Lodge (House)"
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "17",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "17",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "17",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "17",
+        "data-buildings": "Mathews Residence (House),Short Residence (House)"
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "17",
+        "data-buildings": "Black Household (House)"
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "17",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "17",
+        "data-buildings": "Trujillo Household (House)"
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "17",
+        "data-buildings": "Bridges Household (House)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "17",
+        "data-buildings": "Puckett Residence (House)"
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "17",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "17",
+        "data-buildings": "Vargas Lodge (House)"
+    },
+    {
+        "data-xcoord": "1",
+        "data-ycoord": "18",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "2",
+        "data-ycoord": "18",
+        "data-buildings": "Chandler Residence (House)"
+    },
+    {
+        "data-xcoord": "3",
+        "data-ycoord": "18",
+        "data-buildings": "Eaton Residence (House)"
+    },
+    {
+        "data-xcoord": "4",
+        "data-ycoord": "18",
+        "data-buildings": "Mitchell Household (House)"
+    },
+    {
+        "data-xcoord": "5",
+        "data-ycoord": "18",
+        "data-buildings": "Mcpherson Residence (House)"
+    },
+    {
+        "data-xcoord": "6",
+        "data-ycoord": "18",
+        "data-buildings": "Gomez Household (House)"
+    },
+    {
+        "data-xcoord": "7",
+        "data-ycoord": "18",
+        "data-buildings": "Talley Cottage (House),Caldwell Household (House)"
+    },
+    {
+        "data-xcoord": "8",
+        "data-ycoord": "18",
+        "data-buildings": "Solis Household (House),Hill Lodge (House)"
+    },
+    {
+        "data-xcoord": "9",
+        "data-ycoord": "18",
+        "data-buildings": "Livingston Lodge (House)"
+    },
+    {
+        "data-xcoord": "10",
+        "data-ycoord": "18",
+        "data-buildings": ""
+    },
+    {
+        "data-xcoord": "11",
+        "data-ycoord": "18",
+        "data-buildings": "Rojas Cottage (House)"
+    },
+    {
+        "data-xcoord": "12",
+        "data-ycoord": "18",
+        "data-buildings": "Gallagher Household (House)"
+    },
+    {
+        "data-xcoord": "13",
+        "data-ycoord": "18",
+        "data-buildings": "Crosby Residence (House)"
+    },
+    {
+        "data-xcoord": "14",
+        "data-ycoord": "18",
+        "data-buildings": "Dixon Residence (House)"
+    },
+    {
+        "data-xcoord": "15",
+        "data-ycoord": "18",
+        "data-buildings": "Singleton Cottage (House)"
+    },
+    {
+        "data-xcoord": "16",
+        "data-ycoord": "18",
+        "data-buildings": "House Lodge (House)"
+    },
+    {
+        "data-xcoord": "17",
+        "data-ycoord": "18",
+        "data-buildings": "Hutchinson Residence (House),Hull Household (House)"
+    },
+    {
+        "data-xcoord": "18",
+        "data-ycoord": "18",
+        "data-buildings": "Woods Household (House),Lang Residence (House)"
+    },
+    {
+        "data-xcoord": "19",
+        "data-ycoord": "18",
+        "data-buildings": "Hooper Household (House)"
+    },
+    {
+        "data-xcoord": "20",
+        "data-ycoord": "18",
+        "data-buildings": "Andrews Lodge (House)"
+    },
+    {
+        "data-xcoord": "21",
+        "data-ycoord": "18",
+        "data-buildings": "Bowen Household (House)"
+    },
+    {
+        "data-xcoord": "22",
+        "data-ycoord": "18",
+        "data-buildings": "Thompson Cottage (House)"
+    },
+    {
+        "data-xcoord": "23",
+        "data-ycoord": "18",
+        "data-buildings": "Cobb Household (House)"
+    },
+    {
+        "data-xcoord": "24",
+        "data-ycoord": "18",
+        "data-buildings": "Hensley Lodge (House),William Household (House)"
+    },
+    {
+        "data-xcoord": "25",
+        "data-ycoord": "18",
+        "data-buildings": "Sheppard Lodge (House)"
+    },
+    {
+        "data-xcoord": "26",
+        "data-ycoord": "18",
+        "data-buildings": "Forbes Residence (House),Gardner Lodge (House)"
+    },
+    {
+        "data-xcoord": "27",
+        "data-ycoord": "18",
+        "data-buildings": "Gomez Cottage (House)"
+    },
+    {
+        "data-xcoord": "28",
+        "data-ycoord": "18",
+        "data-buildings": "Merrill Household (House)"
+    },
+    {
+        "data-xcoord": "29",
+        "data-ycoord": "18",
+        "data-buildings": "Fowler Household (House)"
+    },
+    {
+        "data-xcoord": "30",
+        "data-ycoord": "18",
+        "data-buildings": "Boone Residence (House),Byrd Cottage (House)"
+    }
+]

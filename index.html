@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dead Frontier 2 互動地圖 & Firebase 即時共享系統</title>
+  <title>Dead Frontier 2 互動地圖 & Firebase 即時共享 HUD 系統</title>
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD6iCrgLn-5yh4bE4zudbaZ-lbzt4m-37w",
@@ -23,104 +23,398 @@
     const db = getFirestore(app);
 
     window.db = db;
-    // ⚠️ 修改點 1: 確保與 Python 爬蟲上傳的集合名稱一致 ('task')
     window.COL_QUESTS = "task";
     window.COL_MAP = "map";
-    window.FirebaseTools = { collection, addDoc, updateDoc, doc, onSnapshot };
+    window.FirebaseTools = { collection, updateDoc, doc, onSnapshot };
     
-    initApp();
+    // 初始化應用程式
+    window.addEventListener('DOMContentLoaded', () => {
+      initApp();
+    });
   </script>
 
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "Segoe UI", Arial, sans-serif; color: #e0e0e0; min-height: 100vh; display: flex; flex-direction: column; padding: 20px; background: #121212; }
-    header { margin-bottom: 20px; text-align: center; }
-    header h1 { font-size: 2rem; color: #4caf50; }
-    .container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; width: 100%; }
-    
-    .sidebar { flex: 1; max-width: 380px; background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(8px); border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 12px; }
-    .sidebar h2 { font-size: 1.2rem; color: #ff9800; }
-    
-    .form-group { display: flex; flex-direction: column; gap: 6px; background: #1a1a1a; padding: 10px; border-radius: 6px; border: 1px solid #444; }
-    .form-group input { width: 100%; padding: 8px; background: #121212; border: 1px solid #555; border-radius: 4px; color: #fff; outline: none; font-size: 0.85rem; }
-    .form-group input:focus { border-color: #4caf50; }
-    .btn-add { background: #4caf50; color: #fff; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
-    .btn-add:hover { background: #45a049; }
-
-    .search-box { width: 100%; padding: 10px; background: #121212; border: 1px solid #444; border-radius: 4px; color: #fff; outline: none; }
-    .search-box:focus { border-color: #ff9800; }
-    
-    .quest-list { flex: 1; max-height: 320px; overflow-y: auto; padding-right: 5px; }
-    
-    .quest-card { background: #262626; padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #ff9800; transition: all 0.2s ease; }
-    .quest-card.active { background: #3a2e1b; border-left-color: #ff5722; }
-    .quest-card.near-route { border-left-color: #03a9f4; background: #1a2a3a; }
-    .quest-card h3 { font-size: 0.95rem; color: #fff; margin-bottom: 4px; cursor: pointer; }
-    .quest-meta { font-size: 0.8rem; color: #aaa; line-height: 1.4; margin-bottom: 8px; }
-    
-    .note-box { display: flex; gap: 5px; margin-top: 6px; }
-    .note-box input { flex: 1; padding: 5px; background: #121212; border: 1px solid #444; border-radius: 3px; color: #fff; font-size: 0.75rem; }
-    .note-box button { padding: 4px 8px; background: #ff9800; border: none; border-radius: 3px; color: #000; font-weight: bold; cursor: pointer; font-size: 0.75rem; }
-    .note-box button:hover { background: #e68900; }
-
-    .map-section { flex: 2; display: flex; flex-direction: column; gap: 15px; }
-    .map-wrapper { position: relative; background: #000; padding: 0; border: none; overflow: hidden; width: 960px; height: 576px; background-image: url('map_bg.jpg'); background-size: 960px 576px; background-position: top left; background-repeat: no-repeat; }
-    
-    .map-table { position: absolute; top: 0; left: 0; z-index: 2; border-collapse: collapse; border-spacing: 0; table-layout: fixed; width: 960px; height: 576px; }
-    .map-table td { width: 32px; height: 32px; min-width: 32px; max-width: 32px; min-height: 32px; max-height: 32px; padding: 0; margin: 0; border: 1px solid rgba(255, 255, 255, 0.15); background-color: transparent; cursor: pointer; font-size: 10px; text-align: center; color: #fff; font-weight: bold; }
-    .map-table td:nth-child(6n) { border-right: 2px solid rgba(255, 255, 255, 0.5); }
-    .map-table tr:nth-child(6n) td { border-bottom: 2px solid rgba(255, 255, 255, 0.5); }
-    .map-table td:hover { background-color: rgba(255, 255, 255, 0.2); }
-    
-    .map-svg-layer { position: absolute; top: 0; left: 0; width: 960px; height: 576px; z-index: 1; pointer-events: none; }
-
-    .map-table td.highlight { background-color: rgba(255, 0, 0, 0.5) !important; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6); }
-    .map-table td.quest-locked-highlight { background-color: rgba(255, 215, 0, 0.65) !important; box-shadow: inset 0 0 0 2px #fff !important; }
-    .map-table td.near-route-highlight { background-color: rgba(3, 169, 244, 0.45) !important; box-shadow: inset 0 0 0 1px #03a9f4 !important; }
-    
-    .map-table td.custom-line-start {
-      box-shadow: inset 0 0 0 3px #ffeb3b !important;
-      background-color: rgba(255, 235, 59, 0.3) !important;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    #info-panel { background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(8px); border: 1px solid #333; padding: 15px; border-radius: 8px; min-height: 90px; font-size: 0.9rem; line-height: 1.5; width: 960px; display: flex; flex-direction: column; gap: 8px; }
-    #info-panel strong { color: #ff9800; }
-    #info-panel ul { margin-top: 5px; padding-left: 20px; }
+    body {
+      background-color: #0f1012;
+      color: #d1d5db;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      padding: 20px;
+    }
+
+    header {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #f3f4f6;
+    }
+
+    .status-badge {
+      font-size: 0.85rem;
+      color: #4caf50;
+      background: #1a271d;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid #2e4a33;
+    }
+
+    /* === 左右分區主要佈局 === */
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 1800px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    @media (max-width: 1200px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 區塊容器 */
+    .panel-box {
+      background-color: #16181d;
+      border: 1px solid #282c34;
+      border-radius: 6px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .panel-title {
+      font-size: 1.1rem;
+      color: #e5e7eb;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* 控制面板 & 搜尋條 */
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
+      align-items: center;
+      background: #121316;
+      padding: 12px;
+      border-radius: 4px;
+      border: 1px solid #22262e;
+    }
+
+    input[type="text"] {
+      background-color: #0f1012;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: #58a6ff;
+    }
+
+    .search-box {
+      flex-grow: 1;
+      width: 100%;
+    }
+
+    /* === HUD 表格樣式 === */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid #21262d;
+      border-radius: 4px;
+      max-height: 700px;
+      overflow-y: auto;
+    }
+
+    .hud-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .hud-table th {
+      background-color: #121316;
+      color: #58a6ff;
+      font-weight: 600;
+      padding: 12px 10px;
+      border-bottom: 2px solid #30363d;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      transition: background-color 0.2s ease;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .hud-table th:hover {
+      background-color: #1c1f26;
+      color: #79c0ff;
+    }
+
+    .sort-icon {
+      display: inline-block;
+      margin-left: 4px;
+      font-size: 11px;
+      color: #484f58;
+      vertical-align: middle;
+    }
+
+    .hud-table th.asc .sort-icon::after {
+      content: "▲";
+      color: #a5d6ff;
+    }
+
+    .hud-table th.desc .sort-icon::after {
+      content: "▼";
+      color: #a5d6ff;
+    }
+
+    .hud-table th:not(.asc):not(.desc) .sort-icon::after {
+      content: "⇕";
+    }
+
+    .hud-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #21262d;
+      color: #c9d1d9;
+      vertical-align: middle;
+    }
+
+    /* 任務列可點擊樣式 */
+    .hud-table tbody tr {
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+
+    .hud-table tbody tr:nth-child(even) {
+      background-color: #181a20;
+    }
+
+    .hud-table tbody tr:nth-child(odd) {
+      background-color: #141519;
+    }
+
+    .hud-table tbody tr:hover {
+      background-color: #212631;
+    }
+
+    /* 被鎖定選擇的任務列 */
+    .hud-table tbody tr.row-locked {
+      outline: 1px solid #e91e63;
+      background-color: rgba(216, 27, 96, 0.15) !important;
+    }
+
+    .hud-table tr.near-route td {
+      background-color: rgba(3, 169, 244, 0.08);
+    }
+
+    .hud-table tr.completed td {
+      opacity: 0.6;
+      text-decoration: line-through;
+    }
+
+    .badge-near {
+      background: #0284c7;
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 4px;
+      border-radius: 3px;
+      margin-left: 4px;
+      text-decoration: none !important;
+      display: inline-block;
+    }
+
+    /* === 地圖區域樣式（已移除滑條 overflow: hidden） === */
+    .map-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .map-wrapper {
+      position: relative;
+      /* 30格 * 32px = 960px 寬，18格 * 32px = 576px 高 */
+      width: 960px;
+      height: 576px;
+      margin: 0 auto;
+      border: 1px solid #30363d;
+      overflow: hidden; /* 移除滑條，避免出現滾動條 */
+      max-width: 100%;
+      border-radius: 4px;
+      
+      background-image: url('./map_bg.jpg');
+      background-size: 100% 100%;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-color: #0d1117;
+    }
+
+    .map-svg-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 960px;
+      height: 576px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .map-table {
+      border-collapse: collapse;
+      user-select: none;
+      table-layout: fixed;
+      width: 960px;
+      height: 576px;
+    }
+
+    .map-table td {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      max-width: 32px;
+      min-height: 32px;
+      max-height: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background-color: rgba(13, 17, 23, 0.2); 
+      text-align: center;
+      font-size: 10px;
+      cursor: pointer;
+      position: relative;
+      transition: background-color 0.15s;
+    }
+
+    .map-table td:hover {
+      background-color: rgba(38, 44, 54, 0.6) !important;
+    }
+
+    .map-table td.highlight {
+      background-color: rgba(46, 125, 50, 0.7) !important;
+    }
+
+    .map-table td.near-route-highlight {
+      background-color: rgba(3, 169, 244, 0.45) !important;
+    }
+
+    .map-table td.quest-locked-highlight {
+      background-color: rgba(216, 27, 96, 0.75) !important;
+    }
+
+    .map-table td.custom-line-start {
+      outline: 2px solid #ffeb3b;
+      z-index: 5;
+    }
+
+    #info-panel {
+      background-color: #121316;
+      padding: 12px 16px;
+      border-radius: 4px;
+      border: 1px solid #21262d;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .btn-action {
+      background: #21262d;
+      color: #8b949e;
+      border: 1px solid #30363d;
+      padding: 3px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+      background: #30363d;
+      color: #f0f6fc;
+    }
+
+    .btn-action.active {
+      background: #238636;
+      color: #fff;
+      border-color: #2ea043;
+    }
+
+    .note-input-inline {
+      width: 100%;
+      max-width: 140px;
+      padding: 4px 6px;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>Dead Frontier 2 互動地圖 & Firebase 即時共享系統</h1>
+    <h1>Dead Frontier 2 互動地圖 & 即時 HUD 共享系統</h1>
+    <span id="sync-status" class="status-badge">(連線中...)</span>
   </header>
 
-  <div class="container">
-    <div class="sidebar">
-      <h2>📜 任務與即時同步 <span id="sync-status" style="font-size: 0.7rem; color: #4caf50;">(連線中...)</span></h2>
+  <div class="main-layout">
+    
+    <!-- 左側欄：HUD 任務表格 -->
+    <div class="panel-box">
+      <div class="panel-title">📜 Mission HUD Table</div>
 
-      <div class="form-group">
-        <span style="font-size: 0.85rem; color: #4caf50; font-weight: bold;">➕ 新增任務與備註</span>
-        <input type="text" id="new-city" placeholder="輸入城市 (例如: Dallbow)">
-        <input type="text" id="new-building" placeholder="輸入建築名稱 (例如: Haley Cottage)">
-        <input type="text" id="new-type" placeholder="輸入任務類型 (例如: Find Item)">
-        <input type="text" id="new-notes" placeholder="初始備註 (選填)">
-        <button class="btn-add" onclick="addNewQuest()">確認新增</button>
+      <div class="controls-row">
+        <input type="text" id="search" class="search-box" placeholder="🔍 搜尋建築、城市、任務類型或備註..." oninput="filterQuests()">
       </div>
 
-      <input type="text" id="search" class="search-box" placeholder="搜尋建築、城市、任務或備註..." oninput="filterQuests()">
-      <div id="quest-list" class="quest-list">載入中...</div>
+      <div class="table-responsive">
+        <table class="hud-table" id="missionTable">
+          <thead>
+            <tr>
+              <th onclick="sortTable(0)">Mission Building <span class="sort-icon"></span></th>
+              <th onclick="sortTable(1)">Mission City <span class="sort-icon"></span></th>
+              <th onclick="sortTable(2)">Mission Type <span class="sort-icon"></span></th>
+              <th onclick="sortTable(3)">Details / Notes <span class="sort-icon"></span></th>
+              <th onclick="sortTable(4)">Action / Status <span class="sort-icon"></span></th>
+            </tr>
+          </thead>
+          <tbody id="hudTableBody">
+            <tr>
+              <td colspan="5" style="text-align: center; color: #8b949e; padding: 20px;">載入任務資料中...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <div class="map-section">
+    <!-- 右側欄：互動地圖 (無滑條) -->
+    <div class="panel-box map-section">
+      <div class="panel-title">🗺️ 互動地圖繪製與鎖定</div>
+      
       <div class="map-wrapper">
         <svg id="map-svg" class="map-svg-layer"></svg>
         <table id="map-table" class="map-table"></table>
       </div>
+
       <div id="info-panel">
-        <div id="panel-msg">請點擊地圖格子以開始畫線 (按住 <b>Shift + 點擊上一個點</b> 可取消路線)...</div>
-        <div id="panel-details"></div>
+        <div id="panel-msg">點擊左側任務列可<b>鎖定地圖建築</b>；點擊地圖格子可開始畫線 (按住 <b>Shift + 點擊上一個點</b> 可取消路線)...</div>
+        <div id="panel-details" style="margin-top: 6px;"></div>
       </div>
     </div>
+
   </div>
 
   <script>
@@ -132,6 +426,9 @@
 
     let actionStartCoord = null; 
     let customLines = []; 
+
+    let currentSortColumn = -1;
+    let isAscending = true;
 
     function cleanBuildingName(name) {
       if (!name) return '';
@@ -214,7 +511,7 @@
           updateNearRouteCoords();
           updateMapHighlights();
           renderCustomLines();
-          renderQuests(globalQuestData);
+          renderHUDTable(globalQuestData);
           document.getElementById('panel-msg').innerHTML = `<span style="color: #4caf50; font-weight: bold;">✏️ 已新增路線，並自動標記周邊 2 格內有任務的建築！</span>`;
         }
       } else {
@@ -240,7 +537,7 @@
             updateNearRouteCoords();
             updateMapHighlights();
             renderCustomLines();
-            renderQuests(globalQuestData);
+            renderHUDTable(globalQuestData);
             document.getElementById('panel-msg').innerHTML = `<span style="color: #f44336; font-weight: bold;">🗑️ 已取消路線段並更新範圍</span>`;
           } else {
             actionStartCoord = { x, y };
@@ -251,7 +548,6 @@
       }
     }
 
-    // 尋找路線附近 2 格內，且「包含任務」的格子
     function updateNearRouteCoords() {
       nearRouteCoords.clear();
       if (customLines.length === 0) return;
@@ -270,7 +566,6 @@
         }
       });
 
-      // 建立現有任務建築的對照集合
       const questBuildingSet = new Set();
       globalQuestData.forEach(q => {
         if (q.building) questBuildingSet.add(cleanBuildingName(q.building));
@@ -287,7 +582,6 @@
           }
         }
         
-        // 必須同時符合「在路線 2 格內」且「該格子包含任務建築」
         if (isNear && node.buildings && node.buildings.some(b => questBuildingSet.has(cleanBuildingName(b)))) {
           nearRouteCoords.add(`${node.x},${node.y}`);
         }
@@ -344,7 +638,7 @@
 
       updateNearRouteCoords();
       updateMapHighlights();
-      renderQuests(globalQuestData);
+      renderHUDTable(globalQuestData);
     }
 
     function updateMapHighlights() {
@@ -362,7 +656,6 @@
         if (targetCell) targetCell.classList.add('highlight');
       });
 
-      // 渲染附近 2 格內且有任務的格子為淺藍色半透明
       nearRouteCoords.forEach(coordKey => {
         const [x, y] = coordKey.split(',');
         const targetCell = document.getElementById(`cell-${x}-${y}`);
@@ -405,7 +698,6 @@
         matchedQuests.forEach(q => {
           const status = q.active ? " (✅ 已完成)" : "";
           const noteText = q.notes ? ` | 📝 備註: <span style="color:#ff9800;">${q.notes}</span>` : "";
-          // ⚠️ 修改點 2: 相容 task_type 欄位
           const taskType = q.task_type || q.type || '任務';
           html += `<li><b>${taskType}</b> - 城市: <i>${q.city || '未知'}</i> (建築: ${q.building})${status}${noteText}</li>`;
         });
@@ -416,6 +708,7 @@
       detailsPanel.innerHTML = html;
     }
 
+    // 點擊任務列即可觸發/取消鎖定地圖建築
     function locateQuestByBuilding(targetBuildingName) {
       if (!targetBuildingName) return;
       const cleanTarget = cleanBuildingName(targetBuildingName);
@@ -424,31 +717,33 @@
         lockedBuildingsSet.delete(cleanTarget);
         updateMapHighlights();
         document.getElementById('panel-details').innerHTML = `已取消鎖定建築：${targetBuildingName}`;
-        return;
-      }
+      } else {
+        let matchedNodes = [];
+        globalRouteMapData.forEach(node => {
+          if (node.buildings && node.buildings.some(b => cleanBuildingName(b) === cleanTarget)) {
+            matchedNodes.push(node);
+          }
+        });
 
-      let matchedNodes = [];
-      globalRouteMapData.forEach(node => {
-        if (node.buildings && node.buildings.some(b => cleanBuildingName(b) === cleanTarget)) {
-          matchedNodes.push(node);
+        if (matchedNodes.length === 0) {
+          alert('地圖資料中找不到此建築名稱！');
+          return;
         }
-      });
 
-      if (matchedNodes.length === 0) {
-        alert('地圖資料中找不到此建築名稱！');
-        return;
+        lockedBuildingsSet.add(cleanTarget);
+
+        let infoHtml = `<strong>🎯 找到 ${matchedNodes.length} 個同名建築（地圖以粉紅高亮標記）：</strong><ul>`;
+        matchedNodes.forEach(node => {
+          infoHtml += `<li>座標: (${node.x}, ${node.y}) - 建築: ${node.buildings.join(', ')}</li>`;
+        });
+        infoHtml += `</ul>`;
+
+        document.getElementById('panel-details').innerHTML = infoHtml;
+        updateMapHighlights();
       }
 
-      lockedBuildingsSet.add(cleanTarget);
-
-      let infoHtml = `<strong>🎯 找到 ${matchedNodes.length} 個同名建築：</strong><ul>`;
-      matchedNodes.forEach(node => {
-        infoHtml += `<li>座標: (${node.x}, ${node.y}) - 建築: ${node.buildings.join(', ')}</li>`;
-      });
-      infoHtml += `</ul>`;
-
-      document.getElementById('panel-details').innerHTML = infoHtml;
-      updateMapHighlights();
+      // 更新表格列高亮狀態
+      renderHUDTable(globalQuestData);
     }
 
     function isQuestNearRoute(questBuilding) {
@@ -467,43 +762,99 @@
       return false;
     }
 
-    function renderQuests(quests) {
-      const questListContainer = document.getElementById('quest-list');
-      questListContainer.innerHTML = '';
+    // === 渲染 HUD 表格內容 (綁定整列點擊鎖定事件) ===
+    function renderHUDTable(quests) {
+      const tbody = document.getElementById('hudTableBody');
+      tbody.innerHTML = '';
+
       if (!quests || quests.length === 0) {
-        questListContainer.innerHTML = '<div style="color:#888;">目前沒有任務資料</div>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #888;">目前沒有任務資料</td></tr>';
         return;
       }
+
       quests.forEach(q => {
         const safeBuildingName = (q.building || '').replace(/'/g, "\\'");
+        const cleanName = cleanBuildingName(q.building);
         const isNear = isQuestNearRoute(q.building);
-
-        // ⚠️ 修改點 3: 相容 task_type 欄位
+        const isLocked = lockedBuildingsSet.has(cleanName);
         const taskType = q.task_type || q.type || '任務';
 
-        const card = document.createElement('div');
-        card.className = `quest-card ${q.active ? 'active' : ''} ${isNear ? 'near-route' : ''}`;
-        card.innerHTML = `
-          <h3 style="cursor: pointer; color: ${isNear ? '#03a9f4' : '#4caf50'};" onclick="locateQuestByBuilding('${safeBuildingName}')">
-            📌 ${taskType} ${isNear ? ' 🌟(路線周邊2格)' : ''} ${q.active ? '(v 已完成)' : ''}
-          </h3>
-          <div class="quest-meta">
-            🏢 建築: <b>${q.building}</b><br>
-            🏙️ 城市: ${q.city || '未知'}
-          </div>
-          <div class="note-box">
-            <input type="text" id="note-input-${q.id}" value="${q.notes || ''}" placeholder="輸入備註...">
-            <button onclick="saveNote('${q.id}')">儲存</button>
-          </div>
-          <div style="margin-top: 6px; display: flex; justify-content: space-between; align-items: center;">
-            <button style="background: #333; color: #ff9800; border: 1px solid #555; padding: 3px 8px; border-radius: 3px; cursor: pointer; font-size: 0.75rem;" onclick="toggleQuestActive('${q.id}', ${!q.active})">
-              ${q.active ? '↩️ 未完成' : '✅ 已完成'}
+        const tr = document.createElement('tr');
+        if (isNear) tr.classList.add('near-route');
+        if (q.active) tr.classList.add('completed');
+        if (isLocked) tr.classList.add('row-locked');
+
+        // 整列點擊時鎖定地圖
+        tr.addEventListener('click', (e) => {
+          // 如果點擊的是按鈕或輸入框，則不觸發整列鎖定
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+          locateQuestByBuilding(safeBuildingName);
+        });
+
+        tr.innerHTML = `
+          <td>
+            <strong style="color: #f0f6fc;">${q.building || '-'}</strong>
+            ${isNear ? '<span class="badge-near">🌟 2格內</span>' : ''}
+          </td>
+          <td>${q.city || '未知'}</td>
+          <td><span style="color: #e3b341; font-weight: 500;">${taskType}</span></td>
+          <td>
+            <div style="display: flex; gap: 4px; align-items: center;">
+              <input type="text" id="note-input-${q.id}" class="note-input-inline" value="${q.notes || ''}" placeholder="備註...">
+              <button class="btn-action" onclick="saveNote('${q.id}')">儲存</button>
+            </div>
+          </td>
+          <td>
+            <button class="btn-action ${q.active ? 'active' : ''}" onclick="toggleQuestActive('${q.id}', ${!q.active})">
+              ${q.active ? '✅ 已完成' : '⭕ 未完成'}
             </button>
-            <span style="font-size: 0.7rem; color: #ff9800; cursor: pointer;" onclick="locateQuestByBuilding('${safeBuildingName}')">📍 鎖定地圖</span>
-          </div>
+          </td>
         `;
-        questListContainer.appendChild(card);
+        tbody.appendChild(tr);
       });
+    }
+
+    function sortTable(columnIndex) {
+      const table = document.getElementById("missionTable");
+      const tbody = document.getElementById("hudTableBody");
+      const rows = Array.from(tbody.querySelectorAll("tr"));
+      const headers = table.querySelectorAll("th");
+
+      if (rows.length <= 1 && rows[0].children.length === 1) return;
+
+      if (currentSortColumn === columnIndex) {
+        isAscending = !isAscending;
+      } else {
+        currentSortColumn = columnIndex;
+        isAscending = true;
+      }
+
+      headers.forEach((header, index) => {
+        header.classList.remove("asc", "desc");
+        if (index === columnIndex) {
+          header.classList.add(isAscending ? "asc" : "desc");
+        }
+      });
+
+      rows.sort((a, b) => {
+        let cellA = "";
+        let cellB = "";
+
+        if (columnIndex === 3) { 
+          cellA = a.querySelector('input')?.value || "";
+          cellB = b.querySelector('input')?.value || "";
+        } else {
+          cellA = a.children[columnIndex]?.innerText.trim() || "";
+          cellB = b.children[columnIndex]?.innerText.trim() || "";
+        }
+
+        return isAscending 
+          ? cellA.localeCompare(cellB, undefined, { numeric: true, sensitivity: 'base' })
+          : cellB.localeCompare(cellA, undefined, { numeric: true, sensitivity: 'base' });
+      });
+
+      tbody.innerHTML = "";
+      rows.forEach(row => tbody.appendChild(row));
     }
 
     async function toggleQuestActive(docId, newState) {
@@ -523,20 +874,6 @@
       } catch (err) { console.error(err); }
     }
 
-    async function addNewQuest() {
-      const city = document.getElementById('new-city').value.trim();
-      const building = document.getElementById('new-building').value.trim();
-      const task_type = document.getElementById('new-type').value.trim();
-      const notes = document.getElementById('new-notes').value.trim();
-      if (!building || !task_type) { alert('請填寫建築與任務類型'); return; }
-      const { collection, addDoc } = window.FirebaseTools;
-      try {
-        // ⚠️ 修改點 4: 手動新增時同步寫入 task_type 欄位
-        await addDoc(collection(window.db, window.COL_QUESTS), { city, building, task_type, notes, active: false });
-        alert('新增成功！');
-      } catch (err) { console.error(err); }
-    }
-
     function filterQuests() {
       const query = document.getElementById('search').value.toLowerCase().trim();
       const filtered = globalQuestData.filter(q => 
@@ -545,7 +882,7 @@
         (q.task_type || q.type || '').toLowerCase().includes(query) || 
         (q.notes || '').toLowerCase().includes(query)
       );
-      renderQuests(filtered);
+      renderHUDTable(filtered);
     }
   </script>
 </body>
