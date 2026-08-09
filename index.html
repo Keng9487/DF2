@@ -240,7 +240,6 @@
       background-color: rgba(3, 169, 244, 0.08);
     }
 
-    /* === 已完成狀態樣式（僅降低透明度，完全取消刪除線） === */
     .hud-table tr.completed td {
       opacity: 0.6;
       text-decoration: none !important;
@@ -263,20 +262,21 @@
       gap: 12px;
     }
 
+    /* === 地圖與網格外觀樣式重置 (還原圖片風格) === */
     .map-wrapper {
       position: relative;
       width: 960px;
       height: 576px;
       margin: 0 auto;
-      border: 2px solid #30363d;
+      border: 1px solid #555;
       overflow: hidden;
       max-width: 100%;
-      border-radius: 4px;
+      border-radius: 2px;
       background-image: url('./map.jpg');
       background-size: 100% 100%;
       background-position: center;
       background-repeat: no-repeat;
-      background-color: #0d1117;
+      background-color: #111;
     }
 
     .map-svg-layer {
@@ -304,8 +304,8 @@
       max-width: 32px;
       min-height: 32px;
       max-height: 32px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background-color: rgba(13, 17, 23, 0.2); 
+      border: 1px solid rgba(255, 255, 255, 0.12); /* 一般細微微光格線 */
+      background-color: rgba(0, 0, 0, 0.1); 
       text-align: center;
       font-size: 10px;
       cursor: pointer;
@@ -313,20 +313,31 @@
       transition: background-color 0.15s;
     }
 
-    .map-table td:hover {
-      background-color: rgba(38, 44, 54, 0.6) !important;
+    /* 模擬圖片中的 6x6 大區域網格粗線 (第 6, 12, 18, 24 欄/列) */
+    .map-table td.grid-border-right {
+      border-right: 1.5px solid rgba(255, 255, 255, 0.7) !important;
     }
 
+    .map-table td.grid-border-bottom {
+      border-bottom: 1.5px solid rgba(255, 255, 255, 0.7) !important;
+    }
+
+    .map-table td:hover {
+      background-color: rgba(255, 255, 255, 0.25) !important;
+    }
+
+    /* 圖片風格綠色高亮 (任務/目標點) */
     .map-table td.highlight {
-      background-color: rgba(46, 125, 50, 0.7) !important;
+      background-color: rgba(0, 230, 118, 0.75) !important;
+    }
+
+    /* 圖片風格紅色高亮 (鎖定或特殊區域) */
+    .map-table td.quest-locked-highlight {
+      background-color: rgba(211, 47, 47, 0.8) !important;
     }
 
     .map-table td.near-route-highlight {
-      background-color: rgba(3, 169, 244, 0.45) !important;
-    }
-
-    .map-table td.quest-locked-highlight {
-      background-color: rgba(216, 27, 96, 0.75) !important;
+      background-color: rgba(3, 169, 244, 0.5) !important;
     }
 
     .map-table td.custom-line-start {
@@ -563,6 +574,10 @@
           const td = document.createElement('td');
           td.id = `cell-${x}-${y}`;
           const nodeData = nodeMap.get(`${x},${y}`);
+
+          // 每 6 格加上大網格分割粗線
+          if (x % 6 === 0 && x < 30) td.classList.add('grid-border-right');
+          if (y % 6 === 0 && y < 18) td.classList.add('grid-border-bottom');
 
           td.addEventListener('mouseenter', () => displayCoordInfo(nodeData));
           td.addEventListener('click', (e) => handleMapCellClick(x, y, e.shiftKey));
@@ -813,7 +828,7 @@
 
         lockedBuildingsSet.add(cleanTarget);
 
-        let infoHtml = `<strong>🎯 找到 ${matchedNodes.length} 個同名建築（地圖以粉紅高亮標記）：</strong><ul>`;
+        let infoHtml = `<strong>🎯 找到 ${matchedNodes.length} 個同名建築（地圖以深紅高亮標記）：</strong><ul>`;
         matchedNodes.forEach(node => {
           infoHtml += `<li>座標: (${node.x}, ${node.y}) - 建築: ${node.buildings.join(', ')}</li>`;
         });
