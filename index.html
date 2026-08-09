@@ -99,7 +99,6 @@
       gap: 8px;
     }
 
-    /* === 控制區塊與篩選器樣式 === */
     .controls-row {
       display: flex;
       flex-direction: column;
@@ -241,9 +240,10 @@
       background-color: rgba(3, 169, 244, 0.08);
     }
 
+    /* === 已完成狀態樣式（僅降低透明度，完全取消刪除線） === */
     .hud-table tr.completed td {
       opacity: 0.6;
-      text-decoration: line-through;
+      text-decoration: none !important;
     }
 
     .badge-near {
@@ -404,7 +404,6 @@
     <div class="panel-box">
       <div class="panel-title">📜 Mission HUD Table</div>
 
-      <!-- 控制列：關鍵字搜尋 + 多條件下拉選單篩選器 -->
       <div class="controls-row">
         <input type="text" id="search" class="search-box" placeholder="🔍 搜尋建築、城市、任務類型或備註..." oninput="filterQuests()">
         
@@ -524,7 +523,6 @@
       });
     }
 
-    // 自動更新篩選器的下拉選項內容
     function updateFilterOptions() {
       const citySelect = document.getElementById('filter-city');
       const typeSelect = document.getElementById('filter-type');
@@ -953,7 +951,6 @@
       } catch (err) { console.error(err); }
     }
 
-    // === 複合型多條件篩選函式 ===
     function filterQuests() {
       const query = document.getElementById('search').value.toLowerCase().trim();
       const cityFilter = document.getElementById('filter-city').value;
