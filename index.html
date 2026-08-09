@@ -262,7 +262,6 @@
       gap: 12px;
     }
 
-    /* === 地圖與網格外觀樣式重置 (還原圖片風格) === */
     .map-wrapper {
       position: relative;
       width: 960px;
@@ -304,7 +303,7 @@
       max-width: 32px;
       min-height: 32px;
       max-height: 32px;
-      border: 1px solid rgba(255, 255, 255, 0.12); /* 一般細微微光格線 */
+      border: 1px solid rgba(255, 255, 255, 0.12);
       background-color: rgba(0, 0, 0, 0.1); 
       text-align: center;
       font-size: 10px;
@@ -313,7 +312,6 @@
       transition: background-color 0.15s;
     }
 
-    /* 模擬圖片中的 6x6 大區域網格粗線 (第 6, 12, 18, 24 欄/列) */
     .map-table td.grid-border-right {
       border-right: 1.5px solid rgba(255, 255, 255, 0.7) !important;
     }
@@ -326,12 +324,12 @@
       background-color: rgba(255, 255, 255, 0.25) !important;
     }
 
-    /* 圖片風格綠色高亮 (任務/目標點) */
+    /* 綠色高亮 (任務/指定目標點) */
     .map-table td.highlight {
       background-color: rgba(0, 230, 118, 0.75) !important;
     }
 
-    /* 圖片風格紅色高亮 (鎖定或特殊區域) */
+    /* 紅色高亮 (鎖定或特殊區域) */
     .map-table td.quest-locked-highlight {
       background-color: rgba(211, 47, 47, 0.8) !important;
     }
@@ -489,6 +487,9 @@
     let lockedBuildingsSet = new Set(); 
     let nearRouteCoords = new Set(); 
 
+    // 新增指定的固定綠色高亮座標 (4,9), (14,15), (22,4)
+    const presetGreenCoords = new Set(["4,9", "14,15", "22,4"]);
+
     let actionStartCoord = null; 
     let customLines = []; 
 
@@ -575,7 +576,6 @@
           td.id = `cell-${x}-${y}`;
           const nodeData = nodeMap.get(`${x},${y}`);
 
-          // 每 6 格加上大網格分割粗線
           if (x % 6 === 0 && x < 30) td.classList.add('grid-border-right');
           if (y % 6 === 0 && y < 18) td.classList.add('grid-border-bottom');
 
@@ -747,12 +747,21 @@
         td.innerText = '';
       });
 
+      // 1. 渲染指定的固定綠色高亮 (4,9), (14,15), (22,4)
+      presetGreenCoords.forEach(coordKey => {
+        const [x, y] = coordKey.split(',');
+        const targetCell = document.getElementById(`cell-${x}-${y}`);
+        if (targetCell) targetCell.classList.add('highlight');
+      });
+
+      // 2. 渲染動態任務綠色高亮
       activeHighlightCoords.forEach(coordKey => {
         const [x, y] = coordKey.split(',');
         const targetCell = document.getElementById(`cell-${x}-${y}`);
         if (targetCell) targetCell.classList.add('highlight');
       });
 
+      // 3. 渲染路線周邊高亮
       nearRouteCoords.forEach(coordKey => {
         const [x, y] = coordKey.split(',');
         const targetCell = document.getElementById(`cell-${x}-${y}`);
@@ -761,6 +770,7 @@
         }
       });
 
+      // 4. 渲染鎖定建築高亮
       if (lockedBuildingsSet.size > 0) {
         globalRouteMapData.forEach(node => {
           if (node.buildings && node.buildings.some(b => cleanBuildingName(b) && lockedBuildingsSet.has(cleanBuildingName(b)))) {
@@ -770,6 +780,7 @@
         });
       }
 
+      // 5. 繪製線條起點高亮
       if (actionStartCoord) {
         const startCell = document.getElementById(`cell-${actionStartCoord.x}-${actionStartCoord.y}`);
         if (startCell) startCell.classList.add('custom-line-start');
