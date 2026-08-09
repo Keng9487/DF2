@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dead Frontier 2 互動地圖 & Firebase 即時共享 HUD 系統</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="script.js"></script>
+</head>
+<body>
+
+  <header>
+    <h1>Dead Frontier 2 互動地圖 & 即時 HUD 共享系統</h1>
+    <span id="sync-status" class="status-badge">(連線中...)</span>
+  </header>
+
+  <div class="main-layout">
+    
+    <div class="panel-box">
+      <div class="panel-title">📜 Mission HUD Table</div>
+
+      <div class="controls-row">
+        <input type="text" id="search" class="search-box" placeholder="🔍 搜尋建築、城市、任務類型或備註..." oninput="filterQuests()">
+        
+        <div class="filters-group">
+          <div class="filter-item">
+            <label for="filter-city">城市:</label>
+            <select id="filter-city" onchange="filterQuests()">
+              <option value="">全部城市</option>
+            </select>
+          </div>
+
+          <div class="filter-item">
+            <label for="filter-type">類型:</label>
+            <select id="filter-type" onchange="filterQuests()">
+              <option value="">全部類型</option>
+            </select>
+          </div>
+
+          <div class="filter-item">
+            <label for="filter-status">狀態:</label>
+            <select id="filter-status" onchange="filterQuests()">
+              <option value="">全部狀態</option>
+              <option value="pending">⭕ 未完成</option>
+              <option value="show">👁️ 顯示中</option>
+              <option value="completed">✅ 已完成</option>
+            </select>
+          </div>
+
+          <div class="filter-item" style="margin-left: 8px;">
+            <label for="toggle-pending-vis">未完成點位:</label>
+            <select id="toggle-pending-vis" onchange="updateMapHighlights()">
+              <option value="show" selected>👁️ 顯示</option>
+              <option value="hide">🙈 隱藏</option>
+            </select>
+          </div>
+
+          <div class="filter-item">
+            <label for="pending-color-picker">顏色:</label>
+            <input type="color" id="pending-color-picker" value="#ff9800" onchange="updatePendingColor(this.value)">
+          </div>
+
+          <div class="filter-item" style="margin-left: 8px;">
+            <label for="toggle-completed-vis">已完成點位:</label>
+            <select id="toggle-completed-vis" onchange="updateMapHighlights()">
+              <option value="show" selected>👁️ 顯示</option>
+              <option value="hide">🙈 隱藏</option>
+            </select>
+          </div>
+
+          <div class="filter-item">
+            <label for="completed-color-picker">顏色:</label>
+            <input type="color" id="completed-color-picker" value="#4caf50" onchange="updateCompletedColor(this.value)">
+          </div>
+
+          <button class="btn-action" style="margin-left: auto;" onclick="resetFilters()">重設篩選</button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="hud-table" id="missionTable">
+          <thead>
+            <tr>
+              <th onclick="sortTable(0)">Mission Building <span class="sort-icon"></span></th>
+              <th onclick="sortTable(1)">Mission City <span class="sort-icon"></span></th>
+              <th onclick="sortTable(2)">Mission Type <span class="sort-icon"></span></th>
+              <th onclick="sortTable(3)">Details / Notes <span class="sort-icon"></span></th>
+              <th onclick="sortTable(4)">Action / Status <span class="sort-icon"></span></th>
+            </tr>
+          </thead>
+          <tbody id="hudTableBody">
+            <tr>
+              <td colspan="5" style="text-align: center; color: #8b949e; padding: 20px;">載入任務資料中...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel-box map-section">
+      <div class="panel-title">🗺️ 互動地圖繪製與鎖定</div>
+      
+      <div class="map-wrapper">
+        <svg id="map-svg" class="map-svg-layer"></svg>
+        <table id="map-table" class="map-table"></table>
+      </div>
+
+      <div id="info-panel">
+        <div id="panel-msg">點擊左側任務列可<b>選擇指定同名點位進行鎖定</b>；點擊地圖格子可開始畫線...</div>
+        <div id="panel-details" style="margin-top: 6px;"></div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
