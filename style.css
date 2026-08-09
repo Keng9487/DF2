@@ -232,7 +232,6 @@ input[type="color"]::-webkit-color-swatch {
 }
 
 .hud-table tr.completed td {
-  opacity: 0.6;
   text-decoration: none !important;
 }
 
