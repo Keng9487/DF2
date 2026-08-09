@@ -484,7 +484,7 @@
     let globalQuestData = [];
     let globalRouteMapData = []; 
     let activeHighlightCoords = new Set();
-    let lockedBuildingsSet = new Set(); 
+    let lockedBuildingsSet = new Set(); // 存放格式: "city_building"
     let nearRouteCoords = new Set(); 
 
     // 指定固定綠色高亮座標 (4,9), (14,15), (22,4)
@@ -502,13 +502,19 @@
     let currentSortColumn = -1;
     let isAscending = true;
 
-    function cleanBuildingName(name) {
+    // 清理與規格化字串（避免大小寫、符號或空格干擾比對）
+    function cleanName(name) {
       if (!name) return '';
       return name
         .toLowerCase()
         .replace(/\s*\([^)]*\)/g, '')
         .replace(/[^a-z0-9\u4e00-\u9fa5]/g, '')
         .trim();
+    }
+
+    // 建立 城市_建築 唯一 Key 輔助函式
+    function getCompositeKey(city, building) {
+      return `${cleanName(city)}_${cleanName(building)}`;
     }
 
     function initApp() {
@@ -521,6 +527,7 @@
           globalRouteMapData.push({
             x: parseInt(raw["data-xcoord"] || raw.x || 0),
             y: parseInt(raw["data-ycoord"] || raw.y || 0),
+            city: raw["data-city"] || raw.city || "",
             buildings: typeof raw["data-buildings"] === 'string' 
               ? raw["data-buildings"].split(',').map(s => s.trim()).filter(Boolean) 
               : (raw.buildings || [])
@@ -669,9 +676,12 @@
         }
       });
 
-      const questBuildingSet = new Set();
+      // 以 城市_建築 的 Key 來儲存任務需求
+      const questKeySet = new Set();
       globalQuestData.forEach(q => {
-        if (q.building) questBuildingSet.add(cleanBuildingName(q.building));
+        if (q.building && q.city) {
+          questKeySet.add(getCompositeKey(q.city, q.building));
+        }
       });
 
       globalRouteMapData.forEach(node => {
@@ -685,8 +695,20 @@
           }
         }
         
-        if (isNear && node.buildings && node.buildings.some(b => questBuildingSet.has(cleanBuildingName(b)))) {
-          nearRouteCoords.add(`${node.x},${node.y}`);
+        if (isNear && node.buildings) {
+          const hasMatchingQuest = node.buildings.some(b => {
+            const key = getCompositeKey(node.city, b);
+            if (questKeySet.has(key)) return true;
+            // 備援：若地圖點位無城市資料，退回單純比對建築
+            if (!node.city) {
+              return globalQuestData.some(q => cleanName(q.building) === cleanName(b));
+            }
+            return false;
+          });
+
+          if (hasMatchingQuest) {
+            nearRouteCoords.add(`${node.x},${node.y}`);
+          }
         }
       });
     }
@@ -715,13 +737,13 @@
 
     function updateSystemDisplay() {
       activeHighlightCoords.clear();
-      const questMapByBuilding = new Map();
+      const questMapByKey = new Map();
 
       globalQuestData.forEach(q => {
-        if (q.building) {
-          const cleanKey = cleanBuildingName(q.building);
-          if (!questMapByBuilding.has(cleanKey)) questMapByBuilding.set(cleanKey, []);
-          questMapByBuilding.get(cleanKey).push(q);
+        if (q.building && q.city) {
+          const key = getCompositeKey(q.city, q.building);
+          if (!questMapByKey.has(key)) questMapByKey.set(key, []);
+          questMapByKey.get(key).push(q);
         }
       });
 
@@ -729,10 +751,16 @@
         let hasActive = false;
         if (node.buildings) {
           node.buildings.forEach(bName => {
-            const cleanName = cleanBuildingName(bName);
-            if (questMapByBuilding.has(cleanName)) {
-              const matches = questMapByBuilding.get(cleanName);
-              if (matches.some(q => q.active === true)) hasActive = true;
+            const key = getCompositeKey(node.city, bName);
+            let matches = questMapByKey.get(key);
+
+            // 備援：若地圖未提供城市資料，嘗試用名稱匹配
+            if (!matches && !node.city) {
+              matches = globalQuestData.filter(q => cleanName(q.building) === cleanName(bName));
+            }
+
+            if (matches && matches.some(q => q.active === true)) {
+              hasActive = true;
             }
           });
         }
@@ -783,12 +811,27 @@
         }
       });
 
-      // 5. 渲染點擊任務產生的鎖定建築紅色高亮
+      // 5. 渲染點擊任務產生的鎖定建築紅色高亮 (透過 City + Building 複合鍵雙重判斷)
       if (lockedBuildingsSet.size > 0) {
         globalRouteMapData.forEach(node => {
-          if (node.buildings && node.buildings.some(b => cleanBuildingName(b) && lockedBuildingsSet.has(cleanBuildingName(b)))) {
-            const targetCell = document.getElementById(`cell-${node.x}-${node.y}`);
-            if (targetCell) targetCell.classList.add('quest-locked-highlight');
+          if (node.buildings) {
+            const isMatch = node.buildings.some(b => {
+              const key = getCompositeKey(node.city, b);
+              if (lockedBuildingsSet.has(key)) return true;
+
+              // 備援判斷：若 node 無 city 欄位，檢查鎖定列表中有沒有對應建築
+              if (!node.city) {
+                for (let lockedKey of lockedBuildingsSet) {
+                  if (lockedKey.endsWith(`_${cleanName(b)}`)) return true;
+                }
+              }
+              return false;
+            });
+
+            if (isMatch) {
+              const targetCell = document.getElementById(`cell-${node.x}-${node.y}`);
+              if (targetCell) targetCell.classList.add('quest-locked-highlight');
+            }
           }
         });
       }
@@ -806,12 +849,16 @@
         detailsPanel.innerHTML = `<strong>位置資訊</strong>: 空地 / 無建築`;
         return;
       }
-      let html = `<strong>🏢 建築物：</strong> ${data.buildings.join(', ')}<br>`;
+      let html = `<strong>🏢 建築物：</strong> ${data.buildings.join(', ')} (城市: ${data.city || '未標註'})<br>`;
       let matchedQuests = [];
       data.buildings.forEach(bName => {
-        const cleanName = cleanBuildingName(bName);
+        const nodeKey = getCompositeKey(data.city, bName);
         globalQuestData.forEach(q => {
-          if (cleanBuildingName(q.building) === cleanName) matchedQuests.push(q);
+          const questKey = getCompositeKey(q.city, q.building);
+          // 嚴格比對 (城市+建築) 或當 map 無 city 時的彈性比對
+          if (nodeKey === questKey || (!data.city && cleanName(q.building) === cleanName(bName))) {
+            matchedQuests.push(q);
+          }
         });
       });
       if (matchedQuests.length > 0) {
@@ -829,32 +876,39 @@
       detailsPanel.innerHTML = html;
     }
 
-    function locateQuestByBuilding(targetBuildingName) {
+    // 傳入雙重參數：Target Building Name 與 Target City Name
+    function locateQuestByBuilding(targetBuildingName, targetCityName) {
       if (!targetBuildingName) return;
-      const cleanTarget = cleanBuildingName(targetBuildingName);
+      const uniqueKey = getCompositeKey(targetCityName, targetBuildingName);
 
-      if (lockedBuildingsSet.has(cleanTarget)) {
-        lockedBuildingsSet.delete(cleanTarget);
+      if (lockedBuildingsSet.has(uniqueKey)) {
+        lockedBuildingsSet.delete(uniqueKey);
         updateMapHighlights();
-        document.getElementById('panel-details').innerHTML = `已取消鎖定建築：${targetBuildingName}`;
+        document.getElementById('panel-details').innerHTML = `已取消鎖定建築：[${targetCityName || '全區'}] ${targetBuildingName}`;
       } else {
         let matchedNodes = [];
         globalRouteMapData.forEach(node => {
-          if (node.buildings && node.buildings.some(b => cleanBuildingName(b) === cleanTarget)) {
-            matchedNodes.push(node);
+          if (node.buildings) {
+            const matchesBuilding = node.buildings.some(b => cleanName(b) === cleanName(targetBuildingName));
+            // 如果地圖節點有註記城市，則比對城市；若無則採納該建築
+            const matchesCity = !node.city || cleanName(node.city) === cleanName(targetCityName);
+
+            if (matchesBuilding && matchesCity) {
+              matchedNodes.push(node);
+            }
           }
         });
 
         if (matchedNodes.length === 0) {
-          alert('地圖資料中找不到此建築名稱！');
+          alert(`地圖資料中找不到 [${targetCityName}] 的建築「${targetBuildingName}」！`);
           return;
         }
 
-        lockedBuildingsSet.add(cleanTarget);
+        lockedBuildingsSet.add(uniqueKey);
 
-        let infoHtml = `<strong>🎯 找到 ${matchedNodes.length} 個同名建築（地圖以深紅高亮標記）：</strong><ul>`;
+        let infoHtml = `<strong>🎯 找到 [${targetCityName || '未知城市'}] ${targetBuildingName} (共 ${matchedNodes.length} 個點位，已以紅色高亮)：</strong><ul>`;
         matchedNodes.forEach(node => {
-          infoHtml += `<li>座標: (${node.x}, ${node.y}) - 建築: ${node.buildings.join(', ')}</li>`;
+          infoHtml += `<li>城市: ${node.city || targetCityName || '未標示'} | 座標: (${node.x}, ${node.y}) - 建築: ${node.buildings.join(', ')}</li>`;
         });
         infoHtml += `</ul>`;
 
@@ -865,17 +919,19 @@
       filterQuests();
     }
 
-    function isQuestNearRoute(questBuilding) {
+    function isQuestNearRoute(questBuilding, questCity) {
       if (!questBuilding || customLines.length === 0) return false;
-      const cleanQBuilding = cleanBuildingName(questBuilding);
+      const targetKey = getCompositeKey(questCity, questBuilding);
       
       for (let coordStr of nearRouteCoords) {
         const [x, y] = coordStr.split(',').map(Number);
         const node = globalRouteMapData.find(n => n.x === x && n.y === y);
         if (node && node.buildings) {
-          if (node.buildings.some(b => cleanBuildingName(b) === cleanQBuilding)) {
-            return true;
-          }
+          const isMatch = node.buildings.some(b => {
+            const key = getCompositeKey(node.city, b);
+            return key === targetKey || (!node.city && cleanName(b) === cleanName(questBuilding));
+          });
+          if (isMatch) return true;
         }
       }
       return false;
@@ -892,9 +948,11 @@
 
       quests.forEach(q => {
         const safeBuildingName = (q.building || '').replace(/'/g, "\\'");
-        const cleanName = cleanBuildingName(q.building);
-        const isNear = isQuestNearRoute(q.building);
-        const isLocked = lockedBuildingsSet.has(cleanName);
+        const safeCityName = (q.city || '').replace(/'/g, "\\'");
+        
+        const isNear = isQuestNearRoute(q.building, q.city);
+        const uniqueKey = getCompositeKey(q.city, q.building);
+        const isLocked = lockedBuildingsSet.has(uniqueKey);
         const taskType = q.task_type || q.type || '任務';
 
         const tr = document.createElement('tr');
@@ -904,7 +962,8 @@
 
         tr.addEventListener('click', (e) => {
           if (['TEXTAREA', 'INPUT', 'BUTTON'].includes(e.target.tagName)) return;
-          locateQuestByBuilding(safeBuildingName);
+          // 點擊事件帶入 (建築名稱, 城市名稱)
+          locateQuestByBuilding(safeBuildingName, safeCityName);
         });
 
         tr.innerHTML = `
