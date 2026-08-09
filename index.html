@@ -329,7 +329,7 @@
       background-color: rgba(0, 230, 118, 0.75) !important;
     }
 
-    /* 紅色高亮 (鎖定或特殊區域) */
+    /* 紅色高亮 (鎖定或指定紅色區域) */
     .map-table td.quest-locked-highlight {
       background-color: rgba(211, 47, 47, 0.8) !important;
     }
@@ -487,8 +487,14 @@
     let lockedBuildingsSet = new Set(); 
     let nearRouteCoords = new Set(); 
 
-    // 新增指定的固定綠色高亮座標 (4,9), (14,15), (22,4)
+    // 指定固定綠色高亮座標 (4,9), (14,15), (22,4)
     const presetGreenCoords = new Set(["4,9", "14,15", "22,4"]);
+
+    // 指定固定半透明紅色高亮座標範圍 (11,15)~(12,16) 及 (19,3)~(20,4)
+    const presetRedCoords = new Set([
+      "11,15", "12,15", "11,16", "12,16",
+      "19,3",  "20,3",  "19,4",  "20,4"
+    ]);
 
     let actionStartCoord = null; 
     let customLines = []; 
@@ -754,14 +760,21 @@
         if (targetCell) targetCell.classList.add('highlight');
       });
 
-      // 2. 渲染動態任務綠色高亮
+      // 2. 渲染指定的固定紅色高亮 (11,15)~(12,16) 與 (19,3)~(20,4)
+      presetRedCoords.forEach(coordKey => {
+        const [x, y] = coordKey.split(',');
+        const targetCell = document.getElementById(`cell-${x}-${y}`);
+        if (targetCell) targetCell.classList.add('quest-locked-highlight');
+      });
+
+      // 3. 渲染動態任務綠色高亮
       activeHighlightCoords.forEach(coordKey => {
         const [x, y] = coordKey.split(',');
         const targetCell = document.getElementById(`cell-${x}-${y}`);
         if (targetCell) targetCell.classList.add('highlight');
       });
 
-      // 3. 渲染路線周邊高亮
+      // 4. 渲染路線周邊高亮
       nearRouteCoords.forEach(coordKey => {
         const [x, y] = coordKey.split(',');
         const targetCell = document.getElementById(`cell-${x}-${y}`);
@@ -770,7 +783,7 @@
         }
       });
 
-      // 4. 渲染鎖定建築高亮
+      // 5. 渲染點擊任務產生的鎖定建築紅色高亮
       if (lockedBuildingsSet.size > 0) {
         globalRouteMapData.forEach(node => {
           if (node.buildings && node.buildings.some(b => cleanBuildingName(b) && lockedBuildingsSet.has(cleanBuildingName(b)))) {
@@ -780,7 +793,7 @@
         });
       }
 
-      // 5. 繪製線條起點高亮
+      // 6. 繪製線條起點高亮
       if (actionStartCoord) {
         const startCell = document.getElementById(`cell-${actionStartCoord.x}-${actionStartCoord.y}`);
         if (startCell) startCell.classList.add('custom-line-start');
