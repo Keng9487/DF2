@@ -139,6 +139,26 @@
       border-color: #58a6ff;
     }
 
+    input[type="color"] {
+      -webkit-appearance: none;
+      border: 1px solid #30363d;
+      border-radius: 4px;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      background: none;
+      padding: 0;
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    input[type="color"]::-webkit-color-swatch {
+      border: none;
+      border-radius: 3px;
+    }
+
     .search-box {
       width: 100%;
     }
@@ -183,6 +203,12 @@
     .hud-table td:nth-child(4) {
       width: 220px;
       max-width: 220px;
+    }
+
+    .hud-table th:nth-child(5),
+    .hud-table td:nth-child(5) {
+      width: 130px;
+      min-width: 130px;
     }
 
     .sort-icon {
@@ -232,8 +258,8 @@
     }
 
     .hud-table tbody tr.row-locked {
-      outline: 1px solid #e91e63;
-      background-color: rgba(216, 27, 96, 0.15) !important;
+      outline: 1px solid #ffeb3b;
+      background-color: rgba(255, 235, 59, 0.25) !important;
     }
 
     .hud-table tr.near-route td {
@@ -243,6 +269,32 @@
     .hud-table tr.completed td {
       opacity: 0.6;
       text-decoration: none !important;
+    }
+
+    .status-select-dropdown {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .status-select-dropdown.status-pending {
+      border: 1px solid #30363d;
+      color: #c9d1d9;
+      background-color: #161b22;
+    }
+
+    .status-select-dropdown.status-show {
+      border: 1px solid #e3b341;
+      color: #f0e68c;
+      background-color: rgba(227, 179, 65, 0.15);
+    }
+
+    .status-select-dropdown.status-completed {
+      border: 1px solid #2ea043;
+      color: #7ee787;
+      background-color: rgba(46, 160, 67, 0.15);
     }
 
     .badge-near {
@@ -324,12 +376,18 @@
       background-color: rgba(255, 255, 255, 0.25) !important;
     }
 
-    /* 綠色高亮 (任務/指定目標點) */
     .map-table td.highlight {
-      background-color: rgba(0, 230, 118, 0.75) !important;
+      background-color: rgba(255, 235, 59, 0.65) !important;
     }
 
-    /* 紅色高亮 (鎖定或指定紅色區域) */
+    .map-table td.quest-completed-highlight {
+      background-color: var(--completed-color, rgba(76, 175, 80, 0.75)) !important;
+    }
+
+    .map-table td.quest-pending-highlight {
+      background-color: var(--pending-color, rgba(255, 152, 0, 0.75)) !important;
+    }
+
     .map-table td.quest-locked-highlight {
       background-color: rgba(211, 47, 47, 0.8) !important;
     }
@@ -366,12 +424,6 @@
     .btn-action:hover {
       background: #30363d;
       color: #f0f6fc;
-    }
-
-    .btn-action.active {
-      background: #238636;
-      color: #fff;
-      border-color: #2ea043;
     }
 
     .note-container {
@@ -436,8 +488,35 @@
             <select id="filter-status" onchange="filterQuests()">
               <option value="">全部狀態</option>
               <option value="pending">⭕ 未完成</option>
+              <option value="show">👁️ 顯示中</option>
               <option value="completed">✅ 已完成</option>
             </select>
+          </div>
+
+          <div class="filter-item" style="margin-left: 8px;">
+            <label for="toggle-pending-vis">未完成點位:</label>
+            <select id="toggle-pending-vis" onchange="updateMapHighlights()">
+              <option value="show" selected>👁️ 顯示</option>
+              <option value="hide">🙈 隱藏</option>
+            </select>
+          </div>
+
+          <div class="filter-item">
+            <label for="pending-color-picker">顏色:</label>
+            <input type="color" id="pending-color-picker" value="#ff9800" onchange="updatePendingColor(this.value)">
+          </div>
+
+          <div class="filter-item" style="margin-left: 8px;">
+            <label for="toggle-completed-vis">已完成點位:</label>
+            <select id="toggle-completed-vis" onchange="updateMapHighlights()">
+              <option value="show" selected>👁️ 顯示</option>
+              <option value="hide">🙈 隱藏</option>
+            </select>
+          </div>
+
+          <div class="filter-item">
+            <label for="completed-color-picker">顏色:</label>
+            <input type="color" id="completed-color-picker" value="#4caf50" onchange="updateCompletedColor(this.value)">
           </div>
 
           <button class="btn-action" style="margin-left: auto;" onclick="resetFilters()">重設篩選</button>
@@ -473,7 +552,7 @@
       </div>
 
       <div id="info-panel">
-        <div id="panel-msg">點擊左側任務列可<b>鎖定地圖建築</b>；點擊地圖格子可開始畫線 (按住 <b>Shift + 點擊上一個點</b> 可取消路線)...</div>
+        <div id="panel-msg">點擊左側任務列可<b>選擇指定同名點位進行鎖定</b>；點擊地圖格子可開始畫線...</div>
         <div id="panel-details" style="margin-top: 6px;"></div>
       </div>
     </div>
@@ -483,14 +562,14 @@
   <script>
     let globalQuestData = [];
     let globalRouteMapData = []; 
-    let activeHighlightCoords = new Set();
-    let lockedBuildingsSet = new Set(); // 存放格式: "city_building"
+    let completedHighlightCoords = new Set();
+    let pendingHighlightCoords = new Set();
+    let lockedCoordsSet = new Set(); 
+    let lockedQuestIds = new Set();  
+    let questSelectedCoordMap = new Map();
     let nearRouteCoords = new Set(); 
 
-    // 指定固定綠色高亮座標 (4,9), (14,15), (22,4)
     const presetGreenCoords = new Set(["4,9", "14,15", "22,4"]);
-
-    // 指定固定半透明紅色高亮座標範圍 (11,15)~(12,16) 及 (19,3)~(20,4)
     const presetRedCoords = new Set([
       "11,15", "12,15", "11,16", "12,16",
       "19,3",  "20,3",  "19,4",  "20,4"
@@ -502,22 +581,31 @@
     let currentSortColumn = -1;
     let isAscending = true;
 
-    // 清理與規格化字串（避免大小寫、符號或空格干擾比對）
-    function cleanName(name) {
-      if (!name) return '';
-      return name
-        .toLowerCase()
-        .replace(/\s*\([^)]*\)/g, '')
-        .replace(/[^a-z0-9\u4e00-\u9fa5]/g, '')
-        .trim();
+    function hexToRgba(hex, alpha = 0.75) {
+      const cleanHex = hex.replace('#', '');
+      const r = parseInt(cleanHex.substring(0, 2), 16);
+      const g = parseInt(cleanHex.substring(2, 4), 16);
+      const b = parseInt(cleanHex.substring(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
 
-    // 建立 城市_建築 唯一 Key 輔助函式
-    function getCompositeKey(city, building) {
-      return `${cleanName(city)}_${cleanName(building)}`;
+    function updateCompletedColor(hexColor) {
+      const rgbaColor = hexToRgba(hexColor, 0.75);
+      document.documentElement.style.setProperty('--completed-color', rgbaColor);
+    }
+
+    function updatePendingColor(hexColor) {
+      const rgbaColor = hexToRgba(hexColor, 0.75);
+      document.documentElement.style.setProperty('--pending-color', rgbaColor);
     }
 
     function initApp() {
+      const completedPicker = document.getElementById('completed-color-picker');
+      if (completedPicker) updateCompletedColor(completedPicker.value);
+
+      const pendingPicker = document.getElementById('pending-color-picker');
+      if (pendingPicker) updatePendingColor(pendingPicker.value);
+
       const { collection, onSnapshot } = window.FirebaseTools;
 
       onSnapshot(collection(window.db, window.COL_MAP), (snapshot) => {
@@ -622,7 +710,7 @@
           updateMapHighlights();
           renderCustomLines();
           filterQuests();
-          document.getElementById('panel-msg').innerHTML = `<span style="color: #4caf50; font-weight: bold;">✏️ 已新增路線，並自動標記周邊 2 格內有任務的建築！</span>`;
+          document.getElementById('panel-msg').innerHTML = `<span style="color: #4caf50; font-weight: bold;">✏️ 已新增路線！</span>`;
         }
       } else {
         if (!actionStartCoord) {
@@ -638,7 +726,7 @@
           const initialLength = customLines.length;
           customLines = customLines.filter(line => {
             const matchForward = (line.x1 === x1 && line.y1 === y1 && line.x2 === x2 && line.y2 === y2);
-            const matchBackward = (line.x1 === x2 && line.y1 === y2 && line.x2 === x1 && line.y1 === y1);
+            const matchBackward = (line.x1 === x2 && line.y1 === y2 && line.x2 === x1 && line.y2 === y1);
             return !(matchForward || matchBackward);
           });
 
@@ -648,11 +736,10 @@
             updateMapHighlights();
             renderCustomLines();
             filterQuests();
-            document.getElementById('panel-msg').innerHTML = `<span style="color: #f44336; font-weight: bold;">🗑️ 已取消路線段並更新範圍</span>`;
+            document.getElementById('panel-msg').innerHTML = `<span style="color: #f44336; font-weight: bold;">🗑️ 已取消路線段</span>`;
           } else {
             actionStartCoord = { x, y };
             updateMapHighlights();
-            document.getElementById('panel-msg').innerHTML = `<strong>提示</strong>: (${x1},${y1}) 與 (${x2},${y2}) 之間無連線，已將刪除起點改設為 (${x}, ${y})`;
           }
         }
       }
@@ -676,14 +763,6 @@
         }
       });
 
-      // 以 城市_建築 的 Key 來儲存任務需求
-      const questKeySet = new Set();
-      globalQuestData.forEach(q => {
-        if (q.building && q.city) {
-          questKeySet.add(getCompositeKey(q.city, q.building));
-        }
-      });
-
       globalRouteMapData.forEach(node => {
         let isNear = false;
         for (let ptStr of routePoints) {
@@ -697,13 +776,15 @@
         
         if (isNear && node.buildings) {
           const hasMatchingQuest = node.buildings.some(b => {
-            const key = getCompositeKey(node.city, b);
-            if (questKeySet.has(key)) return true;
-            // 備援：若地圖點位無城市資料，退回單純比對建築
-            if (!node.city) {
-              return globalQuestData.some(q => cleanName(q.building) === cleanName(b));
-            }
-            return false;
+            return globalQuestData.some(q => {
+              const qCity = (q.city || '').trim().toLowerCase();
+              const qBuilding = (q.building || '').trim().toLowerCase();
+              const nCity = (node.city || '').trim().toLowerCase();
+              const bName = b.trim().toLowerCase();
+              
+              if (qCity && nCity && qCity !== nCity) return false;
+              return bName === qBuilding || bName.includes(qBuilding);
+            });
           });
 
           if (hasMatchingQuest) {
@@ -735,39 +816,53 @@
       });
     }
 
+    // 依據任務狀態與儲存的 selectedCoord 進行單點渲染
     function updateSystemDisplay() {
-      activeHighlightCoords.clear();
-      const questMapByKey = new Map();
+      completedHighlightCoords.clear();
+      pendingHighlightCoords.clear();
 
       globalQuestData.forEach(q => {
-        if (q.building && q.city) {
-          const key = getCompositeKey(q.city, q.building);
-          if (!questMapByKey.has(key)) questMapByKey.set(key, []);
-          questMapByKey.get(key).push(q);
-        }
-      });
+        const status = q.status || (q.active ? 'completed' : 'pending');
+        
+        // 若該任務已有選擇好的單點座標 (或手動鎖定)
+        let targetCoord = q.selectedCoord || questSelectedCoordMap.get(q.id);
 
-      globalRouteMapData.forEach(node => {
-        let hasActive = false;
-        if (node.buildings) {
-          node.buildings.forEach(bName => {
-            const key = getCompositeKey(node.city, bName);
-            let matches = questMapByKey.get(key);
+        if (targetCoord) {
+          if (status === 'completed') {
+            completedHighlightCoords.add(targetCoord);
+          } else if (status === 'show' || status === 'pending') {
+            pendingHighlightCoords.add(targetCoord);
+          }
+        } else {
+          // 若無綁定單點，則嘗試尋找地圖上的點（如僅有一處符合則直接加入）
+          const qCity = (q.city || '').trim().toLowerCase();
+          const qBuilding = (q.building || '').trim().toLowerCase();
 
-            // 備援：若地圖未提供城市資料，嘗試用名稱匹配
-            if (!matches && !node.city) {
-              matches = globalQuestData.filter(q => cleanName(q.building) === cleanName(bName));
-            }
+          if (!qBuilding) return;
 
-            if (matches && matches.some(q => q.active === true)) {
-              hasActive = true;
-            }
+          const matchedNodes = globalRouteMapData.filter(node => {
+            const nodeCity = (node.city || '').trim().toLowerCase();
+            if (qCity && nodeCity && qCity !== nodeCity) return false;
+            return node.buildings && node.buildings.some(b => {
+              const bClean = b.trim().toLowerCase();
+              return bClean === qBuilding || bClean.includes(qBuilding);
+            });
           });
+
+          // 如果地圖上只有一個唯一座標，就自動高亮該點
+          if (matchedNodes.length === 1) {
+            const coordKey = `${matchedNodes[0].x},${matchedNodes[0].y}`;
+            if (status === 'completed') {
+              completedHighlightCoords.add(coordKey);
+            } else if (status === 'show' || status === 'pending') {
+              pendingHighlightCoords.add(coordKey);
+            }
+          }
         }
-        if (hasActive) activeHighlightCoords.add(`${node.x},${node.y}`);
       });
 
       updateNearRouteCoords();
+      recalculateLockedCoords();
       updateMapHighlights();
       filterQuests();
     }
@@ -775,68 +870,58 @@
     function updateMapHighlights() {
       document.querySelectorAll('.map-table td').forEach(td => {
         td.classList.remove('highlight');
+        td.classList.remove('quest-completed-highlight');
+        td.classList.remove('quest-pending-highlight');
         td.classList.remove('quest-locked-highlight');
         td.classList.remove('near-route-highlight');
         td.classList.remove('custom-line-start');
         td.innerText = '';
       });
 
-      // 1. 渲染指定的固定綠色高亮 (4,9), (14,15), (22,4)
       presetGreenCoords.forEach(coordKey => {
         const [x, y] = coordKey.split(',');
         const targetCell = document.getElementById(`cell-${x}-${y}`);
         if (targetCell) targetCell.classList.add('highlight');
       });
 
-      // 2. 渲染指定的固定紅色高亮 (11,15)~(12,16) 與 (19,3)~(20,4)
       presetRedCoords.forEach(coordKey => {
         const [x, y] = coordKey.split(',');
         const targetCell = document.getElementById(`cell-${x}-${y}`);
         if (targetCell) targetCell.classList.add('quest-locked-highlight');
       });
 
-      // 3. 渲染動態任務綠色高亮
-      activeHighlightCoords.forEach(coordKey => {
-        const [x, y] = coordKey.split(',');
-        const targetCell = document.getElementById(`cell-${x}-${y}`);
-        if (targetCell) targetCell.classList.add('highlight');
-      });
+      const showPending = document.getElementById('toggle-pending-vis')?.value === 'show';
+      if (showPending) {
+        pendingHighlightCoords.forEach(coordKey => {
+          const [x, y] = coordKey.split(',');
+          const targetCell = document.getElementById(`cell-${x}-${y}`);
+          if (targetCell) targetCell.classList.add('quest-pending-highlight');
+        });
+      }
 
-      // 4. 渲染路線周邊高亮
+      const showCompleted = document.getElementById('toggle-completed-vis')?.value === 'show';
+      if (showCompleted) {
+        completedHighlightCoords.forEach(coordKey => {
+          const [x, y] = coordKey.split(',');
+          const targetCell = document.getElementById(`cell-${x}-${y}`);
+          if (targetCell) targetCell.classList.add('quest-completed-highlight');
+        });
+      }
+
       nearRouteCoords.forEach(coordKey => {
         const [x, y] = coordKey.split(',');
         const targetCell = document.getElementById(`cell-${x}-${y}`);
-        if (targetCell && !targetCell.classList.contains('highlight')) {
+        if (targetCell && !targetCell.classList.contains('quest-completed-highlight') && !targetCell.classList.contains('quest-pending-highlight')) {
           targetCell.classList.add('near-route-highlight');
         }
       });
 
-      // 5. 渲染點擊任務產生的鎖定建築紅色高亮 (透過 City + Building 複合鍵雙重判斷)
-      if (lockedBuildingsSet.size > 0) {
-        globalRouteMapData.forEach(node => {
-          if (node.buildings) {
-            const isMatch = node.buildings.some(b => {
-              const key = getCompositeKey(node.city, b);
-              if (lockedBuildingsSet.has(key)) return true;
+      lockedCoordsSet.forEach(coordKey => {
+        const [x, y] = coordKey.split(',');
+        const targetCell = document.getElementById(`cell-${x}-${y}`);
+        if (targetCell) targetCell.classList.add('quest-locked-highlight');
+      });
 
-              // 備援判斷：若 node 無 city 欄位，檢查鎖定列表中有沒有對應建築
-              if (!node.city) {
-                for (let lockedKey of lockedBuildingsSet) {
-                  if (lockedKey.endsWith(`_${cleanName(b)}`)) return true;
-                }
-              }
-              return false;
-            });
-
-            if (isMatch) {
-              const targetCell = document.getElementById(`cell-${node.x}-${node.y}`);
-              if (targetCell) targetCell.classList.add('quest-locked-highlight');
-            }
-          }
-        });
-      }
-
-      // 6. 繪製線條起點高亮
       if (actionStartCoord) {
         const startCell = document.getElementById(`cell-${actionStartCoord.x}-${actionStartCoord.y}`);
         if (startCell) startCell.classList.add('custom-line-start');
@@ -852,22 +937,28 @@
       let html = `<strong>🏢 建築物：</strong> ${data.buildings.join(', ')} (城市: ${data.city || '未標註'})<br>`;
       let matchedQuests = [];
       data.buildings.forEach(bName => {
-        const nodeKey = getCompositeKey(data.city, bName);
         globalQuestData.forEach(q => {
-          const questKey = getCompositeKey(q.city, q.building);
-          // 嚴格比對 (城市+建築) 或當 map 無 city 時的彈性比對
-          if (nodeKey === questKey || (!data.city && cleanName(q.building) === cleanName(bName))) {
+          const qCity = (q.city || '').trim().toLowerCase();
+          const qBuilding = (q.building || '').trim().toLowerCase();
+          const nCity = (data.city || '').trim().toLowerCase();
+          const bClean = bName.trim().toLowerCase();
+
+          if ((!qCity || !nCity || qCity === nCity) && (bClean === qBuilding || bClean.includes(qBuilding))) {
             matchedQuests.push(q);
           }
         });
       });
       if (matchedQuests.length > 0) {
-        html += `<b style="color:#4caf50;">🎯 包含任務與備註：</b><ul>`;
+        html += `<b style="color:#ffeb3b;">🎯 包含任務與備註：</b><ul>`;
         matchedQuests.forEach(q => {
-          const status = q.active ? " (✅ 已完成)" : "";
+          const currentStatus = q.status || (q.active ? 'completed' : 'pending');
+          let statusText = " (⭕ 未完成)";
+          if (currentStatus === 'completed') statusText = " (✅ 已完成)";
+          if (currentStatus === 'show') statusText = " (👁️ 顯示中)";
+
           const noteText = q.notes ? ` | 📝 備註: <span style="color:#ff9800;">${q.notes.replace(/\n/g, '<br>')}</span>` : "";
           const taskType = q.task_type || q.type || '任務';
-          html += `<li><b>${taskType}</b> - 城市: <i>${q.city || '未知'}</i> (建築: ${q.building})${status}${noteText}</li>`;
+          html += `<li><b>${taskType}</b> - 城市: <i>${q.city || '未知'}</i> (建築: ${q.building})${statusText}${noteText}</li>`;
         });
         html += `</ul>`;
       } else {
@@ -876,60 +967,113 @@
       detailsPanel.innerHTML = html;
     }
 
-    // 傳入雙重參數：Target Building Name 與 Target City Name
-    function locateQuestByBuilding(targetBuildingName, targetCityName) {
-      if (!targetBuildingName) return;
-      const uniqueKey = getCompositeKey(targetCityName, targetBuildingName);
+    // 彈出對話框進行選擇 1 個座標點
+    function selectSingleBuildingCoord(questObj) {
+      const qCity = (questObj.city || '').trim().toLowerCase();
+      const qBuilding = (questObj.building || '').trim().toLowerCase();
 
-      if (lockedBuildingsSet.has(uniqueKey)) {
-        lockedBuildingsSet.delete(uniqueKey);
-        updateMapHighlights();
-        document.getElementById('panel-details').innerHTML = `已取消鎖定建築：[${targetCityName || '全區'}] ${targetBuildingName}`;
-      } else {
-        let matchedNodes = [];
-        globalRouteMapData.forEach(node => {
-          if (node.buildings) {
-            const matchesBuilding = node.buildings.some(b => cleanName(b) === cleanName(targetBuildingName));
-            // 如果地圖節點有註記城市，則比對城市；若無則採納該建築
-            const matchesCity = !node.city || cleanName(node.city) === cleanName(targetCityName);
+      if (!qBuilding) return null;
 
-            if (matchesBuilding && matchesCity) {
-              matchedNodes.push(node);
-            }
-          }
-        });
+      const matchedNodes = globalRouteMapData.filter(node => {
+        const nodeCity = (node.city || '').trim().toLowerCase();
+        if (qCity && nodeCity && nodeCity !== qCity) return false;
 
-        if (matchedNodes.length === 0) {
-          alert(`地圖資料中找不到 [${targetCityName}] 的建築「${targetBuildingName}」！`);
-          return;
+        if (node.buildings && Array.isArray(node.buildings)) {
+          return node.buildings.some(b => {
+            const bName = b.trim().toLowerCase();
+            return bName === qBuilding || bName.includes(qBuilding) || qBuilding.includes(bName);
+          });
         }
+        return false;
+      });
 
-        lockedBuildingsSet.add(uniqueKey);
-
-        let infoHtml = `<strong>🎯 找到 [${targetCityName || '未知城市'}] ${targetBuildingName} (共 ${matchedNodes.length} 個點位，已以紅色高亮)：</strong><ul>`;
-        matchedNodes.forEach(node => {
-          infoHtml += `<li>城市: ${node.city || targetCityName || '未標示'} | 座標: (${node.x}, ${node.y}) - 建築: ${node.buildings.join(', ')}</li>`;
-        });
-        infoHtml += `</ul>`;
-
-        document.getElementById('panel-details').innerHTML = infoHtml;
-        updateMapHighlights();
+      if (matchedNodes.length === 0) {
+        alert(`地圖資料庫無符合「${questObj.city || ''} - ${questObj.building}」的點位！`);
+        return null;
       }
+
+      if (matchedNodes.length === 1) {
+        return `${matchedNodes[0].x},${matchedNodes[0].y}`;
+      }
+
+      // 如果有 2 個以上的同名建築點位，跳出提示讓使用者輸入選取
+      let optionsText = `找到 ${matchedNodes.length} 個符合條件的建築點位，請選擇要切換顯示哪一個：\n\n`;
+      matchedNodes.forEach((node, index) => {
+        optionsText += `${index + 1}. 座標 (${node.x}, ${node.y}) - 城市: ${node.city || '未標示'} [建築: ${node.buildings.join(', ')}]\n`;
+      });
+      optionsText += `\n請輸入號碼 (1 ~ ${matchedNodes.length}):`;
+
+      const choice = prompt(optionsText, "1");
+      if (choice === null) return null; 
+
+      const chosenIndex = parseInt(choice, 10) - 1;
+      if (isNaN(chosenIndex) || chosenIndex < 0 || chosenIndex >= matchedNodes.length) {
+        alert("無效的選項！");
+        return null;
+      }
+
+      return `${matchedNodes[chosenIndex].x},${matchedNodes[chosenIndex].y}`;
+    }
+
+    function locateQuestByBuilding(questId, targetBuildingName, targetCityName) {
+      if (!questId) return;
+
+      if (lockedQuestIds.has(questId)) {
+        lockedQuestIds.delete(questId);
+        questSelectedCoordMap.delete(questId);
+        recalculateLockedCoords();
+        updateMapHighlights();
+        document.getElementById('panel-details').innerHTML = `已取消鎖定：[${targetCityName || '無城市'}] ${targetBuildingName}`;
+        filterQuests();
+        return;
+      }
+
+      const qObj = globalQuestData.find(q => q.id === questId) || { building: targetBuildingName, city: targetCityName };
+      const selectedCoordStr = selectSingleBuildingCoord(qObj);
+
+      if (!selectedCoordStr) return;
+
+      lockedQuestIds.add(questId);
+      questSelectedCoordMap.set(questId, selectedCoordStr);
+
+      recalculateLockedCoords();
+      updateMapHighlights();
+
+      document.getElementById('panel-details').innerHTML = `
+        <strong>🎯 已精確鎖定單一點位：</strong><br>
+        城市: ${targetCityName || '未標示'} | 座標: (${selectedCoordStr}) | 建築: ${targetBuildingName}
+      `;
 
       filterQuests();
     }
 
+    function recalculateLockedCoords() {
+      lockedCoordsSet.clear();
+
+      lockedQuestIds.forEach(questId => {
+        const coordKey = questSelectedCoordMap.get(questId);
+        if (coordKey) {
+          lockedCoordsSet.add(coordKey);
+        }
+      });
+    }
+
     function isQuestNearRoute(questBuilding, questCity) {
       if (!questBuilding || customLines.length === 0) return false;
-      const targetKey = getCompositeKey(questCity, questBuilding);
       
+      const qCity = (questCity || '').trim().toLowerCase();
+      const qBuilding = (questBuilding || '').trim().toLowerCase();
+
       for (let coordStr of nearRouteCoords) {
         const [x, y] = coordStr.split(',').map(Number);
         const node = globalRouteMapData.find(n => n.x === x && n.y === y);
         if (node && node.buildings) {
+          const nCity = (node.city || '').trim().toLowerCase();
+          if (qCity && nCity && qCity !== nCity) continue;
+
           const isMatch = node.buildings.some(b => {
-            const key = getCompositeKey(node.city, b);
-            return key === targetKey || (!node.city && cleanName(b) === cleanName(questBuilding));
+            const bClean = b.trim().toLowerCase();
+            return bClean === qBuilding || bClean.includes(qBuilding);
           });
           if (isMatch) return true;
         }
@@ -949,21 +1093,22 @@
       quests.forEach(q => {
         const safeBuildingName = (q.building || '').replace(/'/g, "\\'");
         const safeCityName = (q.city || '').replace(/'/g, "\\'");
-        
+        const safeQuestId = q.id;
+
         const isNear = isQuestNearRoute(q.building, q.city);
-        const uniqueKey = getCompositeKey(q.city, q.building);
-        const isLocked = lockedBuildingsSet.has(uniqueKey);
+        const isLocked = lockedQuestIds.has(q.id);
         const taskType = q.task_type || q.type || '任務';
+        
+        const currentStatus = q.status || (q.active ? 'completed' : 'pending');
 
         const tr = document.createElement('tr');
         if (isNear) tr.classList.add('near-route');
-        if (q.active) tr.classList.add('completed');
+        if (currentStatus === 'completed') tr.classList.add('completed');
         if (isLocked) tr.classList.add('row-locked');
 
         tr.addEventListener('click', (e) => {
-          if (['TEXTAREA', 'INPUT', 'BUTTON'].includes(e.target.tagName)) return;
-          // 點擊事件帶入 (建築名稱, 城市名稱)
-          locateQuestByBuilding(safeBuildingName, safeCityName);
+          if (['TEXTAREA', 'INPUT', 'BUTTON', 'SELECT', 'OPTION'].includes(e.target.tagName)) return;
+          locateQuestByBuilding(safeQuestId, safeBuildingName, safeCityName);
         });
 
         tr.innerHTML = `
@@ -980,9 +1125,11 @@
             </div>
           </td>
           <td>
-            <button class="btn-action ${q.active ? 'active' : ''}" onclick="toggleQuestActive('${q.id}', ${!q.active})">
-              ${q.active ? '✅ 已完成' : '⭕ 未完成'}
-            </button>
+            <select class="status-select-dropdown status-${currentStatus}" onchange="changeQuestStatus('${q.id}', this.value)">
+              <option value="pending" ${currentStatus === 'pending' ? 'selected' : ''}>⭕ 未完成</option>
+              <option value="show" ${currentStatus === 'show' ? 'selected' : ''}>👁️ 顯示</option>
+              <option value="completed" ${currentStatus === 'completed' ? 'selected' : ''}>✅ 已完成</option>
+            </select>
           </td>
         `;
         tbody.appendChild(tr);
@@ -1018,6 +1165,9 @@
         if (columnIndex === 3) { 
           cellA = a.querySelector('textarea')?.value || "";
           cellB = b.querySelector('textarea')?.value || "";
+        } else if (columnIndex === 4) {
+          cellA = a.querySelector('select')?.value || "";
+          cellB = b.querySelector('select')?.value || "";
         } else {
           cellA = a.children[columnIndex]?.innerText.trim() || "";
           cellB = b.children[columnIndex]?.innerText.trim() || "";
@@ -1032,11 +1182,39 @@
       rows.forEach(row => tbody.appendChild(row));
     }
 
-    async function toggleQuestActive(docId, newState) {
+    // 變更任務狀態時，若點為多個會要求選擇，並將選擇的座標寫入 Firebase
+    async function changeQuestStatus(docId, newStatus) {
       const { doc, updateDoc } = window.FirebaseTools;
+      const questObj = globalQuestData.find(q => q.id === docId);
+
+      let targetCoord = questObj ? questObj.selectedCoord : null;
+
+      // 當切換成「顯示」或「已完成」狀態，且先前沒選過單點點位時
+      if ((newStatus === 'show' || newStatus === 'completed') && !targetCoord && questObj) {
+        targetCoord = selectSingleBuildingCoord(questObj);
+        if (!targetCoord) {
+          // 若使用者取消選擇，復原選單狀態
+          filterQuests();
+          return;
+        }
+      }
+
       try {
-        await updateDoc(doc(window.db, window.COL_QUESTS, docId), { active: newState });
-      } catch (err) { console.error(err); }
+        const isCompleted = newStatus === 'completed';
+        const updatePayload = { 
+          status: newStatus,
+          active: isCompleted 
+        };
+
+        if (targetCoord) {
+          updatePayload.selectedCoord = targetCoord;
+          questSelectedCoordMap.set(docId, targetCoord);
+        }
+
+        await updateDoc(doc(window.db, window.COL_QUESTS, docId), updatePayload);
+      } catch (err) { 
+        console.error(err); 
+      }
     }
 
     async function saveNote(docId) {
@@ -1067,9 +1245,11 @@
         const qType = q.task_type || q.type || '';
         const matchesType = !typeFilter || qType === typeFilter;
 
+        const currentStatus = q.status || (q.active ? 'completed' : 'pending');
         let matchesStatus = true;
-        if (statusFilter === 'pending') matchesStatus = !q.active;
-        if (statusFilter === 'completed') matchesStatus = !!q.active;
+        if (statusFilter) {
+          matchesStatus = (currentStatus === statusFilter);
+        }
 
         return matchesQuery && matchesCity && matchesType && matchesStatus;
       });
@@ -1082,6 +1262,8 @@
       document.getElementById('filter-city').value = '';
       document.getElementById('filter-type').value = '';
       document.getElementById('filter-status').value = '';
+      document.getElementById('toggle-pending-vis').value = 'show';
+      document.getElementById('toggle-completed-vis').value = 'show';
       filterQuests();
     }
   </script>
