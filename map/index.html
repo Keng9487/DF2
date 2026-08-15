@@ -124,7 +124,7 @@
         }
 
         /* 5. 建築詳細資訊顯示區 */
-        .details-panel {
+        .buildings-panel {
             width: 100%;
             margin-top: 20px;
             padding: 16px 20px;
@@ -136,19 +136,19 @@
             min-height: 90px;
         }
 
-        .details-panel h3 {
+        .buildings-panel h3 {
             margin-top: 0;
             color: #ff3333;
             font-size: 16px;
         }
 
-        .details-panel ul {
+        .buildings-panel ul {
             padding-left: 20px;
             margin-bottom: 0;
             color: #cccccc;
         }
 
-        .details-panel li {
+        .buildings-panel li {
             margin-bottom: 6px;
             line-height: 1.4;
         }
@@ -174,7 +174,7 @@
         </div>
 
         <!-- 點擊方塊後顯示建築資料 -->
-        <div id="details" class="details-panel">
+        <div id="buildings" class="buildings-panel">
             <h3>點擊地圖上的格位查看建築資料</h3>
         </div>
     </div>
@@ -199,7 +199,7 @@
         const db = getFirestore(app);
 
         // Firestore 集合名稱
-        const collectionName = "map";
+        const collectionName = "DF2_Maps";
 
         // 城鎮座標範圍定義 (以 32x32 方塊為單位)
         const townConfig = {
@@ -211,7 +211,7 @@
         window.renderMap = function() {
             const mapDiv = document.getElementById('map');
             mapDiv.innerHTML = ''; 
-            document.getElementById('details').innerHTML = '<h3>點擊地圖上的格位查看建築資料</h3>';
+            document.getElementById('buildings').innerHTML = '<h3>點擊地圖上的格位查看建築資料</h3>';
 
             const selectedTown = document.getElementById('town-select').value;
             const config = townConfig[selectedTown];
@@ -235,7 +235,7 @@
 
         // 從 Firestore 讀取建築資料
         window.fetchBuildingData = async function(docId) {
-            document.getElementById('details').innerHTML = `<h3>讀取中... (${docId})</h3>`;
+            document.getElementById('buildings').innerHTML = `<h3>讀取中... (${docId})</h3>`;
             
             try {
                 const docRef = doc(db, collectionName, docId);
@@ -246,19 +246,19 @@
                     const buildings = data.buildings || [];
                     
                     if (buildings.length > 0) {
-                        document.getElementById('details').innerHTML = `
+                        document.getElementById('buildings').innerHTML = `
                             <h3>座標 ${docId} 的建築清單：</h3>
                             <ul>${buildings.map(b => `<li>${b}</li>`).join('')}</ul>
                         `;
                     } else {
-                        document.getElementById('details').innerHTML = `<h3>座標 ${docId} 目前沒有紀錄建築</h3>`;
+                        document.getElementById('buildings').innerHTML = `<h3>座標 ${docId} 目前沒有紀錄建築</h3>`;
                     }
                 } else {
-                    document.getElementById('details').innerHTML = `<h3>座標 ${docId} 無對應文件資料</h3>`;
+                    document.getElementById('buildings').innerHTML = `<h3>座標 ${docId} 無對應文件資料</h3>`;
                 }
             } catch (error) {
                 console.error("Firebase 讀取失敗：", error);
-                document.getElementById('details').innerHTML = `<h3>資料讀取失敗，請確認 Firebase 金鑰與 Firestore 安全規則設定</h3>`;
+                document.getElementById('buildings').innerHTML = `<h3>資料讀取失敗，請確認 Firebase 金鑰與 Firestore 安全規則設定</h3>`;
             }
         };
 
