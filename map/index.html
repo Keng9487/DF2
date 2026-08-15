@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dead Frontier 2 建築攻略地圖</title>
+    <style>
+        /* 1. 全域純黑背景與基礎設定 */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            background-color: #000000;
+            color: #e0e0e0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #ff3333;
+            text-shadow: 0 0 10px rgba(255, 51, 51, 0.6);
+            margin-top: 0;
+            margin-bottom: 15px;
+            width: 100%;
+            text-align: left;
+        }
+
+        /* 2. 控制面板與城鎮切換下拉選單 */
+        .controls {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            background-color: #111111;
+            border: 1px solid #333333;
+            border-radius: 6px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #cccccc;
+        }
+
+        select {
+            background-color: #222222;
+            color: #ffffff;
+            border: 1px solid #555555;
+            padding: 6px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        select:focus {
+            border-color: #ff3333;
+            box-shadow: 0 0 5px rgba(255, 51, 51, 0.5);
+        }
+
+        /* 3. 960x572 像素地圖網格容器 (30 欄 x 18 列, 單格 32x32px) */
+        .map-wrapper {
+            width: 100%;
+            overflow-x: auto; /* 螢幕較小時可橫向滾動 */
+            display: flex;
+            justify-content: center;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(30, 32px); /* 960px / 32px = 30 欄 */
+            grid-auto-rows: 32px;                   /* 572px / 32px ≈ 18 列 */
+            gap: 0px;
+            
+            width: 960px;
+            height: 576px;                          /* 18 列 * 32px */
+            
+            background-image: url('map.jpg');
+            background-size: 960px 572px;
+            background-position: top left;
+            background-repeat: no-repeat;
+            
+            border: 1px solid #333333;
+            box-sizing: content-box;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.9);
+        }
+
+        /* 4. 32x32 格位視覺樣式 */
+        .grid-item {
+            width: 32px;
+            height: 32px;
+            background-color: rgba(17, 17, 17, 0.65); /* 半透明黑底，透出背後地圖 */
+            border: 1px solid rgba(255, 255, 255, 0.12); /* 細緻邊框 */
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: bold;
+            cursor: pointer;
+            box-sizing: border-box;
+            transition: all 0.15s ease-in-out;
+            user-select: none;
+            text-shadow: 1px 1px 2px #000000;
+        }
+
+        .grid-item:hover {
+            border-color: #ff3333;
+            background-color: rgba(255, 51, 51, 0.45); /* 懸停亮紅光 */
+            box-shadow: inset 0 0 6px rgba(255, 51, 51, 0.8);
+            z-index: 2;
+        }
+
+        /* 5. 建築詳細資訊顯示區 */
+        .details-panel {
+            width: 100%;
+            margin-top: 20px;
+            padding: 16px 20px;
+            background-color: #111111;
+            border: 1px solid #333333;
+            border-left: 4px solid #ff3333;
+            border-radius: 4px;
+            box-sizing: border-box;
+            min-height: 90px;
+        }
+
+        .details-panel h3 {
+            margin-top: 0;
+            color: #ff3333;
+            font-size: 16px;
+        }
+
+        .details-panel ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+            color: #cccccc;
+        }
+
+        .details-panel li {
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Dead Frontier 2 建築攻略地圖</h1>
+        
+        <!-- 下拉式城鎮選擇器 -->
+        <div class="controls">
+            <label for="town-select">選擇城鎮：</label>
+            <select id="town-select" onchange="renderMap()">
+                <option value="ravenwall">Ravenwall Heights (1_1 ~ 6_6)</option>
+                <option value="dallbow">Dallbow (1_7 ~ 6_12)</option>
+            </select>
+        </div>
+
+        <!-- 30x18 地圖容器 -->
+        <div class="map-wrapper">
+            <div id="map" class="grid-container"></div>
+        </div>
+
+        <!-- 點擊方塊後顯示建築資料 -->
+        <div id="details" class="details-panel">
+            <h3>點擊地圖上的格位查看建築資料</h3>
+        </div>
+    </div>
+
+    <!-- 載入 Firebase Web SDK v9 (模組化 CDN) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        // 請替換為您的 Firebase 專案設定金鑰
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Firestore 集合名稱
+        const collectionName = "DF2_Maps";
+
+        // 城鎮座標範圍定義 (以 32x32 方塊為單位)
+        const townConfig = {
+            ravenwall: { startX: 1, endX: 6, startY: 1, endY: 6 },
+            dallbow:   { startX: 1, endX: 6, startY: 7, endY: 12 }
+        };
+
+        // 根據選定城鎮繪製網格，並精確定位到地圖相對應的 32px 位置上
+        window.renderMap = function() {
+            const mapDiv = document.getElementById('map');
+            mapDiv.innerHTML = ''; 
+            document.getElementById('details').innerHTML = '<h3>點擊地圖上的格位查看建築資料</h3>';
+
+            const selectedTown = document.getElementById('town-select').value;
+            const config = townConfig[selectedTown];
+
+            for (let y = config.startY; y <= config.endY; y++) {
+                for (let x = config.startX; x <= config.endX; x++) {
+                    const docId = `${x}_${y}`;
+                    const div = document.createElement('div');
+                    div.className = 'grid-item';
+                    div.innerText = `${x},${y}`;
+                    
+                    // 使用 CSS Grid 絕對定位至全局 30x18 的相對格位
+                    div.style.gridColumn = x;
+                    div.style.gridRow = y;
+                    
+                    div.onclick = () => fetchBuildingData(docId);
+                    mapDiv.appendChild(div);
+                }
+            }
+        };
+
+        // 從 Firestore 讀取建築資料
+        window.fetchBuildingData = async function(docId) {
+            document.getElementById('details').innerHTML = `<h3>讀取中... (${docId})</h3>`;
+            
+            try {
+                const docRef = doc(db, collectionName, docId);
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const buildings = data.buildings || [];
+                    
+                    if (buildings.length > 0) {
+                        document.getElementById('details').innerHTML = `
+                            <h3>座標 ${docId} 的建築清單：</h3>
+                            <ul>${buildings.map(b => `<li>${b}</li>`).join('')}</ul>
+                        `;
+                    } else {
+                        document.getElementById('details').innerHTML = `<h3>座標 ${docId} 目前沒有紀錄建築</h3>`;
+                    }
+                } else {
+                    document.getElementById('details').innerHTML = `<h3>座標 ${docId} 無對應文件資料</h3>`;
+                }
+            } catch (error) {
+                console.error("Firebase 讀取失敗：", error);
+                document.getElementById('details').innerHTML = `<h3>資料讀取失敗，請確認 Firebase 金鑰與 Firestore 安全規則設定</h3>`;
+            }
+        };
+
+        // 頁面初次載入時繪製網格
+        window.onload = () => renderMap();
+    </script>
+</body>
+</html>
