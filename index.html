@@ -400,7 +400,7 @@
 <body>
 
   <header>
-    <h1>Dead Frontier 2 互動地圖 & Supabase 即時 HUD 共享系統</h1>
+    <h1>Dead Frontier 2 互動地圖 & Supabase 即時共享 HUD 系統</h1>
     <span id="sync-status" class="status-badge">(連線中...)</span>
   </header>
 
@@ -562,10 +562,17 @@
       const pendingPicker = document.getElementById('pending-color-picker');
       if (pendingPicker) window.updatePendingColor(pendingPicker.value);
 
-      await fetchMapData();
-      await fetchQuestData();
+      try {
+        await fetchMapData();
+        await fetchQuestData();
+        document.getElementById('sync-status').innerText = "(資料已載入，連線中...)";
+      } catch (err) {
+        console.error('初始化資料載入失敗:', err);
+        document.getElementById('sync-status').innerText = "(資料載入失敗)";
+        document.getElementById('sync-status').style.color = "#f44336";
+        return;
+      }
 
-      // Supabase 即時訂閱 Realtime 變更
       supabase
         .channel('public-db-changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'map' }, () => {
@@ -574,9 +581,15 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'task' }, () => {
           fetchQuestData();
         })
-        .subscribe((status) => {
+        .subscribe((status, err) => {
+          const statusBadge = document.getElementById('sync-status');
           if (status === 'SUBSCRIBED') {
-            document.getElementById('sync-status').innerText = "(Supabase 即時連線)";
+            statusBadge.innerText = "(Supabase 即時連線)";
+            statusBadge.style.color = "#4caf50";
+          } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+            statusBadge.innerText = "(即時同步失效，但可正常操作)";
+            statusBadge.style.color = "#e3b341";
+            console.warn('Realtime 狀態異常:', status, err);
           }
         });
     }
@@ -606,20 +619,37 @@
         return;
       }
       globalQuestData = (data || []).map(doc => ({ id: doc.id, ...doc }));
+
+      if (currentSortColumn !== -1) {
+        applySortWithoutToggling(currentSortColumn, isAscending);
+      }
+
       updateFilterOptions();
       updateSystemDisplay();
     }
 
-    // 更新任務狀態至 Supabase（加入本地即時更新，解決連線中無法變色問題）
+    function applySortWithoutToggling(columnIndex, ascending) {
+      globalQuestData.sort((a, b) => {
+        let valA = '', valB = '';
+        if (columnIndex === 0) { valA = a.building || ''; valB = b.building || ''; }
+        else if (columnIndex === 1) { valA = a.city || ''; valB = b.city || ''; }
+        else if (columnIndex === 2) { valA = a.task_type || a.type || ''; valB = b.task_type || b.type || ''; }
+        else if (columnIndex === 3) { valA = a.notes || ''; valB = b.notes || ''; }
+        else if (columnIndex === 4) { valA = a.status || ''; valB = b.status || ''; }
+
+        const cmp = valA.localeCompare(valB, 'zh-Hant');
+        return ascending ? cmp : -cmp;
+      });
+    }
+
+    // 更新任務狀態（包含本地端即時反應與雲端同步）
     window.updateQuestStatusInSupabase = async function(id, newStatus) {
-      // 1. 先在本地端記憶體直接更新狀態，讓畫面與地圖「立刻」反應
       const targetQuest = globalQuestData.find(q => q.id === id);
       if (targetQuest) {
         targetQuest.status = newStatus;
-        updateSystemDisplay(); // 立即重新計算地圖綠色/黃色高亮與表格
+        updateSystemDisplay();
       }
 
-      // 2. 同步寫入雲端資料庫
       const { error } = await supabase
         .from('task')
         .update({ status: newStatus })
@@ -631,8 +661,13 @@
       }
     };
 
-    // 更新任務備註至 Supabase
+    // 更新任務備註（僅更新本地記憶體與背景寫入雲端，不強制重新渲染表格以免打斷打字與游標）
     window.updateQuestNotesInSupabase = async function(id, newNotes) {
+      const targetQuest = globalQuestData.find(q => q.id === id);
+      if (targetQuest) {
+        targetQuest.notes = newNotes;
+      }
+
       const { error } = await supabase
         .from('task')
         .update({ notes: newNotes })
@@ -848,7 +883,7 @@
             if (qCity && nodeCity && qCity !== nodeCity) return false;
             return node.buildings && node.buildings.some(b => {
               const bClean = b.trim().toLowerCase();
-              return bClean === qBuilding || bClean.includes(qBuilding);
+              return bClean === qBuilding || bClean.includes(qBuilding) || qBuilding.includes(bClean);
             });
           });
 
@@ -875,7 +910,6 @@
         const q = globalQuestData.find(item => item.id === qId);
         if (q) {
           const status = q.status || (q.active ? 'completed' : 'pending');
-          // 如果任務已經完成，就不加入紅色鎖定集合，讓它能正常顯示綠色已完成背景
           if (status !== 'completed') {
             const coord = questSelectedCoordMap.get(qId);
             if (coord) lockedCoordsSet.add(coord);
@@ -1036,6 +1070,11 @@
     window.locateQuestByBuilding = function(questId, targetBuildingName, targetCityName) {
       if (!questId) return;
 
+      const qObj = globalQuestData.find(q => q.id === questId);
+      if (!qObj) return;
+
+      const currentStatus = qObj.status || (qObj.active ? 'completed' : 'pending');
+
       if (lockedQuestIds.has(questId)) {
         lockedQuestIds.delete(questId);
         questSelectedCoordMap.delete(questId);
@@ -1045,9 +1084,6 @@
         document.getElementById('panel-msg').innerText = `已解除鎖定任務 ID: ${questId}`;
         return;
       }
-
-      const qObj = globalQuestData.find(q => q.id === questId);
-      if (!qObj) return;
 
       const chosenCoord = selectSingleBuildingCoord(qObj);
       if (chosenCoord) {
@@ -1061,6 +1097,9 @@
     };
 
     window.filterQuests = function() {
+      const tableContainer = document.querySelector('.table-responsive');
+      const scrollTop = tableContainer ? tableContainer.scrollTop : 0;
+
       const keyword = document.getElementById('search').value.toLowerCase();
       const cityFilter = document.getElementById('filter-city').value;
       const typeFilter = document.getElementById('filter-type').value;
@@ -1129,6 +1168,10 @@
         `;
         tbody.appendChild(tr);
       });
+
+      if (tableContainer) {
+        tableContainer.scrollTop = scrollTop;
+      }
     };
 
     window.sortTable = function(columnIndex) {
