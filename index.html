@@ -610,8 +610,16 @@
       updateSystemDisplay();
     }
 
-    // 更新任務狀態至 Supabase
+    // 更新任務狀態至 Supabase（加入本地即時更新，解決連線中無法變色問題）
     window.updateQuestStatusInSupabase = async function(id, newStatus) {
+      // 1. 先在本地端記憶體直接更新狀態，讓畫面與地圖「立刻」反應
+      const targetQuest = globalQuestData.find(q => q.id === id);
+      if (targetQuest) {
+        targetQuest.status = newStatus;
+        updateSystemDisplay(); // 立即重新計算地圖綠色/黃色高亮與表格
+      }
+
+      // 2. 同步寫入雲端資料庫
       const { error } = await supabase
         .from('task')
         .update({ status: newStatus })
@@ -619,7 +627,7 @@
 
       if (error) {
         console.error('更新狀態失敗:', error);
-        alert('更新失敗！');
+        alert('雲端更新失敗！請檢查網路或資料庫權限');
       }
     };
 
