@@ -864,8 +864,15 @@
     function recalculateLockedCoords() {
       lockedCoordsSet.clear();
       lockedQuestIds.forEach(qId => {
-        const coord = questSelectedCoordMap.get(qId);
-        if (coord) lockedCoordsSet.add(coord);
+        const q = globalQuestData.find(item => item.id === qId);
+        if (q) {
+          const status = q.status || (q.active ? 'completed' : 'pending');
+          // 如果任務已經完成，就不加入紅色鎖定集合，讓它能正常顯示綠色已完成背景
+          if (status !== 'completed') {
+            const coord = questSelectedCoordMap.get(qId);
+            if (coord) lockedCoordsSet.add(coord);
+          }
+        }
       });
     }
 
@@ -1078,7 +1085,8 @@
         const tr = document.createElement('tr');
         const qId = q.id;
         const currentStatus = q.status || (q.active ? 'completed' : 'pending');
-        const isLocked = lockedQuestIds.has(qId);
+        const currentStatus = q.status || (q.active ? 'completed' : 'pending');
+        const isLocked = lockedQuestIds.has(qId) && currentStatus !== 'completed';
         if (isLocked) tr.classList.add('row-locked');
         if (currentStatus === 'completed') tr.classList.add('completed');
 
