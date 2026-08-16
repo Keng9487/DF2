@@ -1085,7 +1085,6 @@
         const tr = document.createElement('tr');
         const qId = q.id;
         const currentStatus = q.status || (q.active ? 'completed' : 'pending');
-        const currentStatus = q.status || (q.active ? 'completed' : 'pending');
         const isLocked = lockedQuestIds.has(qId) && currentStatus !== 'completed';
         if (isLocked) tr.classList.add('row-locked');
         if (currentStatus === 'completed') tr.classList.add('completed');
