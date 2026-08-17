@@ -1097,6 +1097,11 @@
     };
 
     window.filterQuests = function() {
+      // 💡 防護：如果使用者目前正在備註欄打字（有 textarea 取得焦點），直接略過重新渲染，避免打斷打字與游標！
+      const activeEl = document.activeElement;
+      if (activeEl && activeEl.classList.contains('note-input-inline')) {
+        return;
+      }
       const tableContainer = document.querySelector('.table-responsive');
       const scrollTop = tableContainer ? tableContainer.scrollTop : 0;
 
