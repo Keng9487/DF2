@@ -521,6 +521,19 @@
     let questSelectedCoordMap = new Map();
     let nearRouteCoords = new Set(); 
 
+    // 💡 設定各城市的座標範圍限制
+    const CITY_BOUNDS = {
+      "Greywood": { minX: 19, maxX: 24, minY: 1, maxY: 6 }
+    };
+    
+    // 檢查節點是否符合該城市的座標範圍
+    function checkCityBounds(city, x, y) {
+      if (!city) return true;
+      const bounds = CITY_BOUNDS[city.trim()];
+      if (!bounds) return true; // 若該城市無特別限制則預設通過
+      return x >= bounds.minX && x <= bounds.maxX && y >= bounds.minY && y <= bounds.maxY;
+    }
+
     const presetGreenCoords = new Set(["4,9", "14,15", "22,4"]);
     const presetRedCoords = new Set([
       "11,15", "12,15", "11,16", "12,16",
@@ -879,13 +892,17 @@
           if (!qBuilding) return;
 
           const matchedNodes = globalRouteMapData.filter(node => {
-            const nodeCity = (node.city || '').trim().toLowerCase();
-            if (qCity && nodeCity && qCity !== nodeCity) return false;
-            return node.buildings && node.buildings.some(b => {
-              const bClean = b.trim().toLowerCase();
-              return bClean === qBuilding || bClean.includes(qBuilding) || qBuilding.includes(bClean);
-            });
+          const nodeCity = (node.city || '').trim().toLowerCase();
+          if (qCity && nodeCity && qCity !== nodeCity) return false;
+  
+          // 💡 限制座標範圍檢查
+          if (!checkCityBounds(q.city, node.x, node.y)) return false;
+  
+          return node.buildings && node.buildings.some(b => {
+            const bClean = b.trim().toLowerCase();
+            return bClean === qBuilding || bClean.includes(qBuilding);
           });
+        });
 
           if (matchedNodes.length === 1) {
             const coordKey = `${matchedNodes[0].x},${matchedNodes[0].y}`;
@@ -1024,13 +1041,16 @@
     function selectSingleBuildingCoord(questObj) {
       const qCity = (questObj.city || '').trim().toLowerCase();
       const qBuilding = (questObj.building || '').trim().toLowerCase();
-
+    
       if (!qBuilding) return null;
-
+    
       const matchedNodes = globalRouteMapData.filter(node => {
         const nodeCity = (node.city || '').trim().toLowerCase();
         if (qCity && nodeCity && nodeCity !== qCity) return false;
-
+    
+        // 限制座標範圍檢查（結合 CITY_BOUNDS）
+        if (!checkCityBounds(questObj.city, node.x, node.y)) return false;
+    
         if (node.buildings && Array.isArray(node.buildings)) {
           return node.buildings.some(b => {
             const bName = b.trim().toLowerCase();
@@ -1039,32 +1059,13 @@
         }
         return false;
       });
-
+    
       if (matchedNodes.length === 0) {
-        alert(`地圖資料庫無符合「${questObj.city || ''} - ${questObj.building}」的點位！`);
         return null;
       }
-
-      if (matchedNodes.length === 1) {
-        return `${matchedNodes[0].x},${matchedNodes[0].y}`;
-      }
-
-      let optionsText = `找到 ${matchedNodes.length} 個符合條件的建築點位，請選擇要亮起哪一個：\n\n`;
-      matchedNodes.forEach((node, index) => {
-        optionsText += `${index + 1}. 座標 (${node.x}, ${node.y}) - 城市: ${node.city || '未標示'} [建築: ${node.buildings.join(', ')}]\n`;
-      });
-      optionsText += `\n請輸入號碼 (1 ~ ${matchedNodes.length}):`;
-
-      const choice = prompt(optionsText, "1");
-      if (choice === null) return null; 
-
-      const chosenIndex = parseInt(choice, 10) - 1;
-      if (isNaN(chosenIndex) || chosenIndex < 0 || chosenIndex >= matchedNodes.length) {
-        alert("無效的選項！");
-        return null;
-      }
-
-      return `${matchedNodes[chosenIndex].x},${matchedNodes[chosenIndex].y}`;
+    
+      // 自動返回第一個對應的座標，不跳出對話框
+      return `${matchedNodes[0].x},${matchedNodes[0].y}`;
     }
 
     window.locateQuestByBuilding = function(questId, targetBuildingName, targetCityName) {
