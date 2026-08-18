@@ -943,14 +943,11 @@
           const nCity = (data.city || '').trim().toLowerCase();
           const bClean = bName.trim().toLowerCase();
     
-          // 💡 嚴格限制：
-          // 1. 如果雙方都有填寫城市，城市名稱必須完全一致
-          // 2. 建築名稱必須「完全相符（===）」，絕對不能用 includes 模糊比對，避免抓到其他地方同名建築
           const isCityMatch = qCity && nCity ? (qCity === nCity) : true;
-          const isBuildingMatch = (bClean === qBuilding);
+          // 恢復彈性模糊比對
+          const isBuildingMatch = (bClean === qBuilding || bClean.includes(qBuilding) || qBuilding.includes(bClean));
     
           if (isCityMatch && isBuildingMatch) {
-            // 避免重複推入同一個任務
             if (!matchedQuests.some(item => item.id === q.id)) {
               matchedQuests.push(q);
             }
@@ -987,7 +984,6 @@
       const matchedNodes = globalRouteMapData.filter(node => {
         const nodeCity = (node.city || '').trim().toLowerCase();
         
-        // 如果任務和地圖節點都有城市，必須嚴格相符
         if (qCity && nodeCity && nodeCity !== qCity) return false;
     
         // 限制座標範圍檢查（結合 CITY_BOUNDS）
@@ -996,8 +992,8 @@
         if (node.buildings && Array.isArray(node.buildings)) {
           return node.buildings.some(b => {
             const bName = b.trim().toLowerCase();
-            // 改為嚴格相符，避免模糊比對抓錯地方
-            return bName === qBuilding;
+            // 恢復彈性模糊比對
+            return bName === qBuilding || bName.includes(qBuilding) || qBuilding.includes(bName);
           });
         }
         return false;
@@ -1008,17 +1004,6 @@
       }
     
       return `${matchedNodes[0].x},${matchedNodes[0].y}`;
-    }
-    
-    function recalculateLockedCoords() {
-      lockedCoordsSet.clear();
-    
-      lockedQuestIds.forEach(questId => {
-        const coordKey = questSelectedCoordMap.get(questId);
-        if (coordKey) {
-          lockedCoordsSet.add(coordKey);
-        }
-      });
     }
     
     function isQuestNearRoute(questBuilding, questCity) {
