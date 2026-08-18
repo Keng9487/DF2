@@ -506,7 +506,7 @@
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-    // 💡 請填入你自己的 Supabase 專案 URL 與 Anon Key
+    // 💡 已自動填入你的 Supabase 專案設定
     const SUPABASE_URL = 'https://yasnbvmngdxkukuxvafc.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlhc25idm1uZ2R4a3VrdXh2YWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mjc0MzUsImV4cCI6MjEwMjQwMzQzNX0.ht7XqIdRczGIdVE-oljEplFLEOHyxb7zZSI_pnDDP4w';
     
@@ -525,31 +525,29 @@
     let questSelectedCoordMap = new Map();
     let nearRouteCoords = new Set(); 
     
-    // 💡 設定各城市的座標範圍限制
+    // 💡 設定各城市的座標範圍限制（若有其他城市可在這邊新增範圍）
     const CITY_BOUNDS = {
-      "Ravenwall Heights": { minX: 1, maxX: 6, minY: 1, maxY: 6 },
-      "Albandale Park": { minX: 7, maxX: 12, minY: 1, maxY: 6 },
-      "Overwood": { minX: 13, maxX: 18, minY: 1, maxY: 6 },
-      "Greywood": { minX: 19, maxX: 24, minY: 1, maxY: 6 },
-      "Lerwillbury": { minX: 25, maxX: 30, minY: 1, maxY: 6 },
-      "Dallbow": { minX: 1, maxX: 6, minY: 7, maxY: 12 },
-      "Coopertown": { minX: 7, maxX: 12, minY: 7, maxY: 12 },
-      "Richbow Hunt": { minX: 13, maxX: 18, minY: 7, maxY: 12 },
-      "Duntsville": { minX: 19, maxX: 24, minY: 7, maxY: 12 },
-      "Archbrook": { minX: 25, maxX: 30, minY: 7, maxY: 12 },
-      "West Moledale": { minX: 1, maxX: 6, minY: 13, maxY: 18 },
-      "Dawnhill": { minX: 7, maxX: 12, minY: 13, maxY: 18 },
-      "Haverbrook": { minX: 13, maxX: 18, minY: 13, maxY: 18 },
-      "South Moorhurst": { minX: 19, maxX: 24, minY: 13, maxY: 18 },
-      "Wolfstable": { minX: 25, maxX: 30, minY: 13, maxY: 18 }
+      "灰木鎮": { minX: 19, maxX: 24, minY: 1, maxY: 6 }
     };
     
-    // 檢查節點是否符合該城市的座標範圍
-    function checkCityBounds(city, x, y) {
+    // 嚴格檢查節點是否符合該城市的座標範圍
+    function checkCityBounds(city, x, y, nodeCity) {
       if (!city) return true;
-      const bounds = CITY_BOUNDS[city.trim()];
-      if (!bounds) return true; // 若該城市無特別限制則預設通過
-      return x >= bounds.minX && x <= bounds.maxX && y >= bounds.minY && y <= bounds.maxY;
+      const cleanCity = city.trim();
+      const bounds = CITY_BOUNDS[cleanCity];
+      
+      // 如果地圖格子本身有填寫城市名稱，且與任務城市相同，直接通過
+      if (nodeCity && nodeCity.toLowerCase() === cleanCity.toLowerCase()) {
+        return true;
+      }
+      
+      // 如果地圖格子沒填寫城市（未標註），必須檢查是否在該城市的 CITY_BOUNDS 範圍內
+      if (bounds) {
+        return x >= bounds.minX && x <= bounds.maxX && y >= bounds.minY && y <= bounds.maxY;
+      }
+      
+      // 💡 如果該城市沒有在 CITY_BOUNDS 內定義範圍，又遇到未標註的格子，禁止跨區亂抓！
+      return false;
     }
     
     const presetGreenCoords = new Set(["4,9", "14,15", "22,4"]);
@@ -796,6 +794,8 @@
               const bName = b.trim().toLowerCase();
               
               if (qCity && nCity && qCity !== nCity) return false;
+              if (!checkCityBounds(q.city, node.x, node.y, node.city)) return false;
+    
               return bName === qBuilding || bName.includes(qBuilding) || qBuilding.includes(bName);
             });
           });
@@ -855,7 +855,7 @@
             if (qCity && nodeCity && qCity !== nodeCity) return false;
     
             // 限制座標範圍檢查
-            if (!checkCityBounds(q.city, node.x, node.y)) return false;
+            if (!checkCityBounds(q.city, node.x, node.y, node.city)) return false;
     
             return node.buildings && node.buildings.some(b => {
               const bClean = b.trim().toLowerCase();
@@ -957,10 +957,15 @@
           const nCity = (data.city || '').trim().toLowerCase();
           const bClean = bName.trim().toLowerCase();
     
-          const isCityMatch = qCity && nCity ? (qCity === nCity) : true;
+          // 如果地圖格子有填寫城市，且與任務城市不同，直接略過
+          if (qCity && nCity && qCity !== nCity) return;
+    
+          // 嚴格檢查範圍：若格子未標註城市，必須符合該城市的 CITY_BOUNDS 才能配對
+          if (!checkCityBounds(q.city, data.x, data.y, data.city)) return;
+    
           const isBuildingMatch = (bClean === qBuilding || bClean.includes(qBuilding) || qBuilding.includes(bClean));
     
-          if (isCityMatch && isBuildingMatch) {
+          if (isBuildingMatch) {
             if (!matchedQuests.some(item => item.id === q.id)) {
               matchedQuests.push(q);
             }
@@ -999,7 +1004,7 @@
         if (qCity && nodeCity && nodeCity !== qCity) return false;
     
         // 限制座標範圍檢查（結合 CITY_BOUNDS）
-        if (!checkCityBounds(questObj.city, node.x, node.y)) return false;
+        if (!checkCityBounds(questObj.city, node.x, node.y, node.city)) return false;
     
         if (node.buildings && Array.isArray(node.buildings)) {
           return node.buildings.some(b => {
@@ -1056,7 +1061,6 @@
       window.filterQuests();
     }
     
-    // 💡 補回 recalculateLockedCoords 函式
     function recalculateLockedCoords() {
       lockedCoordsSet.clear();
     
@@ -1079,11 +1083,12 @@
         const node = globalRouteMapData.find(n => n.x === x && n.y === y);
         if (node && node.buildings) {
           const nCity = (node.city || '').trim().toLowerCase();
-          if (qCity && nCity && qCity !== nCity) continue;
+          if (qCity && nCity && qCity !== qCity) continue;
+          if (!checkCityBounds(questCity, x, y, node.city)) continue;
     
           const isMatch = node.buildings.some(b => {
             const bClean = b.trim().toLowerCase();
-            return bClean === qBuilding || bClean.includes(qBuilding);
+            return bClean === qBuilding || bClean.includes(qBuilding) || qBuilding.includes(bClean);
           });
           if (isMatch) return true;
         }
