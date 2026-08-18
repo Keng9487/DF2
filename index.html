@@ -782,7 +782,7 @@
               const bName = b.trim().toLowerCase();
               
               if (qCity && nCity && qCity !== nCity) return false;
-              return bName === qBuilding || bName.includes(qBuilding);
+              return bName === qBuilding || bName.includes(qBuilding) || qBuilding.includes(bName);
             });
           });
     
@@ -845,7 +845,7 @@
     
             return node.buildings && node.buildings.some(b => {
               const bClean = b.trim().toLowerCase();
-              return bClean === qBuilding || bClean.includes(qBuilding);
+              return bClean === qBuilding || bClean.includes(qBuilding) || qBuilding.includes(bClean);
             });
           });
     
@@ -944,7 +944,6 @@
           const bClean = bName.trim().toLowerCase();
     
           const isCityMatch = qCity && nCity ? (qCity === nCity) : true;
-          // 恢復彈性模糊比對
           const isBuildingMatch = (bClean === qBuilding || bClean.includes(qBuilding) || qBuilding.includes(bClean));
     
           if (isCityMatch && isBuildingMatch) {
@@ -974,7 +973,6 @@
       detailsPanel.innerHTML = html;
     }
     
-    // 自動選擇符合範圍的第一個座標，不跳出對話框
     function selectSingleBuildingCoord(questObj) {
       const qCity = (questObj.city || '').trim().toLowerCase();
       const qBuilding = (questObj.building || '').trim().toLowerCase();
@@ -992,7 +990,6 @@
         if (node.buildings && Array.isArray(node.buildings)) {
           return node.buildings.some(b => {
             const bName = b.trim().toLowerCase();
-            // 恢復彈性模糊比對
             return bName === qBuilding || bName.includes(qBuilding) || qBuilding.includes(bName);
           });
         }
@@ -1004,6 +1001,57 @@
       }
     
       return `${matchedNodes[0].x},${matchedNodes[0].y}`;
+    }
+    
+    function locateQuestByBuilding(questId, targetBuildingName, targetCityName) {
+      if (!questId) return;
+    
+      if (lockedQuestIds.has(questId)) {
+        lockedQuestIds.delete(questId);
+        questSelectedCoordMap.delete(questId);
+        recalculateLockedCoords();
+        updateMapHighlights();
+        const detailsEl = document.getElementById('panel-details');
+        if (detailsEl) detailsEl.innerHTML = `已取消鎖定：[${targetCityName || '無城市'}] ${targetBuildingName}`;
+        window.filterQuests();
+        return;
+      }
+    
+      const qObj = globalQuestData.find(q => q.id === questId) || { building: targetBuildingName, city: targetCityName };
+      const selectedCoordStr = selectSingleBuildingCoord(qObj);
+    
+      if (!selectedCoordStr) {
+        alert(`地圖資料庫無符合「${targetCityName || ''} - ${targetBuildingName}」的有效範圍點位！`);
+        return;
+      }
+    
+      lockedQuestIds.add(questId);
+      questSelectedCoordMap.set(questId, selectedCoordStr);
+    
+      recalculateLockedCoords();
+      updateMapHighlights();
+    
+      const detailsEl = document.getElementById('panel-details');
+      if (detailsEl) {
+        detailsEl.innerHTML = `
+          <strong>🎯 已精確鎖定單一點位：</strong><br>
+          城市: ${targetCityName || '未標示'} | 座標: (${selectedCoordStr}) | 建築: ${targetBuildingName}
+        `;
+      }
+    
+      window.filterQuests();
+    }
+    
+    // 💡 補回 recalculateLockedCoords 函式
+    function recalculateLockedCoords() {
+      lockedCoordsSet.clear();
+    
+      lockedQuestIds.forEach(questId => {
+        const coordKey = questSelectedCoordMap.get(questId);
+        if (coordKey) {
+          lockedCoordsSet.add(coordKey);
+        }
+      });
     }
     
     function isQuestNearRoute(questBuilding, questCity) {
@@ -1179,7 +1227,6 @@
     };
     
     window.filterQuests = function() {
-      // 防護：如果使用者正在備註欄打字，略過重新渲染
       const activeEl = document.activeElement;
       if (activeEl && activeEl.classList.contains('note-input-inline')) {
         return;
