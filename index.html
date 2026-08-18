@@ -935,6 +935,7 @@
       }
       let html = `<strong>🏢 建築物：</strong> ${data.buildings.join(', ')} (城市: ${data.city || '未標註'})<br>`;
       let matchedQuests = [];
+      
       data.buildings.forEach(bName => {
         globalQuestData.forEach(q => {
           const qCity = (q.city || '').trim().toLowerCase();
@@ -942,11 +943,21 @@
           const nCity = (data.city || '').trim().toLowerCase();
           const bClean = bName.trim().toLowerCase();
     
-          if ((!qCity || !nCity || qCity === nCity) && (bClean === qBuilding || bClean.includes(qBuilding))) {
-            matchedQuests.push(q);
+          // 💡 嚴格限制：
+          // 1. 如果雙方都有填寫城市，城市名稱必須完全一致
+          // 2. 建築名稱必須「完全相符（===）」，絕對不能用 includes 模糊比對，避免抓到其他地方同名建築
+          const isCityMatch = qCity && nCity ? (qCity === nCity) : true;
+          const isBuildingMatch = (bClean === qBuilding);
+    
+          if (isCityMatch && isBuildingMatch) {
+            // 避免重複推入同一個任務
+            if (!matchedQuests.some(item => item.id === q.id)) {
+              matchedQuests.push(q);
+            }
           }
         });
       });
+    
       if (matchedQuests.length > 0) {
         html += `<b style="color:#ffeb3b;">🎯 包含任務與備註：</b><ul>`;
         matchedQuests.forEach(q => {
@@ -975,15 +986,18 @@
     
       const matchedNodes = globalRouteMapData.filter(node => {
         const nodeCity = (node.city || '').trim().toLowerCase();
+        
+        // 如果任務和地圖節點都有城市，必須嚴格相符
         if (qCity && nodeCity && nodeCity !== qCity) return false;
     
-        // 限制座標範圍檢查
+        // 限制座標範圍檢查（結合 CITY_BOUNDS）
         if (!checkCityBounds(questObj.city, node.x, node.y)) return false;
     
         if (node.buildings && Array.isArray(node.buildings)) {
           return node.buildings.some(b => {
             const bName = b.trim().toLowerCase();
-            return bName === qBuilding || bName.includes(qBuilding) || qBuilding.includes(bName);
+            // 改為嚴格相符，避免模糊比對抓錯地方
+            return bName === qBuilding;
           });
         }
         return false;
@@ -994,45 +1008,6 @@
       }
     
       return `${matchedNodes[0].x},${matchedNodes[0].y}`;
-    }
-    
-    function locateQuestByBuilding(questId, targetBuildingName, targetCityName) {
-      if (!questId) return;
-    
-      if (lockedQuestIds.has(questId)) {
-        lockedQuestIds.delete(questId);
-        questSelectedCoordMap.delete(questId);
-        recalculateLockedCoords();
-        updateMapHighlights();
-        const detailsEl = document.getElementById('panel-details');
-        if (detailsEl) detailsEl.innerHTML = `已取消鎖定：[${targetCityName || '無城市'}] ${targetBuildingName}`;
-        window.filterQuests();
-        return;
-      }
-    
-      const qObj = globalQuestData.find(q => q.id === questId) || { building: targetBuildingName, city: targetCityName };
-      const selectedCoordStr = selectSingleBuildingCoord(qObj);
-    
-      if (!selectedCoordStr) {
-        alert(`地圖資料庫無符合「${targetCityName || ''} - ${targetBuildingName}」的有效範圍點位！`);
-        return;
-      }
-    
-      lockedQuestIds.add(questId);
-      questSelectedCoordMap.set(questId, selectedCoordStr);
-    
-      recalculateLockedCoords();
-      updateMapHighlights();
-    
-      const detailsEl = document.getElementById('panel-details');
-      if (detailsEl) {
-        detailsEl.innerHTML = `
-          <strong>🎯 已精確鎖定單一點位：</strong><br>
-          城市: ${targetCityName || '未標示'} | 座標: (${selectedCoordStr}) | 建築: ${targetBuildingName}
-        `;
-      }
-    
-      window.filterQuests();
     }
     
     function recalculateLockedCoords() {
