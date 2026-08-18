@@ -504,14 +504,18 @@
   </div>
 
   <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-    const supabaseUrl = 'https://yasnbvmngdxkukuxvafc.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlhc25idm1uZ2R4a3VrdXh2YWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mjc0MzUsImV4cCI6MjEwMjQwMzQzNX0.ht7XqIdRczGIdVE-oljEplFLEOHyxb7zZSI_pnDDP4w';
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    // 💡 請填入你自己的 Supabase 專案 URL 與 Anon Key
+    const SUPABASE_URL = 'https://yasnbvmngdxkukuxvafc.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlhc25idm1uZ2R4a3VrdXh2YWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mjc0MzUsImV4cCI6MjEwMjQwMzQzNX0.ht7XqIdRczGIdVE-oljEplFLEOHyxb7zZSI_pnDDP4w';
+    
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
     window.supabase = supabase;
-
+    window.COL_QUESTS = "task";
+    window.COL_MAP = "map";
+    
     let globalQuestData = [];
     let globalRouteMapData = []; 
     let completedHighlightCoords = new Set();
@@ -568,46 +572,70 @@
       document.documentElement.style.setProperty('--pending-color', rgbaColor);
     };
     
-    function initApp() {
+    async function initApp() {
       const completedPicker = document.getElementById('completed-color-picker');
       if (completedPicker) window.updateCompletedColor(completedPicker.value);
     
       const pendingPicker = document.getElementById('pending-color-picker');
       if (pendingPicker) window.updatePendingColor(pendingPicker.value);
     
-      const { collection, onSnapshot } = window.FirebaseTools;
+      // 初始載入資料
+      await fetchMapData();
+      await fetchQuestData();
     
-      onSnapshot(collection(window.db, window.COL_MAP), (snapshot) => {
-        globalRouteMapData = [];
-        snapshot.forEach((doc) => {
-          const raw = doc.data();
-          globalRouteMapData.push({
-            x: parseInt(raw["data-xcoord"] || raw.x || 0),
-            y: parseInt(raw["data-ycoord"] || raw.y || 0),
-            city: raw["data-city"] || raw.city || "",
-            buildings: typeof raw["data-buildings"] === 'string' 
-              ? raw["data-buildings"].split(',').map(s => s.trim()).filter(Boolean) 
-              : (raw.buildings || [])
-          });
+      // 建立 Supabase Realtime 即時監聽
+      supabase
+        .channel('db-changes')
+        .on('postgres_changes', { event: '*', schema: 'public' }, (payload) => {
+          if (payload.table === window.COL_MAP) {
+            fetchMapData();
+          } else if (payload.table === window.COL_QUESTS) {
+            fetchQuestData();
+          }
+        })
+        .subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            const syncEl = document.getElementById('sync-status');
+            if (syncEl) syncEl.innerText = "(Supabase 即時連線)";
+          }
         });
-        renderMap(globalRouteMapData);
-        updateSystemDisplay();
-      });
+    }
     
-      onSnapshot(collection(window.db, window.COL_QUESTS), (snapshot) => {
-        globalQuestData = [];
-        snapshot.forEach((doc) => {
-          globalQuestData.push({ id: doc.id, ...doc.data() });
-        });
-        updateFilterOptions();
-        updateSystemDisplay();
-        document.getElementById('sync-status').innerText = "(Firebase 即時連線)";
-      });
+    async function fetchMapData() {
+      const { data, error } = await supabase.from(window.COL_MAP).select('*');
+      if (error) {
+        console.error('載入地圖資料失敗:', error);
+        return;
+      }
+      globalRouteMapData = (data || []).map(raw => ({
+        x: parseInt(raw["data-xcoord"] || raw.x || 0),
+        y: parseInt(raw["data-ycoord"] || raw.y || 0),
+        city: raw["data-city"] || raw.city || "",
+        buildings: typeof raw["data-buildings"] === 'string' 
+          ? raw["data-buildings"].split(',').map(s => s.trim()).filter(Boolean) 
+          : (raw.buildings || [])
+      }));
+      renderMap(globalRouteMapData);
+      updateSystemDisplay();
+    }
+    
+    async function fetchQuestData() {
+      const { data, error } = await supabase.from(window.COL_QUESTS).select('*');
+      if (error) {
+        console.error('載入任務資料失敗:', error);
+        return;
+      }
+      globalQuestData = data || [];
+      updateFilterOptions();
+      updateSystemDisplay();
+      const syncEl = document.getElementById('sync-status');
+      if (syncEl) syncEl.innerText = "(Supabase 即時連線)";
     }
     
     function updateFilterOptions() {
       const citySelect = document.getElementById('filter-city');
       const typeSelect = document.getElementById('filter-type');
+      if (!citySelect || !typeSelect) return;
     
       const currentCity = citySelect.value;
       const currentType = typeSelect.value;
@@ -634,6 +662,7 @@
     
     function renderMap(mapRawData) {
       const tableContainer = document.getElementById('map-table');
+      if (!tableContainer) return;
       tableContainer.innerHTML = '';
     
       const nodeMap = new Map();
@@ -661,11 +690,12 @@
     }
     
     function handleMapCellClick(x, y, isDeleteMode) {
+      const msgEl = document.getElementById('panel-msg');
       if (!isDeleteMode) {
         if (!actionStartCoord) {
           actionStartCoord = { x, y };
           updateMapHighlights();
-          document.getElementById('panel-msg').innerHTML = `<span style="color: #ffeb3b; font-weight: bold;">✏️ 畫線起點設在 (${x}, ${y})。請點擊下一個格子以延伸路線！</span>`;
+          if (msgEl) msgEl.innerHTML = `<span style="color: #ffeb3b; font-weight: bold;">✏️ 畫線起點設在 (${x}, ${y})。請點擊下一個格子以延伸路線！</span>`;
         } else {
           const x1 = actionStartCoord.x;
           const y1 = actionStartCoord.y;
@@ -679,13 +709,13 @@
           updateMapHighlights();
           renderCustomLines();
           window.filterQuests();
-          document.getElementById('panel-msg').innerHTML = `<span style="color: #4caf50; font-weight: bold;">✏️ 已新增路線！</span>`;
+          if (msgEl) msgEl.innerHTML = `<span style="color: #4caf50; font-weight: bold;">✏️ 已新增路線！</span>`;
         }
       } else {
         if (!actionStartCoord) {
           actionStartCoord = { x, y };
           updateMapHighlights();
-          document.getElementById('panel-msg').innerHTML = `<span style="color: #f44336; font-weight: bold;">🗑️ 刪除起點設在 (${x}, ${y})。請點擊要取消的相鄰點！</span>`;
+          if (msgEl) msgEl.innerHTML = `<span style="color: #f44336; font-weight: bold;">🗑️ 刪除起點設在 (${x}, ${y})。請點擊要取消的相鄰點！</span>`;
         } else {
           const x1 = actionStartCoord.x;
           const y1 = actionStartCoord.y;
@@ -705,7 +735,7 @@
             updateMapHighlights();
             renderCustomLines();
             window.filterQuests();
-            document.getElementById('panel-msg').innerHTML = `<span style="color: #f44336; font-weight: bold;">🗑️ 已取消路線段</span>`;
+            if (msgEl) msgEl.innerHTML = `<span style="color: #f44336; font-weight: bold;">🗑️ 已取消路線段</span>`;
           } else {
             actionStartCoord = { x, y };
             updateMapHighlights();
@@ -765,6 +795,7 @@
     
     function renderCustomLines() {
       const svg = document.getElementById('map-svg');
+      if (!svg) return;
       svg.innerHTML = ''; 
     
       customLines.forEach(line => {
@@ -809,7 +840,7 @@
             const nodeCity = (node.city || '').trim().toLowerCase();
             if (qCity && nodeCity && qCity !== nodeCity) return false;
     
-            // 💡 限制座標範圍檢查（結合 CITY_BOUNDS）
+            // 限制座標範圍檢查
             if (!checkCityBounds(q.city, node.x, node.y)) return false;
     
             return node.buildings && node.buildings.some(b => {
@@ -837,12 +868,7 @@
     
     window.updateMapHighlights = function() {
       document.querySelectorAll('.map-table td').forEach(td => {
-        td.classList.remove('highlight');
-        td.classList.remove('quest-completed-highlight');
-        td.classList.remove('quest-pending-highlight');
-        td.classList.remove('quest-locked-highlight');
-        td.classList.remove('near-route-highlight');
-        td.classList.remove('custom-line-start');
+        td.classList.remove('highlight', 'quest-completed-highlight', 'quest-pending-highlight', 'quest-locked-highlight', 'near-route-highlight', 'custom-line-start');
         td.innerText = '';
       });
     
@@ -901,6 +927,8 @@
     
     function displayCoordInfo(data) {
       const detailsPanel = document.getElementById('panel-details');
+      if (!detailsPanel) return;
+      
       if (!data || !data.buildings || data.buildings.length === 0) {
         detailsPanel.innerHTML = `<strong>位置資訊</strong>: 空地 / 無建築`;
         return;
@@ -938,7 +966,7 @@
       detailsPanel.innerHTML = html;
     }
     
-    // 💡 已移除 prompt 互動視窗，直接自動採用符合範圍的第一個結果
+    // 自動選擇符合範圍的第一個座標，不跳出對話框
     function selectSingleBuildingCoord(questObj) {
       const qCity = (questObj.city || '').trim().toLowerCase();
       const qBuilding = (questObj.building || '').trim().toLowerCase();
@@ -949,7 +977,7 @@
         const nodeCity = (node.city || '').trim().toLowerCase();
         if (qCity && nodeCity && nodeCity !== qCity) return false;
     
-        // 限制座標範圍檢查（結合 CITY_BOUNDS）
+        // 限制座標範圍檢查
         if (!checkCityBounds(questObj.city, node.x, node.y)) return false;
     
         if (node.buildings && Array.isArray(node.buildings)) {
@@ -965,7 +993,6 @@
         return null;
       }
     
-      // 自動返回第一個對應的座標，不跳出對話框
       return `${matchedNodes[0].x},${matchedNodes[0].y}`;
     }
     
@@ -977,7 +1004,8 @@
         questSelectedCoordMap.delete(questId);
         recalculateLockedCoords();
         updateMapHighlights();
-        document.getElementById('panel-details').innerHTML = `已取消鎖定：[${targetCityName || '無城市'}] ${targetBuildingName}`;
+        const detailsEl = document.getElementById('panel-details');
+        if (detailsEl) detailsEl.innerHTML = `已取消鎖定：[${targetCityName || '無城市'}] ${targetBuildingName}`;
         window.filterQuests();
         return;
       }
@@ -996,10 +1024,13 @@
       recalculateLockedCoords();
       updateMapHighlights();
     
-      document.getElementById('panel-details').innerHTML = `
-        <strong>🎯 已精確鎖定單一點位：</strong><br>
-        城市: ${targetCityName || '未標示'} | 座標: (${selectedCoordStr}) | 建築: ${targetBuildingName}
-      `;
+      const detailsEl = document.getElementById('panel-details');
+      if (detailsEl) {
+        detailsEl.innerHTML = `
+          <strong>🎯 已精確鎖定單一點位：</strong><br>
+          城市: ${targetCityName || '未標示'} | 座標: (${selectedCoordStr}) | 建築: ${targetBuildingName}
+        `;
+      }
     
       window.filterQuests();
     }
@@ -1040,6 +1071,7 @@
     
     function renderHUDTable(quests) {
       const tbody = document.getElementById('hudTableBody');
+      if (!tbody) return;
       tbody.innerHTML = '';
     
       if (!quests || quests.length === 0) {
@@ -1096,10 +1128,11 @@
     window.sortTable = function(columnIndex) {
       const table = document.getElementById("missionTable");
       const tbody = document.getElementById("hudTableBody");
+      if (!table || !tbody) return;
       const rows = Array.from(tbody.querySelectorAll("tr"));
       const headers = table.querySelectorAll("th");
     
-      if (rows.length <= 1 && rows[0].children.length === 1) return;
+      if (rows.length <= 1 && rows[0]?.children.length === 1) return;
     
       if (currentSortColumn === columnIndex) {
         isAscending = !isAscending;
@@ -1140,41 +1173,49 @@
     };
     
     window.changeQuestStatus = async function(docId, newStatus) {
-      const { doc, updateDoc } = window.FirebaseTools;
       const questObj = globalQuestData.find(q => q.id === docId);
-    
       let targetCoord = questObj ? questObj.selectedCoord : null;
     
       if ((newStatus === 'show' || newStatus === 'completed') && !targetCoord && questObj) {
         targetCoord = selectSingleBuildingCoord(questObj);
       }
     
-      try {
-        const isCompleted = newStatus === 'completed';
-        const updatePayload = { 
-          status: newStatus,
-          active: isCompleted 
-        };
+      const isCompleted = newStatus === 'completed';
+      const updatePayload = { 
+        status: newStatus,
+        active: isCompleted 
+      };
     
-        if (targetCoord) {
-          updatePayload.selectedCoord = targetCoord;
-          questSelectedCoordMap.set(docId, targetCoord);
-        }
+      if (targetCoord) {
+        updatePayload.selectedCoord = targetCoord;
+        questSelectedCoordMap.set(docId, targetCoord);
+      }
     
-        await updateDoc(doc(window.db, window.COL_QUESTS, docId), updatePayload);
-      } catch (err) { 
-        console.error(err); 
+      const { error } = await supabase
+        .from(window.COL_QUESTS)
+        .update(updatePayload)
+        .eq('id', docId);
+    
+      if (error) {
+        console.error('更新狀態失敗:', error);
       }
     };
     
     window.saveNote = async function(docId) {
       const inputEl = document.getElementById(`note-input-${docId}`);
       if (!inputEl) return;
-      const { doc, updateDoc } = window.FirebaseTools;
-      try {
-        await updateDoc(doc(window.db, window.COL_QUESTS, docId), { notes: inputEl.value.trim() });
+    
+      const { error } = await supabase
+        .from(window.COL_QUESTS)
+        .update({ notes: inputEl.value.trim() })
+        .eq('id', docId);
+    
+      if (error) {
+        console.error('儲存備註失敗:', error);
+        alert('儲存備註失敗！');
+      } else {
         alert('備註已同步！');
-      } catch (err) { console.error(err); }
+      }
     };
     
     window.filterQuests = function() {
@@ -1184,10 +1225,15 @@
         return;
       }
     
-      const query = document.getElementById('search').value.toLowerCase().trim();
-      const cityFilter = document.getElementById('filter-city').value;
-      const typeFilter = document.getElementById('filter-type').value;
-      const statusFilter = document.getElementById('filter-status').value;
+      const searchEl = document.getElementById('search');
+      const cityEl = document.getElementById('filter-city');
+      const typeEl = document.getElementById('filter-type');
+      const statusEl = document.getElementById('filter-status');
+    
+      const query = searchEl ? searchEl.value.toLowerCase().trim() : '';
+      const cityFilter = cityEl ? cityEl.value : '';
+      const typeFilter = typeEl ? typeEl.value : '';
+      const statusFilter = statusEl ? statusEl.value : '';
     
       const filtered = globalQuestData.filter(q => {
         const matchesQuery = !query || 
@@ -1214,12 +1260,20 @@
     };
     
     window.resetFilters = function() {
-      document.getElementById('search').value = '';
-      document.getElementById('filter-city').value = '';
-      document.getElementById('filter-type').value = '';
-      document.getElementById('filter-status').value = '';
-      document.getElementById('toggle-pending-vis').value = 'show';
-      document.getElementById('toggle-completed-vis').value = 'show';
+      const searchEl = document.getElementById('search');
+      const cityEl = document.getElementById('filter-city');
+      const typeEl = document.getElementById('filter-type');
+      const statusEl = document.getElementById('filter-status');
+      const pendingVisEl = document.getElementById('toggle-pending-vis');
+      const completedVisEl = document.getElementById('toggle-completed-vis');
+    
+      if (searchEl) searchEl.value = '';
+      if (cityEl) cityEl.value = '';
+      if (typeEl) typeEl.value = '';
+      if (statusEl) statusEl.value = '';
+      if (pendingVisEl) pendingVisEl.value = 'show';
+      if (completedVisEl) completedVisEl.value = 'show';
+      
       window.filterQuests();
     };
   </script>
