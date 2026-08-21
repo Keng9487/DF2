@@ -120,9 +120,17 @@ window.updateQuestStatusInSupabase = async function(id, newStatus) {
 
 // 更新任務備註至 Supabase
 window.updateQuestNotesInSupabase = async function(id, newNotes) {
+  // 1. 取得當前登入的使用者資訊
+  const { data: { user } } = await supabase.auth.getUser();
+  const userEmail = user ? user.email : '未登入訪客';
+
+  // 2. 將備註與更改者一起更新到 Supabase
   const { error } = await supabase
     .from('task')
-    .update({ notes: newNotes })
+    .update({ 
+      notes: newNotes,
+      updated_by: userEmail // 記錄更改者
+    })
     .eq('id', id);
 
   if (error) {
