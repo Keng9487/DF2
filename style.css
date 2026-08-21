@@ -324,16 +324,16 @@ input[type="color"]::-webkit-color-swatch {
   background-color: rgba(255, 235, 59, 0.75) !important;
 }
 
+.map-table td.quest-locked-highlight {
+  background-color: var(--locked-color, rgba(244, 67, 54, 0.75));
+}
+
 .map-table td.quest-completed-highlight {
   background-color: var(--completed-color, rgba(76, 175, 80, 0.75)) !important;
 }
 
 .map-table td.quest-pending-highlight {
   background-color: var(--pending-color, rgba(255, 152, 0, 0.75)) !important;
-}
-
-.map-table td.quest-locked-highlight {
-  background-color: var(--locked-color, rgba(244, 67, 54, 0.75));
 }
 
 .map-table td.near-route-highlight {
