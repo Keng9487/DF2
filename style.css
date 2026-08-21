@@ -333,7 +333,7 @@ input[type="color"]::-webkit-color-swatch {
 }
 
 .map-table td.quest-locked-highlight {
-  background-color: var(--locked-color, rgba(244, 67, 54, 0.75)) !important;
+  background-color: var(--locked-color, rgba(244, 67, 54, 0.75));
 }
 
 .map-table td.near-route-highlight {
