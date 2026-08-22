@@ -101,6 +101,9 @@ async function fetchQuestData() {
     return;
   }
   globalQuestData = (data || []).map(doc => ({ id: doc.id, ...doc }));
+  // 【新增】如果使用者剛剛有做過排序，重新抓取資料後維持該排序
+  applyCurrentSort();
+
   updateFilterOptions();
   updateSystemDisplay();
 }
@@ -632,6 +635,8 @@ window.sortTable = function(columnIndex) {
     if (idx === columnIndex) {
       th.classList.add(isAscending ? 'asc' : 'desc');
     }
+  applyCurrentSort(); // 使用共用排序
+  window.filterQuests();
   });
 
   globalQuestData.sort((a, b) => {
@@ -733,5 +738,7 @@ async function initAuth() {
 
   supabase.auth.onAuthStateChange((event, session) => {
     updateAuthUI(session ? session.user : null);
-  });
+});
+
+}
 }
