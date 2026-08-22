@@ -729,7 +729,7 @@ function updateAuthUI(user) {
     loggedInView.style.display = 'none';
     emailDisplay.textContent = '';
   }
-};
+});
 
 function applyCurrentSort() {
   if (currentSortColumn === -1) return;
@@ -751,4 +751,4 @@ async function initAuth() {
 
   supabase.auth.onAuthStateChange((event, session) => {
     updateAuthUI(session ? session.user : null);
-}
+})
