@@ -101,7 +101,8 @@ async function fetchQuestData() {
     return;
   }
   globalQuestData = (data || []).map(doc => ({ id: doc.id, ...doc }));
-  // 【新增】如果使用者剛剛有做過排序，重新抓取資料後維持該排序
+  
+  // 維持目前的排序狀態
   applyCurrentSort();
   updateFilterOptions();
   updateSystemDisplay();
@@ -122,16 +123,14 @@ window.updateQuestStatusInSupabase = async function(id, newStatus) {
 
 // 更新任務備註至 Supabase
 window.updateQuestNotesInSupabase = async function(id, newNotes) {
-  // 1. 取得當前登入的使用者資訊
   const { data: { user } } = await supabase.auth.getUser();
   const userEmail = user ? user.email : '未登入訪客';
 
-  // 2. 將備註與更改者一起更新到 Supabase
   const { error } = await supabase
     .from('task')
     .update({ 
       notes: newNotes,
-      updated_by: userEmail // 記錄更改者
+      updated_by: userEmail 
     })
     .eq('id', id);
 
@@ -606,7 +605,8 @@ window.filterQuests = function() {
       <td>${q.task_type || q.type || '一般任務'}</td>
       <td>
         <div class="note-container">
-          <textarea class="note-input-inline" placeholder="輸入備註..." oninput="window.updateQuestNotesInSupabase('${qId}', this.value)">${q.notes || ''}</textarea>
+          <textarea class="note-input-inline" placeholder="輸入備註..." onchange="window.updateQuestNotesInSupabase('${qId}', this.value)">${q.notes || ''}</textarea>
+          ${q.updated_by ? `<div style="font-size: 11px; color: #8b949e; margin-top: 2px;">最後修改: ${q.updated_by}</div>` : ''}
         </div>
       </td>
       <td>
@@ -634,24 +634,27 @@ window.sortTable = function(columnIndex) {
     if (idx === columnIndex) {
       th.classList.add(isAscending ? 'asc' : 'desc');
     }
-  applyCurrentSort(); // 使用共用排序
-  window.filterQuests();
   });
 
+  applyCurrentSort(); 
+  window.filterQuests();
+};
+
+function applyCurrentSort() {
+  if (currentSortColumn === -1) return;
+  
   globalQuestData.sort((a, b) => {
     let valA = '', valB = '';
-    if (columnIndex === 0) { valA = a.building || ''; valB = b.building || ''; }
-    else if (columnIndex === 1) { valA = a.city || ''; valB = b.city || ''; }
-    else if (columnIndex === 2) { valA = a.task_type || a.type || ''; valB = b.task_type || b.type || ''; }
-    else if (columnIndex === 3) { valA = a.notes || ''; valB = b.notes || ''; }
-    else if (columnIndex === 4) { valA = a.status || ''; valB = b.status || ''; }
+    if (currentSortColumn === 0) { valA = a.building || ''; valB = b.building || ''; }
+    else if (currentSortColumn === 1) { valA = a.city || ''; valB = b.city || ''; }
+    else if (currentSortColumn === 2) { valA = a.task_type || a.type || ''; valB = b.task_type || b.type || ''; }
+    else if (currentSortColumn === 3) { valA = a.notes || ''; valB = b.notes || ''; }
+    else if (currentSortColumn === 4) { valA = a.status || ''; valB = b.status || ''; }
 
     const cmp = valA.localeCompare(valB, 'zh-Hant');
     return isAscending ? cmp : -cmp;
   });
-
-  window.filterQuests();
-};
+}
 
 window.resetFilters = function() {
   document.getElementById('search').value = '';
@@ -661,7 +664,7 @@ window.resetFilters = function() {
   window.filterQuests();
 };
 
-// --- 登入系統相關邏輯 (已掛載至 window 供 HTML 呼叫) ---
+// --- 登入系統相關邏輯 ---
 
 window.handleSignUp = async function() {
   const email = document.getElementById('auth-email').value.trim();
@@ -729,26 +732,13 @@ function updateAuthUI(user) {
     loggedInView.style.display = 'none';
     emailDisplay.textContent = '';
   }
-});
+}
 
-function applyCurrentSort() {
-  if (currentSortColumn === -1) return;
-  
-  globalQuestData.sort((a, b) => {
-    let valA = '', valB = '';
-    if (currentSortColumn === 0) { valA = a.building || ''; valB = b.building || ''; }
-    else if (currentSortColumn === 1) { valA = a.city || ''; valB = b.city || ''; }
-    else if (currentSortColumn === 2) { valA = a.task_type || a.type || ''; valB = b.task_type || b.type || ''; }
-    else if (currentSortColumn === 3) { valA = a.notes || ''; valB = b.notes || ''; }
-    else if (currentSortColumn === 4) { valA = a.status || ''; valB = b.status || ''; }
-
-    const cmp = valA.localeCompare(valB, 'zh-Hant');
-    return isAscending ? cmp : -cmp;
-  });
 async function initAuth() {
   const { data: { session } } = await supabase.auth.getSession();
   updateAuthUI(session ? session.user : null);
 
   supabase.auth.onAuthStateChange((event, session) => {
     updateAuthUI(session ? session.user : null);
-})
+  });
+}
