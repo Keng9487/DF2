@@ -739,6 +739,4 @@ async function initAuth() {
   supabase.auth.onAuthStateChange((event, session) => {
     updateAuthUI(session ? session.user : null);
 });
-
-}
 }
