@@ -729,14 +729,8 @@ function updateAuthUI(user) {
     loggedInView.style.display = 'none';
     emailDisplay.textContent = '';
   }
-}
+};
 
-async function initAuth() {
-  const { data: { session } } = await supabase.auth.getSession();
-  updateAuthUI(session ? session.user : null);
-
-  supabase.auth.onAuthStateChange((event, session) => {
-    updateAuthUI(session ? session.user : null);
 function applyCurrentSort() {
   if (currentSortColumn === -1) return;
   
@@ -751,6 +745,10 @@ function applyCurrentSort() {
     const cmp = valA.localeCompare(valB, 'zh-Hant');
     return isAscending ? cmp : -cmp;
   });
-}
-});
+async function initAuth() {
+  const { data: { session } } = await supabase.auth.getSession();
+  updateAuthUI(session ? session.user : null);
+
+  supabase.auth.onAuthStateChange((event, session) => {
+    updateAuthUI(session ? session.user : null);
 }
