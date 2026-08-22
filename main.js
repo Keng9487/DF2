@@ -103,7 +103,6 @@ async function fetchQuestData() {
   globalQuestData = (data || []).map(doc => ({ id: doc.id, ...doc }));
   // 【新增】如果使用者剛剛有做過排序，重新抓取資料後維持該排序
   applyCurrentSort();
-
   updateFilterOptions();
   updateSystemDisplay();
 }
@@ -738,5 +737,20 @@ async function initAuth() {
 
   supabase.auth.onAuthStateChange((event, session) => {
     updateAuthUI(session ? session.user : null);
+function applyCurrentSort() {
+  if (currentSortColumn === -1) return;
+  
+  globalQuestData.sort((a, b) => {
+    let valA = '', valB = '';
+    if (currentSortColumn === 0) { valA = a.building || ''; valB = b.building || ''; }
+    else if (currentSortColumn === 1) { valA = a.city || ''; valB = b.city || ''; }
+    else if (currentSortColumn === 2) { valA = a.task_type || a.type || ''; valB = b.task_type || b.type || ''; }
+    else if (currentSortColumn === 3) { valA = a.notes || ''; valB = b.notes || ''; }
+    else if (currentSortColumn === 4) { valA = a.status || ''; valB = b.status || ''; }
+
+    const cmp = valA.localeCompare(valB, 'zh-Hant');
+    return isAscending ? cmp : -cmp;
+  });
+}
 });
 }
