@@ -14,7 +14,7 @@ const regionRanges = {
   "達爾博": { minX: 1, maxX: 6, minY: 7, maxY: 12 },
   "庫珀鎮": { minX: 7, maxX: 12, minY: 7, maxY: 12 },
   "豐弓鎮狩獵區": { minX: 13, maxX: 18, minY: 7, maxY: 12 },
-  "丹茨維爾": { minX: 19, maxX: 24, minY: 7, maxY: 12 },
+  "丹茨維爾鎮": { minX: 19, maxX: 24, minY: 7, maxY: 12 },
   "阿奇布魯克": { minX: 25, maxX: 30, minY: 7, maxY: 12 },
   "西莫代爾": { minX: 1, maxX: 6, minY: 13, maxY: 18 },
   "黎明丘": { minX: 7, maxX: 12, minY: 13, maxY: 18 },
@@ -582,7 +582,34 @@ window.filterQuests = function() {
     const status = q.status || (q.active ? 'completed' : 'pending');
 
     const matchKeyword = !keyword || building.includes(keyword) || city.includes(keyword) || type.includes(keyword) || notes.includes(keyword);
-    const matchCity = !cityFilter || q.city === cityFilter;
+    // 【修改】城市與座標範圍複合篩選
+    let matchCity = true;
+    if (cityFilter) {
+      if (regionRanges[cityFilter]) {
+        // 如果該城市有定義座標範圍，檢查任務的點位是否在此範圍內
+        const coordStr = q.selectedCoord || questSelectedCoordMap.get(q.id);
+        let inRange = false;
+        
+        if (coordStr) {
+          const [cx, cy] = coordStr.split(',').map(Number);
+          const range = regionRanges[cityFilter];
+          inRange = (cx >= range.minX && cx <= range.maxX && cy >= range.minY && cy <= range.maxY);
+        } else {
+          // 如果還沒鎖定座標，透過地圖資料庫模糊比對該建築是否落在範圍內
+          const matchedNodes = globalRouteMapData.filter(node => {
+            const range = regionRanges[cityFilter];
+            const inBox = (node.x >= range.minX && node.x <= range.maxX && node.y >= range.minY && node.y <= range.maxY);
+            if (!inBox) return false;
+            return node.buildings && node.buildings.some(b => b.trim().toLowerCase().includes(building));
+          });
+          inRange = matchedNodes.length > 0;
+        }
+        matchCity = inRange;
+      } else {
+        // 一般城市名稱比對
+        matchCity = (q.city === cityFilter);
+      }
+    }
     const matchType = !typeFilter || (q.task_type === typeFilter || q.type === typeFilter);
     const matchStatus = !statusFilter || status === statusFilter;
 
