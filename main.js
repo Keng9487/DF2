@@ -23,6 +23,21 @@ const regionRanges = {
   "狼堡": { minX: 25, maxX: 30, minY: 13, maxY: 18 },
 };
 
+// 2. 透過座標自動推導城市名稱的輔助函式
+function getCityNameByCoord(x, y, originalCity) {
+  // 如果原本就有填寫城市且不是未標註，就優先使用原本的
+  if (originalCity && originalCity.trim() !== '' && originalCity.trim() !== '未標註') {
+    return originalCity;
+  }
+  // 否則，檢查是否落在指定的座標範圍內
+  for [cityName, range] of Object.entries(regionRanges)) {
+    if (x >= range.minX && x <= range.maxX && y >= range.minY && y <= range.maxY) {
+      return cityName;
+    }
+  }
+  return originalCity || '未標註';
+}
+
 let globalQuestData = [];
 let globalRouteMapData = []; 
 let completedHighlightCoords = new Set();
@@ -459,20 +474,28 @@ function displayCoordInfo(data) {
     detailsPanel.innerHTML = `<strong>位置資訊</strong>: 空地 / 無建築`;
     return;
   }
-  let html = `<strong>🏢 建築物：</strong> ${data.buildings.join(', ')} (城市: ${data.city || '未標註'})<br>`;
+
+  // 【修改這裡】自動透過座標範圍判定城市名稱
+  const effectiveCity = getCityNameByCoord(data.x, data.y, data.city);
+
+  let html = `<strong>🏢 建築物：</strong> ${data.buildings.join(', ')} (城市: ${effectiveCity})<br>`;
   let matchedQuests = [];
+
   data.buildings.forEach(bName => {
     globalQuestData.forEach(q => {
       const qCity = (q.city || '').trim().toLowerCase();
       const qBuilding = (q.building || '').trim().toLowerCase();
-      const nCity = (data.city || '').trim().toLowerCase();
+      const nCity = effectiveCity.trim().toLowerCase();
       const bClean = bName.trim().toLowerCase();
 
-      if ((!qCity || !nCity || qCity === nCity) && (bClean === qBuilding || bClean.includes(qBuilding))) {
+      // 比對城市與建築名稱
+      if ((!qCity || !nCity || qCity === nCity || qCity.includes(nCity)) && 
+          (bClean === qBuilding || bClean.includes(qBuilding))) {
         matchedQuests.push(q);
       }
     });
   });
+
   if (matchedQuests.length > 0) {
     html += `<b style="color:#ffeb3b;">🎯 包含任務與備註：</b><ul>`;
     matchedQuests.forEach(q => {
@@ -483,7 +506,7 @@ function displayCoordInfo(data) {
 
       const noteText = q.notes ? ` | 📝 備註: <span style="color:#ff9800;">${q.notes.replace(/\n/g, '<br>')}</span>` : "";
       const taskType = q.task_type || q.type || '任務';
-      html += `<li><b>${taskType}</b> - 城市: <i>${q.city || '未知'}</i> (建築: ${q.building})${statusText}${noteText}</li>`;
+      html += `<li><b>${taskType}</b> - 城市: <i>${q.city || effectiveCity}</i> (建築: ${q.building})${statusText}${noteText}</li>`;
     });
     html += `</ul>`;
   } else {
