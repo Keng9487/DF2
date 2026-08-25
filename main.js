@@ -30,7 +30,7 @@ function getCityNameByCoord(x, y, originalCity) {
     return originalCity;
   }
   // 否則，檢查是否落在指定的座標範圍內
-  for [cityName, range] of Object.entries(regionRanges)) {
+  for ([cityName, range] of Object.entries(regionRanges)) {
     if (x >= range.minX && x <= range.maxX && y >= range.minY && y <= range.maxY) {
       return cityName;
     }
