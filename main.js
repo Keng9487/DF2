@@ -25,12 +25,12 @@ const regionRanges = {
 
 // 2. 透過座標自動推導城市名稱的輔助函式
 function getCityNameByCoord(x, y, originalCity) {
-  // 如果原本就有填寫城市且不是未標註，就優先使用原本的
   if (originalCity && originalCity.trim() !== '' && originalCity.trim() !== '未標註') {
     return originalCity;
   }
-  // 否則，檢查是否落在指定的座標範圍內
-  for ([cityName, range] of Object.entries(regionRanges)) {
+  
+  // 修正：補上括號 (const ...)
+  for (const [cityName, range] of Object.entries(regionRanges)) {
     if (x >= range.minX && x <= range.maxX && y >= range.minY && y <= range.maxY) {
       return cityName;
     }
@@ -475,7 +475,7 @@ function displayCoordInfo(data) {
     return;
   }
 
-  // 【修改這裡】自動透過座標範圍判定城市名稱
+  // 自動透過座標範圍判定城市名稱
   const effectiveCity = getCityNameByCoord(data.x, data.y, data.city);
 
   let html = `<strong>🏢 建築物：</strong> ${data.buildings.join(', ')} (城市: ${effectiveCity})<br>`;
@@ -488,7 +488,6 @@ function displayCoordInfo(data) {
       const nCity = effectiveCity.trim().toLowerCase();
       const bClean = bName.trim().toLowerCase();
 
-      // 比對城市與建築名稱
       if ((!qCity || !nCity || qCity === nCity || qCity.includes(nCity)) && 
           (bClean === qBuilding || bClean.includes(qBuilding))) {
         matchedQuests.push(q);
