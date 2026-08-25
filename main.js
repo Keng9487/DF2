@@ -2,9 +2,26 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const supabaseUrl = 'https://yasnbvmngdxkukuxvafc.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlhc25idm1uZ2R4a3VrdXh2YWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mjc0MzUsImV4cCI6MjEwMjQwMzQzNX0.ht7XqIdRczGIdVE-oljEplFLEOHyxb7zZSI_pnDDP4w';
-
 const supabase = createClient(supabaseUrl, supabaseKey);
 window.supabase = supabase;
+// 定義特定城鎮的座標範圍
+const regionRanges = {
+  "拉文沃爾高地": { minX: 1, maxX: 6, minY: 0, maxY: 6 },
+  "阿班達爾公園": { minX: 7, maxX: 12, minY: 0, maxY: 6 },
+  "木上村": { minX: 13, maxX: 18, minY: 0, maxY: 6 },
+  "灰木鎮": { minX: 19, maxX: 24, minY: 0, maxY: 6 },
+  "勒威伯里": { minX: 25, maxX: 30, minY: 0, maxY: 6 },
+  "達爾博": { minX: 1, maxX: 6, minY: 7, maxY: 12 },
+  "庫珀鎮": { minX: 7, maxX: 12, minY: 7, maxY: 12 },
+  "豐弓鎮狩獵區": { minX: 13, maxX: 18, minY: 7, maxY: 12 },
+  "丹茨維爾": { minX: 19, maxX: 24, minY: 7, maxY: 12 },
+  "阿奇布魯克": { minX: 25, maxX: 30, minY: 7, maxY: 12 },
+  "西莫代爾": { minX: 1, maxX: 6, minY: 13, maxY: 18 },
+  "黎明丘": { minX: 7, maxX: 12, minY: 13, maxY: 18 },
+  "哈弗布魯克": { minX: 13, maxX: 18, minY: 13, maxY: 18 },
+  "南摩赫斯特": { minX: 19, maxX: 24, minY: 13, maxY: 18 },
+  "狼堡": { minX: 25, maxX: 30, minY: 13, maxY: 18 },
+};
 
 let globalQuestData = [];
 let globalRouteMapData = []; 
@@ -101,9 +118,6 @@ async function fetchQuestData() {
     return;
   }
   globalQuestData = (data || []).map(doc => ({ id: doc.id, ...doc }));
-  
-  // 維持目前的排序狀態
-  applyCurrentSort();
   updateFilterOptions();
   updateSystemDisplay();
 }
@@ -123,14 +137,16 @@ window.updateQuestStatusInSupabase = async function(id, newStatus) {
 
 // 更新任務備註至 Supabase
 window.updateQuestNotesInSupabase = async function(id, newNotes) {
+  // 1. 取得當前登入的使用者資訊
   const { data: { user } } = await supabase.auth.getUser();
   const userEmail = user ? user.email : '未登入訪客';
 
+  // 2. 將備註與更改者一起更新到 Supabase
   const { error } = await supabase
     .from('task')
     .update({ 
       notes: newNotes,
-      updated_by: userEmail 
+      updated_by: userEmail // 記錄更改者
     })
     .eq('id', id);
 
@@ -605,8 +621,7 @@ window.filterQuests = function() {
       <td>${q.task_type || q.type || '一般任務'}</td>
       <td>
         <div class="note-container">
-          <textarea class="note-input-inline" placeholder="輸入備註..." onchange="window.updateQuestNotesInSupabase('${qId}', this.value)">${q.notes || ''}</textarea>
-          ${q.updated_by ? `<div style="font-size: 11px; color: #8b949e; margin-top: 2px;">最後修改: ${q.updated_by}</div>` : ''}
+          <textarea class="note-input-inline" placeholder="輸入備註..." oninput="window.updateQuestNotesInSupabase('${qId}', this.value)">${q.notes || ''}</textarea>
         </div>
       </td>
       <td>
@@ -636,25 +651,20 @@ window.sortTable = function(columnIndex) {
     }
   });
 
-  applyCurrentSort(); 
-  window.filterQuests();
-};
-
-function applyCurrentSort() {
-  if (currentSortColumn === -1) return;
-  
   globalQuestData.sort((a, b) => {
     let valA = '', valB = '';
-    if (currentSortColumn === 0) { valA = a.building || ''; valB = b.building || ''; }
-    else if (currentSortColumn === 1) { valA = a.city || ''; valB = b.city || ''; }
-    else if (currentSortColumn === 2) { valA = a.task_type || a.type || ''; valB = b.task_type || b.type || ''; }
-    else if (currentSortColumn === 3) { valA = a.notes || ''; valB = b.notes || ''; }
-    else if (currentSortColumn === 4) { valA = a.status || ''; valB = b.status || ''; }
+    if (columnIndex === 0) { valA = a.building || ''; valB = b.building || ''; }
+    else if (columnIndex === 1) { valA = a.city || ''; valB = b.city || ''; }
+    else if (columnIndex === 2) { valA = a.task_type || a.type || ''; valB = b.task_type || b.type || ''; }
+    else if (columnIndex === 3) { valA = a.notes || ''; valB = b.notes || ''; }
+    else if (columnIndex === 4) { valA = a.status || ''; valB = b.status || ''; }
 
     const cmp = valA.localeCompare(valB, 'zh-Hant');
     return isAscending ? cmp : -cmp;
   });
-}
+
+  window.filterQuests();
+};
 
 window.resetFilters = function() {
   document.getElementById('search').value = '';
@@ -664,7 +674,7 @@ window.resetFilters = function() {
   window.filterQuests();
 };
 
-// --- 登入系統相關邏輯 ---
+// --- 登入系統相關邏輯 (已掛載至 window 供 HTML 呼叫) ---
 
 window.handleSignUp = async function() {
   const email = document.getElementById('auth-email').value.trim();
