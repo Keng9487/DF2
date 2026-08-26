@@ -583,30 +583,28 @@ function selectSingleBuildingCoord(questObj) {
 
   if (!qBuilding) return null;
 
-  // 1. 取得目前畫面上選擇的城市篩選器
-  const cityFilter = document.getElementById('filter-city') ? document.getElementById('filter-city').value : '';
-  const range = cityFilter ? regionRanges[cityFilter] : null;
+  // 1. 自動透過我們前面寫的 getQuestCity 算出這個任務實質屬於哪個城鎮
+  const effectiveCity = getQuestCity(questObj);
+  const range = regionRanges[effectiveCity];
 
-  // 2. 從地圖資料庫尋找符合條件的點位（優先套用當前選取的城市座標範圍）
+  // 2. 從地圖資料庫尋找符合條件的點位（優先限制在該城鎮的座標範圍內）
   let matchedNodes = globalRouteMapData.filter(node => {
-    // 如果有選定城市範圍，強制過濾只抓該範圍內的點位
+    // 如果該城鎮有定義座標範圍，嚴格限制只找該範圍內的點
     if (range && !isCoordInRegion(node.x, node.y, range)) {
       return false;
     }
 
-    const nodeCity = (node.city || '').trim().toLowerCase();
-    if (qCity && nodeCity && nodeCity !== qCity && !range) return false;
-
     if (node.buildings && Array.isArray(node.buildings)) {
       return node.buildings.some(b => {
         const bName = b.trim().toLowerCase();
+        // 優先完全吻合，其次才是模糊包含
         return bName === qBuilding || bName.includes(qBuilding) || qBuilding.includes(bName);
       });
     }
     return false;
   });
 
-  // 如果在指定城市範圍內沒找到，才退回全圖搜尋
+  // 如果在該城鎮範圍內找不到，才退回全圖搜尋
   if (matchedNodes.length === 0) {
     matchedNodes = globalRouteMapData.filter(node => {
       if (node.buildings && Array.isArray(node.buildings)) {
@@ -620,34 +618,13 @@ function selectSingleBuildingCoord(questObj) {
   }
 
   if (matchedNodes.length === 0) {
-    alert(`地圖資料庫無符合「${questObj.city || ''} - ${questObj.building}」的點位！`);
+    alert(`地圖資料庫無符合「${questObj.building}」的點位！`);
     return null;
   }
 
-  // 3. 【關鍵】如果過濾後剛好只剩 1 個點位，直接靜默回傳座標，絕不跳出 prompt！
-  if (matchedNodes.length === 1) {
-    return `${matchedNodes[0].x},${matchedNodes[0].y}`;
-  }
-
-  // 4. 如果真的有多個（例如同一城市有兩棟一樣的建築），才跳出提示框讓使用者手動選
-  let optionsText = `在「${cityFilter || '全圖'}」找到 ${matchedNodes.length} 個符合「${qBuilding}」的點位，請選擇：\n\n`;
-  matchedNodes.forEach((node, index) => {
-    optionsText += `${index + 1}. 座標 (${node.x}, ${node.y}) - 城市: ${node.city || '未標示'}\n`;
-  });
-  optionsText += `\n請輸入號碼 (1 ~ ${matchedNodes.length}):`;
-
-  const choice = prompt(optionsText, "1");
-  if (choice === null) return null; 
-
-  const chosenIndex = parseInt(choice, 10) - 1;
-  if (isNaN(chosenIndex) || chosenIndex < 0 || chosenIndex >= matchedNodes.length) {
-    alert("無效的選項！");
-    return null;
-  }
-
-  return `${matchedNodes[chosenIndex].x},${matchedNodes[chosenIndex].y}`;
+  // 3. 【全面自動化】不管找到幾個，直接自動回傳第一個最符合的座標，絕對不跳 prompt！
+  return `${matchedNodes[0].x},${matchedNodes[0].y}`;
 }
-
 window.locateQuestByBuilding = function(questId, targetBuildingName, targetCityName) {
   if (!questId) return;
 
