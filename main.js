@@ -28,6 +28,47 @@ function isCoordInRegion(x, y, range) {
   return x >= range.minX && x <= range.maxX && y >= range.minY && y <= range.maxY;
 }
 
+// 取得任務對應的地圖座標 (x, y)
+function getQuestCoord(q) {
+  let coordStr = q.selectedCoord || questSelectedCoordMap.get(q.id);
+  if (coordStr) {
+    const [x, y] = coordStr.split(',').map(Number);
+    return { x, y };
+  }
+  
+  // 如果還沒鎖定座標，嘗試從地圖資料庫透過建築名稱反查座標
+  const qCity = (q.city || '').trim().toLowerCase();
+  const qBuilding = (q.building || '').trim().toLowerCase();
+  if (!qBuilding) return null;
+
+  const matchedNodes = globalRouteMapData.filter(node => {
+    const nodeCity = (node.city || '').trim().toLowerCase();
+    if (qCity && nodeCity && qCity !== nodeCity) return false;
+    return node.buildings && node.buildings.some(b => {
+      const bName = b.trim().toLowerCase();
+      return bName === qBuilding || bName.includes(qBuilding) || qBuilding.includes(bName);
+    });
+  });
+
+  if (matchedNodes.length > 0) {
+    return { x: matchedNodes[0].x, y: matchedNodes[0].y };
+  }
+  return null;
+}
+
+// 【核心】不論有沒有選城市過濾器，都強制透過座標範圍來判定任務屬於哪個城鎮
+function getQuestCity(q) {
+  const coord = getQuestCoord(q);
+  if (coord) {
+    for (const [cityName, range] of Object.entries(regionRanges)) {
+      if (coord.x >= range.minX && coord.x <= range.maxX && coord.y >= range.minY && coord.y <= range.maxY) {
+        return cityName; // 強制回傳座標範圍所屬的城鎮名稱
+      }
+    }
+  }
+  return q.city || '未標註';
+}
+
 // 2. 透過座標自動推導城市名稱的輔助函式
 function getCityNameByCoord(x, y, originalCity) {
   if (originalCity && originalCity.trim() !== '' && originalCity.trim() !== '未標註') {
@@ -649,34 +690,15 @@ window.filterQuests = function() {
     const type = (q.task_type || q.type || '').toLowerCase();
     const notes = (q.notes || '').toLowerCase();
     const status = q.status || (q.active ? 'completed' : 'pending');
+    // 取得該任務透過座標範圍實質對應的城市名稱
+    const effectiveCity = getQuestCity(q);
 
     const matchKeyword = !keyword || building.includes(keyword) || city.includes(keyword) || type.includes(keyword) || notes.includes(keyword);
-    
-    // 依據城市名稱與座標範圍進行篩選
+
+    // 城市篩選：如果選了特定城市，檢查實質對應的城市是否相符
     let matchCity = true;
     if (cityFilter) {
-      const range = regionRanges[cityFilter];
-      if (range) {
-        // 1. 檢查任務是否有已被鎖定或指定的座標
-        const coordStr = q.selectedCoord || questSelectedCoordMap.get(q.id);
-        let inRange = false;
-
-        if (coordStr) {
-          const [cx, cy] = coordStr.split(',').map(Number);
-          inRange = isCoordInRegion(cx, cy, range);
-        } else {
-          // 2. 如果沒鎖定座標，透過地圖資料庫尋找該建築是否落在該座標範圍內
-          const matchedNodes = globalRouteMapData.filter(node => {
-            if (!isCoordInRegion(node.x, node.y, range)) return false;
-            return node.buildings && node.buildings.some(b => b.trim().toLowerCase().includes(building));
-          });
-          inRange = matchedNodes.length > 0;
-        }
-        matchCity = inRange;
-      } else {
-        // 如果該城市沒有在範圍表內，退回一般字串比對
-        matchCity = city.includes(cityFilter.toLowerCase());
-      }
+      matchCity = (effectiveCity === cityFilter);
     }
 
     const matchType = !typeFilter || (q.task_type === typeFilter || q.type === typeFilter);
@@ -726,6 +748,9 @@ window.filterQuests = function() {
     };
 
     const nearRouteBadge = isNearRoute ? `<span class="badge-near" title="此任務點位鄰近自訂路線">路線附近</span>` : '';
+
+    // 表格顯示時，直接呈現透過座標範圍算出來的正確城市名稱
+    const displayCity = getQuestCity(q);
 
     tr.innerHTML = `
       <td><b>${q.building || '未指定建築'}</b> ${nearRouteBadge}</td>
