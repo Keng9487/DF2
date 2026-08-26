@@ -30,13 +30,22 @@ function isCoordInRegion(x, y, range) {
 
 // 取得任務對應的地圖座標 (x, y)
 function getQuestCoord(q) {
+  // 1. 【優先】如果任務本身資料庫就已經有直接的座標欄位 (例如 q.xcoord / q.ycoord 或 q.x / q.y)
+  const directX = q.xcoord ?? q.x ?? q['data-xcoord'];
+  const directY = q.ycoord ?? q.y ?? q['data-ycoord'];
+  
+  if (directX !== undefined && directY !== undefined && directX !== null && directX !== '') {
+    return { x: Number(directX), y: Number(directY) };
+  }
+
+  // 2. 其次才看有沒有手動鎖定或暫存的座標
   let coordStr = q.selectedCoord || questSelectedCoordMap.get(q.id);
   if (coordStr) {
     const [x, y] = coordStr.split(',').map(Number);
     return { x, y };
   }
-  
-  // 如果還沒鎖定座標，嘗試從地圖資料庫透過建築名稱反查座標
+
+  // 3. 最後才退回從地圖資料庫反查（以防萬一有些舊資料沒有座標）
   const qCity = (q.city || '').trim().toLowerCase();
   const qBuilding = (q.building || '').trim().toLowerCase();
   if (!qBuilding) return null;
@@ -62,7 +71,7 @@ function getQuestCity(q) {
   if (coord) {
     for (const [cityName, range] of Object.entries(regionRanges)) {
       if (coord.x >= range.minX && coord.x <= range.maxX && coord.y >= range.minY && coord.y <= range.maxY) {
-        return cityName; // 強制回傳座標範圍所屬的城鎮名稱
+        return cityName; 
       }
     }
   }
