@@ -151,23 +151,40 @@ window.updateQuestStatusInSupabase = async function(id, newStatus) {
 };
 
 // 更新任務備註至 Supabase
-window.updateQuestNotesInSupabase = async function(id, newNotes) {
-  // 1. 取得當前登入的使用者資訊
-  const { data: { user } } = await supabase.auth.getUser();
-  const userEmail = user ? user.email : '未登入訪客';
+// 用來記錄各個任務備註的防手震計時器
+let noteUpdateTimers = {};
 
-  // 2. 將備註與更改者一起更新到 Supabase
-  const { error } = await supabase
-    .from('task')
-    .update({ 
-      notes: newNotes,
-      updated_by: userEmail // 記錄更改者
-    })
-    .eq('id', id);
-
-  if (error) {
-    console.error('更新備註失敗:', error);
+// 優化後的更新備註函式（含防手震與本地即時同步）
+window.updateQuestNotesInSupabase = function(id, newNotes) {
+  // 1. 【關鍵】本地記憶體陣列先同步更新
+  // 這樣即使即時監聽觸發重新整理，資料已經是最新狀態，不會被覆蓋掉
+  const targetQuest = globalQuestData.find(q => q.id === id);
+  if (targetQuest) {
+    targetQuest.notes = newNotes;
   }
+
+  // 2. 清除該任務先前尚未觸發的計時器（防手震機制）
+  if (noteUpdateTimers[id]) {
+    clearTimeout(noteUpdateTimers[id]);
+  }
+
+  // 3. 設定新計時器：當使用者停止打字 500 毫秒（0.5秒）後，才真正寫入 Supabase
+  noteUpdateTimers[id] = setTimeout(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    const userEmail = user ? user.email : '未登入訪客';
+
+    const { error } = await supabase
+      .from('task')
+      .update({ 
+        notes: newNotes,
+        updated_by: userEmail // 記錄更改者
+      })
+      .eq('id', id);
+
+    if (error) {
+      console.error('更新備註失敗:', error);
+    }
+  }, 500); 
 };
 
 function updateFilterOptions() {
@@ -638,6 +655,23 @@ window.filterQuests = function() {
     return matchKeyword && matchCity && matchType && matchStatus;
   });
 
+  // ==========================
+  // 【新增】在這裡加入排序維持邏輯
+  // ==========================
+  if (currentSortColumn !== -1) {
+    filtered.sort((a, b) => {
+      let valA = '', valB = '';
+      if (currentSortColumn === 0) { valA = a.building || ''; valB = b.building || ''; }
+      else if (currentSortColumn === 1) { valA = a.city || ''; valB = b.city || ''; }
+      else if (currentSortColumn === 2) { valA = a.task_type || a.type || ''; valB = b.task_type || b.type || ''; }
+      else if (currentSortColumn === 3) { valA = a.notes || ''; valB = b.notes || ''; }
+      else if (currentSortColumn === 4) { valA = a.status || ''; valB = b.status || ''; }
+
+      const cmp = valA.localeCompare(valB, 'zh-Hant');
+      return isAscending ? cmp : -cmp;
+    });
+  }
+
   if (filtered.length === 0) {
     tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #8b949e; padding: 20px;">沒有找到符合條件的任務</td></tr>`;
     return;
@@ -698,18 +732,6 @@ window.sortTable = function(columnIndex) {
     if (idx === columnIndex) {
       th.classList.add(isAscending ? 'asc' : 'desc');
     }
-  });
-
-  globalQuestData.sort((a, b) => {
-    let valA = '', valB = '';
-    if (columnIndex === 0) { valA = a.building || ''; valB = b.building || ''; }
-    else if (columnIndex === 1) { valA = a.city || ''; valB = b.city || ''; }
-    else if (columnIndex === 2) { valA = a.task_type || a.type || ''; valB = b.task_type || b.type || ''; }
-    else if (columnIndex === 3) { valA = a.notes || ''; valB = b.notes || ''; }
-    else if (columnIndex === 4) { valA = a.status || ''; valB = b.status || ''; }
-
-    const cmp = valA.localeCompare(valB, 'zh-Hant');
-    return isAscending ? cmp : -cmp;
   });
 
   window.filterQuests();
