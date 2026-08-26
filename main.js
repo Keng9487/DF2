@@ -23,6 +23,11 @@ const regionRanges = {
   "狼堡": { minX: 25, maxX: 30, minY: 13, maxY: 18 },
 };
 
+// 檢查某個座標 (x, y) 是否落在指定的區域範圍內
+function isCoordInRegion(x, y, range) {
+  return x >= range.minX && x <= range.maxX && y >= range.minY && y <= range.maxY;
+}
+
 // 2. 透過座標自動推導城市名稱的輔助函式
 function getCityNameByCoord(x, y, originalCity) {
   if (originalCity && originalCity.trim() !== '' && originalCity.trim() !== '未標註') {
@@ -621,43 +626,41 @@ window.filterQuests = function() {
     const status = q.status || (q.active ? 'completed' : 'pending');
 
     const matchKeyword = !keyword || building.includes(keyword) || city.includes(keyword) || type.includes(keyword) || notes.includes(keyword);
-    // 【修改】城市與座標範圍複合篩選
+    
+    // 依據城市名稱與座標範圍進行篩選
     let matchCity = true;
     if (cityFilter) {
-      if (regionRanges[cityFilter]) {
-        // 如果該城市有定義座標範圍，檢查任務的點位是否在此範圍內
+      const range = regionRanges[cityFilter];
+      if (range) {
+        // 1. 檢查任務是否有已被鎖定或指定的座標
         const coordStr = q.selectedCoord || questSelectedCoordMap.get(q.id);
         let inRange = false;
-        
+
         if (coordStr) {
           const [cx, cy] = coordStr.split(',').map(Number);
-          const range = regionRanges[cityFilter];
-          inRange = (cx >= range.minX && cx <= range.maxX && cy >= range.minY && cy <= range.maxY);
+          inRange = isCoordInRegion(cx, cy, range);
         } else {
-          // 如果還沒鎖定座標，透過地圖資料庫模糊比對該建築是否落在範圍內
+          // 2. 如果沒鎖定座標，透過地圖資料庫尋找該建築是否落在該座標範圍內
           const matchedNodes = globalRouteMapData.filter(node => {
-            const range = regionRanges[cityFilter];
-            const inBox = (node.x >= range.minX && node.x <= range.maxX && node.y >= range.minY && node.y <= range.maxY);
-            if (!inBox) return false;
+            if (!isCoordInRegion(node.x, node.y, range)) return false;
             return node.buildings && node.buildings.some(b => b.trim().toLowerCase().includes(building));
           });
           inRange = matchedNodes.length > 0;
         }
         matchCity = inRange;
       } else {
-        // 一般城市名稱比對
-        matchCity = (q.city === cityFilter);
+        // 如果該城市沒有在範圍表內，退回一般字串比對
+        matchCity = city.includes(cityFilter.toLowerCase());
       }
     }
+
     const matchType = !typeFilter || (q.task_type === typeFilter || q.type === typeFilter);
     const matchStatus = !statusFilter || status === statusFilter;
 
     return matchKeyword && matchCity && matchType && matchStatus;
   });
 
-  // ==========================
-  // 【新增】在這裡加入排序維持邏輯
-  // ==========================
+  // 套用前面提過的「維持當前排序」邏輯
   if (currentSortColumn !== -1) {
     filtered.sort((a, b) => {
       let valA = '', valB = '';
@@ -677,6 +680,7 @@ window.filterQuests = function() {
     return;
   }
 
+  // 渲染表格內容
   filtered.forEach(q => {
     const tr = document.createElement('tr');
     const qId = q.id;
@@ -696,7 +700,7 @@ window.filterQuests = function() {
       window.locateQuestByBuilding(qId, q.building, q.city);
     };
 
-    const nearRouteBadge = isNearRoute ? `<span class="badge-near" title="此任務點位鄰近自訂路線 (距離 <= 2)">路線附近</span>` : '';
+    const nearRouteBadge = isNearRoute ? `<span class="badge-near" title="此任務點位鄰近自訂路線">路線附近</span>` : '';
 
     tr.innerHTML = `
       <td><b>${q.building || '未指定建築'}</b> ${nearRouteBadge}</td>
