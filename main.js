@@ -542,9 +542,19 @@ function selectSingleBuildingCoord(questObj) {
 
   if (!qBuilding) return null;
 
-  const matchedNodes = globalRouteMapData.filter(node => {
+  // 1. 取得目前畫面上選擇的城市篩選器
+  const cityFilter = document.getElementById('filter-city') ? document.getElementById('filter-city').value : '';
+  const range = cityFilter ? regionRanges[cityFilter] : null;
+
+  // 2. 從地圖資料庫尋找符合條件的點位（優先套用當前選取的城市座標範圍）
+  let matchedNodes = globalRouteMapData.filter(node => {
+    // 如果有選定城市範圍，強制過濾只抓該範圍內的點位
+    if (range && !isCoordInRegion(node.x, node.y, range)) {
+      return false;
+    }
+
     const nodeCity = (node.city || '').trim().toLowerCase();
-    if (qCity && nodeCity && nodeCity !== qCity) return false;
+    if (qCity && nodeCity && nodeCity !== qCity && !range) return false;
 
     if (node.buildings && Array.isArray(node.buildings)) {
       return node.buildings.some(b => {
@@ -555,18 +565,33 @@ function selectSingleBuildingCoord(questObj) {
     return false;
   });
 
+  // 如果在指定城市範圍內沒找到，才退回全圖搜尋
+  if (matchedNodes.length === 0) {
+    matchedNodes = globalRouteMapData.filter(node => {
+      if (node.buildings && Array.isArray(node.buildings)) {
+        return node.buildings.some(b => {
+          const bName = b.trim().toLowerCase();
+          return bName === qBuilding || bName.includes(qBuilding) || qBuilding.includes(bName);
+        });
+      }
+      return false;
+    });
+  }
+
   if (matchedNodes.length === 0) {
     alert(`地圖資料庫無符合「${questObj.city || ''} - ${questObj.building}」的點位！`);
     return null;
   }
 
+  // 3. 【關鍵】如果過濾後剛好只剩 1 個點位，直接靜默回傳座標，絕不跳出 prompt！
   if (matchedNodes.length === 1) {
     return `${matchedNodes[0].x},${matchedNodes[0].y}`;
   }
 
-  let optionsText = `找到 ${matchedNodes.length} 個符合條件的建築點位，請選擇要亮起哪一個：\n\n`;
+  // 4. 如果真的有多個（例如同一城市有兩棟一樣的建築），才跳出提示框讓使用者手動選
+  let optionsText = `在「${cityFilter || '全圖'}」找到 ${matchedNodes.length} 個符合「${qBuilding}」的點位，請選擇：\n\n`;
   matchedNodes.forEach((node, index) => {
-    optionsText += `${index + 1}. 座標 (${node.x}, ${node.y}) - 城市: ${node.city || '未標示'} [建築: ${node.buildings.join(', ')}]\n`;
+    optionsText += `${index + 1}. 座標 (${node.x}, ${node.y}) - 城市: ${node.city || '未標示'}\n`;
   });
   optionsText += `\n請輸入號碼 (1 ~ ${matchedNodes.length}):`;
 
