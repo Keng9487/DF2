@@ -738,13 +738,26 @@ window.filterQuests = function() {
     // 表格顯示時，直接呈現透過座標範圍算出來的正確城市名稱
     const displayCity = getQuestCity(q);
 
+    // 處理備註歷史記錄的顯示格式
+    let notesHtml = '';
+    let rawNotes = q.notes || '';
+
     tr.innerHTML = `
       <td><b>${q.building || '未指定建築'}</b> ${nearRouteBadge}</td>
-      <td>${q.city || '未知城市'}</td>
+      <td>${displayCity}</td>
       <td>${q.task_type || q.type || '一般任務'}</td>
       <td>
-        <div class="note-container">
-          <textarea class="note-input-inline" placeholder="輸入備註..." oninput="window.updateQuestNotesInSupabase('${qId}', this.value)">${q.notes || ''}</textarea>
+        <div class="note-box" style="display: flex; flex-direction: column; gap: 6px; min-width: 220px;">
+          <!-- 歷史備註顯示區 -->
+          <div class="note-history" style="max-height: 100px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 4px; font-size: 12px; white-space: pre-wrap; word-break: break-all; color: #d1d5db;">
+            ${rawNotes ? rawNotes : '<span style="color: #6b7280;">尚無備註記錄</span>'}
+          </div>
+          
+          <!-- 新增備註輸入與按鈕區 -->
+          <div style="display: flex; gap: 4px;">
+            <input type="text" id="new-note-input-${qId}" placeholder="輸入新備註..." style="flex: 1; padding: 4px 8px; font-size: 12px; background: #1f2937; color: #fff; border: 1px: #374151; border-radius: 4px;" />
+            <button onclick="window.appendNewNote('${qId}')" style="padding: 4px 10px; font-size: 12px; background: #2563eb; color: #white; border: none; border-radius: 4px; cursor: pointer;">新增</button>
+          </div>
         </div>
       </td>
       <td>
@@ -863,3 +876,55 @@ async function initAuth() {
     updateAuthUI(session ? session.user : null);
   });
 }
+
+window.appendNewNote = async function(qId) {
+  const inputEl = document.getElementById(`new-note-input-${qId}`);
+  if (!inputEl) return;
+  
+  const newText = inputEl.value.trim();
+  if (!newText) {
+    alert("請輸入備註內容！");
+    return;
+  }
+
+  // 1. 取得當前登入的使用者資訊
+  const { data: { user } } = await supabase.auth.getUser();
+  const userEmail = user ? user.email : '匿名訪客';
+
+  // 2. 取得當前時間格式 (例如: 10/12 21:30)
+  const now = new Date();
+  const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  // 3. 組合新的一行備註記錄
+  const noteEntry = `[${timeStr}] ${userEmail}: ${newText}`;
+
+  // 4. 取得該任務在前端記憶體中的舊備註
+  const targetQuest = globalQuestData.find(q => q.id === qId);
+  if (!targetQuest) return;
+
+  const oldNotes = targetQuest.notes || '';
+  
+  // 將新備註串接到舊備註下方（以換行隔開）
+  const updatedNotes = oldNotes ? `${oldNotes}\n${noteEntry}` : noteEntry;
+
+  // 5. 更新前端記憶體（確保即時反應）
+  targetQuest.notes = updatedNotes;
+  inputEl.value = ''; // 清空輸入框
+
+  // 6. 寫入 Supabase 資料庫
+  const { error } = await supabase
+    .from('task')
+    .update({ 
+      notes: updatedNotes,
+      updated_by: userEmail 
+    })
+    .eq('id', qId);
+
+  if (error) {
+    console.error('儲存備註失敗:', error);
+    alert('儲存備註失敗，請稍後再試！');
+  } else {
+    // 重新整理畫面以更新歷史備註清單
+    window.filterQuests();
+  }
+};
