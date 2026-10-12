@@ -4,7 +4,7 @@
   padding: 0;
 }
 
-/* 右上角按鈕容器固定 */
+/* 左上角按鈕容器固定 */
 .top-left-auth-buttons {
   position: absolute;
   top: 20px;
