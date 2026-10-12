@@ -191,69 +191,9 @@
     <div id="messageBox" class="message"></div>
 
     <div class="footer-text">
-      已經有帳號了？ <a href="/login.html">立即登入</a>
+      已經有帳號了？ <a href="/登入.html">立即登入</a>
     </div>
   </div>
 
   <!-- 載入 Supabase SDK -->
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-    const SUPABASE_URL = 'https://your-supabase-url.supabase.co'
-    const SUPABASE_ANON_KEY = 'your-anon-key'
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-
-    const form = document.getElementById('signupForm')
-    const passwordInput = document.getElementById('password')
-    const confirmPasswordInput = document.getElementById('confirmPassword')
-    const togglePasswordBtn = document.getElementById('togglePassword')
-    const submitBtn = document.getElementById('submitBtn')
-    const messageBox = document.getElementById('messageBox')
-
-    togglePasswordBtn.addEventListener('click', () => {
-      const isPassword = passwordInput.type === 'password'
-      passwordInput.type = isPassword ? 'text' : 'password'
-      togglePasswordBtn.textContent = isPassword ? '隱藏' : '顯示'
-    })
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault()
-
-      const username = document.getElementById('username').value.trim()
-      const email = document.getElementById('email').value.trim()
-      const password = passwordInput.value
-      const confirmPassword = confirmPasswordInput.value
-
-      if (password !== confirmPassword) {
-        showMessage('兩次輸入的密碼不一致！', 'error')
-        return
-      }
-
-      setLoading(true)
-
-      try {
-        const { data, error } = await supabase.auth.signUp({
-          email: email,
-          password: password,
-          options: {
-            data: {
-              username: username
-            }
-          }
-        })
-
-        if (error) {
-          showMessage('註冊失敗：' + error.message, 'error')
-        } else {
-          showMessage('註冊成功！即將為您跳轉...', 'success')
-          
-          setTimeout(() => {
-            window.location.href = '/profile-setup.html'
-          }, 1500)
-        }
-      } catch (err) {
-        showMessage('發生未知的錯誤，請稍後再試。', 'error')
-      } finally {
-        setLoading(false)
-      }
-    })
+  <script type="module" src="註冊.js">
