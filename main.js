@@ -671,84 +671,69 @@ window.filterQuests = function() {
   tbody.innerHTML = '';
 
   const filtered = globalQuestData.filter(q => {
-    const city = (q.city || '').toLowerCase();
     const building = (q.building || '').toLowerCase();
     const type = (q.task_type || q.type || '').toLowerCase();
     const notes = (q.notes || '').toLowerCase();
     const status = q.status || (q.active ? 'completed' : 'pending');
-    // 取得該任務透過座標範圍實質對應的城市名稱
+
     const effectiveCity = getQuestCity(q);
-
-    const matchKeyword = !keyword || building.includes(keyword) || city.includes(keyword) || type.includes(keyword) || notes.includes(keyword);
-
-    // 城市篩選：如果選了特定城市，檢查實質對應的城市是否相符
-    let matchCity = true;
-    if (cityFilter) {
-      matchCity = (effectiveCity === cityFilter);
-    }
-
-    const matchType = !typeFilter || (q.task_type === typeFilter || q.type === typeFilter);
-    const matchStatus = !statusFilter || status === statusFilter;
+    const matchKeyword = !keyword || building.includes(keyword) || effectiveCity.toLowerCase().includes(keyword) || type.includes(keyword) || notes.includes(keyword);
+    
+    let matchCity = !cityFilter || (effectiveCity === cityFilter);
+    let matchType = !typeFilter || (q.task_type === typeFilter || q.type === typeFilter);
+    let matchStatus = !statusFilter || (status === statusFilter);
 
     return matchKeyword && matchCity && matchType && matchStatus;
   });
 
-  // 套用前面提過的「維持當前排序」邏輯
-  if (currentSortColumn !== -1) {
-    filtered.sort((a, b) => {
-      let valA = '', valB = '';
-      if (currentSortColumn === 0) { valA = a.building || ''; valB = b.building || ''; }
-      else if (currentSortColumn === 1) { valA = a.city || ''; valB = b.city || ''; }
-      else if (currentSortColumn === 2) { valA = a.task_type || a.type || ''; valB = b.task_type || b.type || ''; }
-      else if (currentSortColumn === 3) { valA = a.notes || ''; valB = b.notes || ''; }
-      else if (currentSortColumn === 4) { valA = a.status || ''; valB = b.status || ''; }
-
-      const cmp = valA.localeCompare(valB, 'zh-Hant');
-      return isAscending ? cmp : -cmp;
-    });
-  }
-
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #8b949e; padding: 20px;">沒有找到符合條件的任務</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #8b949e; padding: 20px;">沒有找到符合條件的任務</td></tr>`;
     return;
   }
 
-  // 渲染表格內容
   filtered.forEach(q => {
-    const tr = document.createElement('tr');
     const qId = q.id;
     const currentStatus = q.status || (q.active ? 'completed' : 'pending');
-    const isLocked = lockedQuestIds.has(qId);
-    if (isLocked) tr.classList.add('row-locked');
-    if (currentStatus === 'completed') tr.classList.add('completed');
-
+    const displayCity = getQuestCity(q);
+    
     const isNearRoute = (() => {
       const coord = q.selectedCoord || questSelectedCoordMap.get(qId);
-      if (coord && nearRouteCoords.has(coord)) return true;
-      return false;
+      return coord && nearRouteCoords.has(coord);
     })();
+    const nearRouteBadge = isNearRoute ? `<span style="color:#60a5fa; font-size:11px;">[路線附近]</span>` : '';
 
-    tr.onclick = (e) => {
-      if (e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'OPTION') return;
-      window.locateQuestByBuilding(qId, q.building, q.city);
-    };
+    // --- 備註解析：自動帶出時間與編輯者 ---
+    const rawNotes = q.notes ? q.notes.trim() : '';
+    const noteLines = rawNotes ? rawNotes.split('\n').filter(line => line.trim() !== '') : [];
+    
+    // 第一則備註（內含 [MM/DD HH:mm] email: 內容）
+    const firstNoteText = noteLines.length > 0 ? noteLines[0] : '<span style="color: #6b7280; font-style: italic;">尚無備註記錄</span>';
+    
+    // 超過 1 則時，顯示「還有 X 則更多備註」按鈕（點擊跳轉至 notes.html）
+    const hasMoreNotes = noteLines.length > 1;
+    const moreNotesButtonHtml = hasMoreNotes 
+      ? `<button onclick="window.location.href='notes.html?id=${qId}'" style="display: inline-block; margin-top: 4px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 還有 ${noteLines.length - 1} 則更多備註...</button>` 
+      : '';
 
-    const nearRouteBadge = isNearRoute ? `<span class="badge-near" title="此任務點位鄰近自訂路線">路線附近</span>` : '';
-
-    // 表格顯示時，直接呈現透過座標範圍算出來的正確城市名稱
-    const displayCity = getQuestCity(q);
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #1f2937';
 
     tr.innerHTML = `
-      <td><b>${q.building || '未指定建築'}</b> ${nearRouteBadge}</td>
-      <td>${q.city || '未知城市'}</td>
-      <td>${q.task_type || q.type || '一般任務'}</td>
-      <td>
-        <div class="note-container">
-          <textarea class="note-input-inline" placeholder="輸入備註..." oninput="window.updateQuestNotesInSupabase('${qId}', this.value)">${q.notes || ''}</textarea>
+      <td style="padding: 10px;"><b>${q.building || '未指定建築'}</b> ${nearRouteBadge}</td>
+      <td style="padding: 10px;">${displayCity}</td>
+      <td style="padding: 10px;">${q.task_type || q.type || '一般任務'}</td>
+      <td style="padding: 10px; max-width: 280px;">
+        <div style="font-size: 12px; color: #e5e7eb; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${rawNotes}">
+          ${firstNoteText}
         </div>
+        ${moreNotesButtonHtml}
       </td>
-      <td>
-        <select class="status-select-dropdown status-${currentStatus}" onchange="window.updateQuestStatusInSupabase('${qId}', this.value)">
+      <td style="padding: 10px;">
+        <!-- 點擊後真實跳轉至 edit.html 網頁並帶入任務 ID -->
+        <button onclick="window.location.href='edit.html?id=${qId}'" style="padding: 4px 10px; background: #374151; color: #60a5fa; border: 1px solid #4b5563; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ 編輯詳情</button>
+      </td>
+      <td style="padding: 10px;">
+        <select onchange="window.updateQuestStatusInSupabase('${qId}', this.value)" style="background: #1f2937; color: #fff; border: 1px solid #4b5563; padding: 4px; border-radius: 4px; font-size: 12px;">
           <option value="pending" ${currentStatus === 'pending' ? 'selected' : ''}>⭕ 未完成</option>
           <option value="show" ${currentStatus === 'show' ? 'selected' : ''}>👁️ 顯示中</option>
           <option value="completed" ${currentStatus === 'completed' ? 'selected' : ''}>✅ 已完成</option>
@@ -863,3 +848,13 @@ async function initAuth() {
     updateAuthUI(session ? session.user : null);
   });
 }
+
+// 點擊「登入」按鈕跳轉
+document.getElementById('login-btn').addEventListener('click', () => {
+  window.location.href = '登入.html'; // 更改為你的登入頁面網址
+});
+
+// 點擊「註冊」按鈕跳轉
+document.getElementById('register-btn').addEventListener('click', () => {
+  window.location.href = '註冊.html'; // 更改為你的註冊頁面網址
+});
