@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>帳號註冊</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #000000; /* 改為全黑背景 */
+      color: #f9fafb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .signup-card {
+      background: #111827; /* 卡片背景改為深灰色，與黑色背景做出區隔 */
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 420px;
+      border: 1px solid #1f2937;
+    }
+
+    .signup-card h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .signup-card p.subtitle {
+      font-size: 14px;
+      color: #9ca3af;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #d1d5db;
+      margin-bottom: 6px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px 14px;
+      background-color: #1f2937; /* 輸入框背景改深色 */
+      border: 1px solid #374151; /* 輸入框邊框 */
+      border-radius: 8px;
+      font-size: 14px;
+      color: #ffffff; /* 輸入文字為白色 */
+      transition: border-color 0.2s ease;
+      outline: none;
+    }
+
+    .form-group input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 12px;
+      color: #9ca3af;
+      user-select: none;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      margin-top: 10px;
+    }
+
+    .submit-btn:hover {
+      background-color: #4338ca;
+    }
+
+    .submit-btn:disabled {
+      background-color: #4b5563;
+      cursor: not-allowed;
+    }
+
+    .message {
+      margin-top: 15px;
+      font-size: 14px;
+      text-align: center;
+      padding: 10px;
+      border-radius: 6px;
+      display: none;
+    }
+
+    .message.error {
+      display: block;
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .message.success {
+      display: block;
+      background-color: rgba(34, 197, 94, 0.1);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .footer-text {
+      text-align: center;
+      font-size: 14px;
+      color: #9ca3af;
+      margin-top: 20px;
+    }
+
+    .footer-text a {
+      color: #818cf8;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer-text a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="signup-card">
+    <h2>建立新帳號</h2>
+    <p class="subtitle">請填寫以下資訊完成註冊</p>
+
+    <form id="signupForm">
+      <div class="form-group">
+        <label for="username">使用者名稱 (Username)</label>
+        <input type="text" id="username" placeholder="請輸入使用者名稱" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">電子郵件 (Email)</label>
+        <input type="email" id="email" placeholder="example@email.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">設定密碼</label>
+        <div class="input-wrapper">
+          <input type="password" id="password" placeholder="至少 6 位數" required minlength="6">
+          <span class="toggle-password" id="togglePassword">顯示</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">確認密碼</label>
+        <input type="password" id="confirmPassword" placeholder="再次輸入密碼" required>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">註冊帳號</button>
+    </form>
+
+    <div id="messageBox" class="message"></div>
+
+    <div class="footer-text">
+      已經有帳號了？ <a href="/login.html">立即登入</a>
+    </div>
+  </div>
+
+  <!-- 載入 Supabase SDK -->
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+    const SUPABASE_URL = 'https://your-supabase-url.supabase.co'
+    const SUPABASE_ANON_KEY = 'your-anon-key'
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+    const form = document.getElementById('signupForm')
+    const passwordInput = document.getElementById('password')
+    const confirmPasswordInput = document.getElementById('confirmPassword')
+    const togglePasswordBtn = document.getElementById('togglePassword')
+    const submitBtn = document.getElementById('submitBtn')
+    const messageBox = document.getElementById('messageBox')
+
+    togglePasswordBtn.addEventListener('click', () => {
+      const isPassword = passwordInput.type === 'password'
+      passwordInput.type = isPassword ? 'text' : 'password'
+      togglePasswordBtn.textContent = isPassword ? '隱藏' : '顯示'
+    })
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+
+      const username = document.getElementById('username').value.trim()
+      const email = document.getElementById('email').value.trim()
+      const password = passwordInput.value
+      const confirmPassword = confirmPasswordInput.value
+
+      if (password !== confirmPassword) {
+        showMessage('兩次輸入的密碼不一致！', 'error')
+        return
+      }
+
+      setLoading(true)
+
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email: email,
+          password: password,
+          options: {
+            data: {
+              username: username
+            }
+          }
+        })
+
+        if (error) {
+          showMessage('註冊失敗：' + error.message, 'error')
+        } else {
+          showMessage('註冊成功！即將為您跳轉...', 'success')
+          
+          setTimeout(() => {
+            window.location.href = '/profile-setup.html'
+          }, 1500)
+        }
+      } catch (err) {
+        showMessage('發生未知的錯誤，請稍後再試。', 'error')
+      } finally {
+        setLoading(false)
+      }
+    })
