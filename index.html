@@ -7,30 +7,12 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>地圖管理系統</h1>
-    <div class="panel-box" id="auth-panel" style="margin-top: 15px; padding: 12px; border: 1px solid #444; background: #1e1e1e; color: #fff; border-radius: 6px;">
-      <h3 class="panel-title" style="margin-bottom: 10px; font-size: 16px;">🔐 玩家協作登入</h3>
-      
-      <!-- 【未登入時顯示】輸入與操作區 -->
-      <div id="logged-out-view">
-        <input type="email" id="auth-email" placeholder="輸入常用 Email" style="width: 100%; margin-bottom: 6px; padding: 6px; box-sizing: border-box; background: #2d2d2d; border: 1px solid #555; color: #fff;"><br>
-        <input type="password" id="auth-password" placeholder="輸入密碼 (至少6碼)" style="width: 100%; margin-bottom: 10px; padding: 6px; box-sizing: border-box; background: #2d2d2d; border: 1px solid #555; color: #fff;"><br>
-        
-        <div style="display: flex; gap: 6px;">
-          <button onclick="handleSignUp()" style="flex: 1; background-color: #2ea043; color: white; padding: 6px; border: none; cursor: pointer; border-radius: 4px;">註冊帳號</button>
-          <button onclick="handleSignIn()" style="flex: 1; background-color: #1f6feb; color: white; padding: 6px; border: none; cursor: pointer; border-radius: 4px;">登入</button>
-        </div>
-      </div>
-
-      <!-- 【已登入時顯示】狀態與登出區 -->
-      <div id="logged-in-view" style="display: none;">
-        <p style="margin: 0 0 8px 0; font-size: 13px; color: #a5d6ff;">
-          已登入：<span id="user-email-display" style="font-weight: bold;"></span>
-        </p>
-        <button onclick="handleSignOut()" style="width: 100%; background-color: #da3633; color: white; padding: 6px; border: none; cursor: pointer; border-radius: 4px;">登出系統</button>
-      </div>
+  <header style="position: relative;">
+    <div class="top-right-auth-buttons">
+      <button id="login-btn" class="auth-btn">登入</button>
+      <button id="register-btn" class="auth-btn">註冊</button>
     </div>
+    <h1>地圖管理系統</h1>
     <h1>Dead Frontier 2 互動地圖 & Supabase 即時共享 HUD 系統</h1>
     <span id="sync-status" class="status-badge">(連線中...)</span>
   </header>
