@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>任務備註與協作記錄</title>
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #f3f4f6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 30px;
+    }
+  </style>
+  <!-- 引入 Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <div style="max-width: 800px; margin: 0 auto;">
+    <!-- 頂部導覽列 -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid #1f2937; padding-bottom: 12px;">
+      <button onclick="window.location.href='任務.html'" style="background: #374151; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">← 返回任務列表</button>
+      <h2 style="margin: 0; color: #60a5fa;">📖 任務備註與協作記錄檢視</h2>
+      <div></div>
+    </div>
+
+    <!-- 內容區 -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="background: #1f2937; padding: 12px 16px; border-radius: 6px; border: 1px solid #374151;">
+        <div style="font-size: 13px; color: #9ca3af; margin-bottom: 4px;">目前檢視任務：</div>
+        <div id="notes-quest-title" style="font-size: 16px; font-weight: bold; color: #fff;">載入中...</div>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 14px; color: #9ca3af; margin-bottom: 6px;">歷史備註與多人記錄 (Collaboration Log)：</label>
+        <div id="notes-history-box" style="height: 250px; overflow-y: auto; background: #1f2937; padding: 12px; border-radius: 6px; font-size: 13px; white-space: pre-wrap; color: #d1d5db; border: 1px solid #374151; line-height: 1.6;">載入中...</div>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 14px; color: #9ca3af; margin-bottom: 6px;">新增協作備註：</label>
+        <textarea id="notes-new-input" rows="4" style="width: 100%; padding: 10px; background: #1f2937; color: #fff; border: 1px solid #374151; border-radius: 6px; box-sizing: border-box;" placeholder="在此輸入新的備註內容（將自動記錄您的帳號與時間）..."></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px;">
+        <button onclick="window.location.href='任務.html'" style="padding: 10px 20px; background: #4b5563; color: #fff; border: none; border-radius: 6px; cursor: pointer;">取消返回</button>
+        <button onclick="appendAndSaveNote()" style="padding: 10px 24px; background: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">送出備註並返回主頁</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 請替換成你的 Supabase 專案設定
+    const SUPABASE_URL = 'https://yasnbvmngdxkukuxvafc.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlhc25idm1uZ2R4a3VrdXh2YWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mjc0MzUsImV4cCI6MjEwMjQwMzQzNX0.ht7XqIdRczGIdVE-oljEplFLEOHyxb7zZSI_pnDDP4w';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // 取得網址列的任務 ID (例如 notes.html?id=xxx)
+    const urlParams = new URLSearchParams(window.location.search);
+    const taskId = urlParams.get('id');
+
+    let currentTaskData = null;
+
+    async function loadNotesData() {
+      if (!taskId) {
+        alert('找不到任務 ID！');
+        window.location.href = '任務.html';
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('task')
+        .select('*')
+        .eq('id', taskId)
+        .single();
+
+      if (error || !data) {
+        console.error('載入任務失敗:', error);
+        alert('無法讀取任務資料！');
+        return;
+      }
+
+      currentTaskData = data;
+      document.getElementById('notes-quest-title').innerText = `${data.building || '未指定建築'} (ID: ${data.id})`;
+      document.getElementById('notes-history-box').innerText = data.notes ? data.notes : '目前尚無備註記錄。';
+    }
+
+    async function appendAndSaveNote() {
+      const newText = document.getElementById('notes-new-input').value.trim();
+      if (!newText) {
+        alert('請輸入備註內容！');
+        return;
+      }
+
+      // 取得當前登入使用者 Email
+      const { data: { user } } = await supabase.auth.getUser();
+      const userEmail = user ? user.email : '匿名訪客';
+
+      // 格式化時間與格式
+      const now = new Date();
+      const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const noteEntry = `[${timeStr}] ${userEmail}: ${newText}`;
+
+      const oldNotes = currentTaskData.notes || '';
+      const updatedNotes = oldNotes ? `${oldNotes}\n${noteEntry}` : noteEntry;
+
+      // 寫入 Supabase
+      const { error } = await supabase
+        .from('task')
+        .update({ notes: updatedNotes })
+        .eq('id', taskId);
+
+      if (error) {
+        console.error('儲存備註失敗:', error);
+        alert('儲存備註失敗！');
+        return;
+      }
+
+      // 成功後跳轉回主頁
+      window.location.href = '任務.html';
+    }
+
+    loadNotesData();
+  </script>
+</body>
+</html>
