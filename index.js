@@ -715,7 +715,7 @@ window.filterQuests = function() {
     tr.style.borderBottom = '1px solid #1f2937';
 
     tr.innerHTML = `
-      <td style="padding: 10px;"><b>${q.building || '未指定建築'}</b> ${nearRouteBadge}</td>
+      <td style="padding: 10px;"><b>${q.building || '未指定建築'}</b></td>
       <td style="padding: 10px;">${displayCity}</td>
       <td style="padding: 10px;">${q.task_type || q.type || '一般任務'}</td>
       <td style="padding: 10px; max-width: 280px;">
