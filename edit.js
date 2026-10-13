@@ -1,91 +1,98 @@
 // edit.js
 document.addEventListener('DOMContentLoaded', async () => {
-  // 1. 檢查 Supabase 是否初始化
-  if (!window.supabaseClient) {
-    console.error("❌ Supabase 客戶端尚未初始化！");
-    return;
-  }
+  if (!window.supabaseClient) return;
 
   const messageEl = document.getElementById('edit-message');
   const creditsInput = document.getElementById('credits');
+  const buildingInput = document.getElementById('building-name');
+  const notesInput = document.getElementById('task-notes');
 
-  // 2. 頁面載入時：檢查使用者登入狀態並自動帶入 credits
+  // 1. 自動帶入登入者名稱到 credits
   try {
-    const { data: { session }, error } = await window.supabaseClient.auth.getSession();
-
-    if (error) {
-      console.error("❌ 取得登入狀態失敗：", error.message);
-      return;
-    }
-
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
     if (session && session.user) {
-      // 優先抓取 display_name，若無則抓 username 或信箱
       const displayName = session.user.user_metadata?.display_name || 
                           session.user.user_metadata?.username || 
                           session.user.email;
-
-      // 自動填入唯讀的 credits 欄位
-      if (creditsInput) {
-        creditsInput.value = displayName;
-      }
+      if (creditsInput) creditsInput.value = displayName;
     } else {
-      // 若未登入，提示並引導至登入頁面
-      alert("請先登入後才能編輯地圖標記！");
+      alert("請先登入後才能新增備註！");
       window.location.href = 'login.html';
       return;
     }
   } catch (err) {
-    console.error("❌ 驗證登入狀態發生錯誤：", err);
+    console.error("驗證失敗：", err);
   }
 
-  // 3. 監聽表單送出事件
+  // 2. 監聽表單送出事件
   const editForm = document.getElementById('edit-form');
   if (!editForm) return;
 
   editForm.addEventListener('submit', async (e) => {
-    e.preventDefault(); // 防止頁面重新整理
+    e.preventDefault();
 
-    const title = document.getElementById('marker-title').value.trim();
-    const category = document.getElementById('marker-category').value;
-    const description = document.getElementById('marker-desc').value.trim();
-    const credits = creditsInput.value; // 自動帶入且被鎖定的名稱
+    const buildingValue = buildingInput.value.trim();
+    const notesValue = notesInput.value.trim();
+    const creditsValue = creditsInput.value;
 
     messageEl.style.color = '#e2e8f0';
-    messageEl.textContent = '正在儲存標記資料...';
+    messageEl.textContent = '正在儲存至資料庫...';
 
     try {
-      // 🔥 這裡示範將資料寫入 Supabase 資料表（假設你的資料表叫做 map_markers）
-      // 如果你的資料表名稱不同，請自行修改 .from('你的資料表名稱')
-      const { data, error } = await window.supabaseClient
-        .from('map_markers')
+      // 步驟 A：檢查 tasks 主表中是否已經存在這個 building
+      let { data: existingTask, error: findError } = await window.supabaseClient
+        .from('tasks')
+        .select('id')
+        .eq('building', buildingValue)
+        .maybeSingle();
+
+      let taskId;
+
+      if (findError) {
+        throw new Error("查詢建築失敗: " + findError.message);
+      }
+
+      // 如果主表中還沒有這棟建築，先新增一筆
+      if (!existingTask) {
+        const { data: newTask, error: insertTaskError } = await window.supabaseClient
+          .from('tasks')
+          .insert([{ building: buildingValue }])
+          .select('id')
+          .single();
+
+        if (insertTaskError) {
+          throw new Error("建立建築主檔失敗: " + insertTaskError.message);
+        }
+        taskId = newTask.id;
+      } else {
+        taskId = existingTask.id;
+      }
+
+      // 步驟 B：將新備註寫入 task_notes 子表中，並掛載對應的 task_id
+      const { error: insertNoteError } = await window.supabaseClient
+        .from('task_notes')
         .insert([
-          { 
-            title: title, 
-            category: category, 
-            description: description, 
-            credits: credits // 將自動帶入的使用者名稱存進資料庫
-            // lat: ..., lng: ... (如果有座標可以在這裡一併帶入)
+          {
+            task_id: taskId,
+            notes: notesValue,
+            credits: creditsValue
           }
         ]);
 
-      if (error) {
-        console.error('❌ 儲存失敗：', error.message);
-        messageEl.style.color = '#fc8181';
-        messageEl.textContent = '儲存失敗: ' + error.message;
-      } else {
-        console.log('✅ 儲存成功：', data);
-        messageEl.style.color = '#68d391';
-        messageEl.textContent = '儲存成功！正在返回地圖主頁...';
-        
-        // 1.5 秒後跳轉回主頁
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 1500);
+      if (insertNoteError) {
+        throw new Error("儲存備註失敗: " + insertNoteError.message);
       }
+
+      messageEl.style.color = '#68d391';
+      messageEl.textContent = '儲存成功！正在返回主頁...';
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 1200);
+
     } catch (err) {
-      console.error('❌ 發生未預期錯誤：', err);
+      console.error('發生錯誤：', err);
       messageEl.style.color = '#fc8181';
-      messageEl.textContent = '發生未預期錯誤，請檢查主控台 (F12)';
+      messageEl.textContent = err.message || '發生未預期錯誤';
     }
   });
 });
