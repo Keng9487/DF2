@@ -7,14 +7,22 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header style="position: relative;">
-    <div class="top-right-auth-buttons">
-      <button id="login-btn" class="auth-btn">登入</button>
-      <button id="register-btn" class="auth-btn">註冊</button>
+  <header style="display: flex; justify-content: space-between; align-items: center; background: #1a202c; padding: 10px 20px; color: white;">
+  
+    <!-- 🔥 移到左側：使用者名稱與登入/註冊/登出按鈕區塊 -->
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <!-- 顯示玩家名稱的 ID -->
+      <span id="user-name-display" style="font-size: 14px; color: #cbd5e0;">未登入</span>
+      
+      <!-- 放置按鈕的容器 ID -->
+      <div id="auth-buttons-container">
+        <a href="登入.html" style="padding: 6px 12px; background: #3182ce; color: white; text-decoration: none; border-radius: 4px; margin-right: 5px;">登入</a>
+        <a href="register.html" style="padding: 6px 12px; background: #38a169; color: white; text-decoration: none; border-radius: 4px;">註冊</a>
+      </div>
     </div>
-    <h1>地圖管理系統</h1>
-    <h1>Dead Frontier 2 互動地圖 & Supabase 即時共享 HUD 系統</h1>
-    <span id="sync-status" class="status-badge">(連線中...)</span>
+
+    <!-- 右側可以放你的網站標題或其他選單 -->
+    <h1 style="margin: 0; font-size: 18px;">Dead Frontier 2 互動地圖</h1>
   </header>
 
   <div class="main-layout">
@@ -116,6 +124,9 @@
 
   </div>
 
-  <script type="module" src="main.js"></script>
+  <script type="module" src="index.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script src="auth-state.js"></script>
 </body>
 </html>
