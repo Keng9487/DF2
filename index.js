@@ -176,16 +176,18 @@ async function fetchMapData() {
 }
 
 async function fetchQuestData() {
+  // 🔥 改這裡：用 select('*, task_notes(*)') 同時把關聯的備註撈出來
   const { data, error } = await supabase
     .from('tasks')
     .select('*, task_notes(*)');
+    
   if (error) {
     console.error('載入 tasks 失敗:', error);
     return;
   }
   globalQuestData = (data || []).map(doc => ({ id: doc.id, ...doc }));
   updateFilterOptions();
-  updateSystemDisplay();
+  window.filterQuests();
 }
 
 // 更新任務狀態至 Supabase
