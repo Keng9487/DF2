@@ -1,6 +1,7 @@
 // 替換成你從 Supabase 後台拿到的專案網址與金鑰
-const SUPABASE_URL = 'https://你的專案網址.supabase.co';
-const SUPABASE_ANON_KEY = '你的專案AnonPublic金鑰';
+const SUPABASE_URL = 'https://yasnbvmngdxkukuxvafc.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlhc25idm1uZ2R4a3VrdXh2YWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mjc0MzUsImV4cCI6MjEwMjQwMzQzNX0.ht7XqIdRczGIdVE-oljEplFLEOHyxb7zZSI_pnDDP4w';
+
 
 // 檢查 Supabase 是否成功載入
 if (typeof window.supabase === 'undefined') {
