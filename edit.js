@@ -4,10 +4,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const messageEl = document.getElementById('edit-message');
   const creditsInput = document.getElementById('credits');
-  const buildingInput = document.getElementById('building-name');
-  const notesInput = document.getElementById('task-notes');
+  const headerEl = document.getElementById('task-header');
+  const routeInput = document.getElementById('route-input'); // 對應 HTML 的新路線輸入框
+  const editForm = document.getElementById('edit-form');
 
-  // 1. 自動帶入登入者名稱到 credits
+  // 1. 取得網址帶入的任務 ID (例如 edit.html?id=xxx)
+  const urlParams = new URLSearchParams(window.location.search);
+  const taskId = urlParams.get('id');
+
+  if (!taskId) {
+    alert("未指定任務 ID！");
+    window.location.href = 'index.html';
+    return;
+  }
+
+  // 2. 自動帶入登入者名稱到 credits
   try {
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     if (session && session.user) {
@@ -17,70 +28,66 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (creditsInput) creditsInput.value = displayName;
     } else {
       alert("請先登入後才能新增備註！");
-      window.location.href = '登入.html';
+      window.location.href = 'login.html';
       return;
     }
   } catch (err) {
     console.error("驗證失敗：", err);
   }
 
-  // 2. 監聽表單送出事件
-  const editForm = document.getElementById('edit-form');
+  // 3. 讀取 tasks 資料並組合 Header 格式：前往{變數1},城市:{變數2} 目標:{變數3}
+  try {
+    const { data: taskData, error: taskError } = await window.supabaseClient
+      .from('tasks')
+      .select('*')
+      .eq('id', taskId)
+      .single();
+
+    if (taskError) throw taskError;
+
+    if (taskData) {
+      const var1 = taskData.building || '未指定建築';
+      const var2 = taskData.city || '未標註城市';
+      const var3 = taskData.task_type || taskData.type || '一般任務';
+
+      if (headerEl) {
+        headerEl.textContent = `前往${var1},城市:${var2} 目標:${var3}`;
+      }
+    }
+  } catch (err) {
+    console.error('載入任務詳細資料失敗：', err);
+    if (headerEl) headerEl.textContent = '無法載入任務資訊';
+    return;
+  }
+
+  // 4. 監聽表單送出事件：將新路線寫入 task_notes 資料表
   if (!editForm) return;
 
   editForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const buildingValue = buildingInput.value.trim();
-    const notesValue = notesInput.value.trim();
-    const creditsValue = creditsInput.value;
+    const routeValue = routeInput ? routeInput.value.trim() : '';
+    const creditsValue = creditsInput ? creditsInput.value : '';
+
+    if (!routeValue) return;
 
     messageEl.style.color = '#e2e8f0';
-    messageEl.textContent = '正在儲存至資料庫...';
+    messageEl.textContent = '正在儲存備註...';
 
     try {
-      // 步驟 A：檢查 tasks 主表中是否已經存在這個 building
-      let { data: existingTask, error: findError } = await window.supabaseClient
-        .from('tasks')
-        .select('id')
-        .eq('building', buildingValue)
-        .maybeSingle();
-
-      let taskId;
-
-      if (findError) {
-        throw new Error("查詢建築失敗: " + findError.message);
-      }
-
-      // 如果主表中還沒有這棟建築，先新增一筆
-      if (!existingTask) {
-        const { data: newTask, error: insertTaskError } = await window.supabaseClient
-          .from('tasks')
-          .insert([{ building: buildingValue }])
-          .select('id')
-          .single();
-
-        if (insertTaskError) {
-          throw new Error("建立建築主檔失敗: " + insertTaskError.message);
-        }
-        taskId = newTask.id;
-      } else {
-        taskId = existingTask.id;
-      }
-
-      // 步驟 B：將新備註寫入 task_notes 子表中，並掛載對應的 task_id
-      const { error: insertNoteError } = await window.supabaseClient
+      // 將輸入的路線寫入 task_notes 資料表
+      const { error: insertError } = await window.supabaseClient
         .from('task_notes')
         .insert([
           {
             task_id: taskId,
-            notes: notesValue,
-            credits: creditsValue
+            notes: routeValue,    // 備註內容
+            credits: creditsValue // 貢獻者名稱
           }
         ]);
 
-      if (insertNoteError) {
-        throw new Error("儲存備註失敗: " + insertNoteError.message);
+      if (insertError) {
+        throw new Error(insertError.message);
       }
 
       messageEl.style.color = '#68d391';
@@ -90,9 +97,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       }, 1200);
 
     } catch (err) {
-      console.error('發生錯誤：', err);
+      console.error('儲存失敗：', err);
       messageEl.style.color = '#fc8181';
-      messageEl.textContent = err.message || '發生未預期錯誤';
+      messageEl.textContent = '儲存失敗: ' + err.message;
     }
   });
 });
