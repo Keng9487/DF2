@@ -116,6 +116,7 @@ let isAscending = true;
 
 window.addEventListener('DOMContentLoaded', () => {
   initApp();
+  initAuth();
 });
 
 function hexToRgba(hex, alpha = 0.75) {
@@ -152,9 +153,14 @@ async function initApp() {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'map' }, () => {
       fetchMapData();
     })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'task' }, () => {
       fetchQuestData();
     })
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        document.getElementById('sync-status').innerText = "(Supabase 即時連線)";
+      }
+    });
 }
 
 async function fetchMapData() {
@@ -176,24 +182,20 @@ async function fetchMapData() {
 }
 
 async function fetchQuestData() {
-  // 🔥 改這裡：用 select('*, task_notes(*)') 同時把關聯的備註撈出來
-  const { data, error } = await supabase
-    .from('tasks')
-    .select('*, task_notes(*)');
-    
+  const { data, error } = await supabase.from('task').select('*');
   if (error) {
-    console.error('載入 tasks 失敗:', error);
+    console.error('載入 task 失敗:', error);
     return;
   }
   globalQuestData = (data || []).map(doc => ({ id: doc.id, ...doc }));
   updateFilterOptions();
-  window.filterQuests();
+  updateSystemDisplay();
 }
 
 // 更新任務狀態至 Supabase
 window.updateQuestStatusInSupabase = async function(id, newStatus) {
   const { error } = await supabase
-    .from('tasks')
+    .from('task')
     .update({ status: newStatus })
     .eq('id', id);
 
@@ -227,7 +229,7 @@ window.updateQuestNotesInSupabase = function(id, newNotes) {
     const userEmail = user ? user.email : '未登入訪客';
 
     const { error } = await supabase
-      .from('tasks')
+      .from('task')
       .update({ 
         notes: newNotes,
         updated_by: userEmail // 記錄更改者
@@ -252,7 +254,7 @@ function updateFilterOptions() {
 
   globalQuestData.forEach(q => {
     if (q.city) cities.add(q.city);
-    const t = q.tasks_type || q.type;
+    const t = q.task_type || q.type;
     if (t) types.add(t);
   });
 
@@ -574,8 +576,8 @@ function displayCoordInfo(data) {
       if (currentStatus === 'show') statusText = " (👁️ 顯示中)";
 
       const noteText = q.notes ? ` | 📝 備註: <span style="color:#ff9800;">${q.notes.replace(/\n/g, '<br>')}</span>` : "";
-      const tasksType = q.task_type || q.type || '任務';
-      html += `<li><b>${tasksType}</b> - 城市: <i>${q.city || effectiveCity}</i> (建築: ${q.building})${statusText}${noteText}</li>`;
+      const taskType = q.task_type || q.type || '任務';
+      html += `<li><b>${taskType}</b> - 城市: <i>${q.city || effectiveCity}</i> (建築: ${q.building})${statusText}${noteText}</li>`;
     });
     html += `</ul>`;
   } else {
@@ -693,13 +695,13 @@ window.filterQuests = function() {
     const qId = q.id;
     const currentStatus = q.status || (q.active ? 'completed' : 'pending');
     const displayCity = getQuestCity(q);
-    let allNotesText = '';
-    if (q.task_notes && Array.isArray(q.task_notes) && q.task_notes.length > 0) {
-      // 將該任務所有的備註內容用換行串接起來
-      allNotesText = q.task_notes.map(n => `${n.credits ? '[' + n.credits + '] ' : ''}${n.notes}`).join('\n');
-    } else {
-      allNotesText = q.notes || ''; // 相容舊的欄位以防萬一
-    }
+    
+    const isNearRoute = (() => {
+      const coord = q.selectedCoord || questSelectedCoordMap.get(qId);
+      return coord && nearRouteCoords.has(coord);
+    })();
+    const nearRouteBadge = isNearRoute ? `<span style="color:#60a5fa; font-size:11px;">[路線附近]</span>` : '';
+
     // --- 備註解析：自動帶出時間與編輯者 ---
     const rawNotes = q.notes ? q.notes.trim() : '';
     const noteLines = rawNotes ? rawNotes.split('\n').filter(line => line.trim() !== '') : [];
@@ -717,7 +719,7 @@ window.filterQuests = function() {
     tr.style.borderBottom = '1px solid #1f2937';
 
     tr.innerHTML = `
-      <td style="padding: 10px;"><b>${q.building || '未指定建築'}</b></td>
+      <td style="padding: 10px;"><b>${q.building || '未指定建築'}</b> ${nearRouteBadge}</td>
       <td style="padding: 10px;">${displayCity}</td>
       <td style="padding: 10px;">${q.task_type || q.type || '一般任務'}</td>
       <td style="padding: 10px; max-width: 280px;">
@@ -814,4 +816,52 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+});
+
+// notes-viewer.js (節錄修改部分)
+viewBtn.addEventListener('click', async () => {
+  modal.style.display = 'flex';
+  container.innerHTML = '<p style="text-align: center; color: #a0aec0;">正在載入備註...</p>';
+
+  try {
+    // 🔥 查詢時記得加入 id 欄位
+    const { data, error } = await window.supabaseClient
+      .from('task')
+      .select('id, building, notes, credits, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      container.innerHTML = `<p style="color: #fc8181; text-align: center;">載入失敗: ${error.message}</p>`;
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      container.innerHTML = '<p style="text-align: center; color: #a0aec0;">目前沒有任何路線備註。</p>';
+      return;
+    }
+
+    let html = '';
+    data.forEach((item) => {
+      const timeStr = item.created_at ? new Date(item.created_at).toLocaleString() : '未知時間';
+      html += `
+        <div style="background: #1a202c; padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #3182ce; display: flex; justify-content: space-between; align-items: flex-start;">
+          <div style="flex-grow: 1; margin-right: 10px;">
+            <h4 style="margin: 0 0 5px 0; color: #63b3ed;">📍 ${escapeHtml(item.building)}</h4>
+            <p style="margin: 0 0 8px 0; font-size: 14px; white-space: pre-wrap; word-break: break-all;">${escapeHtml(item.notes)}</p>
+            <div style="display: flex; gap: 15px; font-size: 12px; color: #a0aec0;">
+              <span>貢獻者：<strong>${escapeHtml(item.credits || '未知玩家')}</strong></span>
+              <span>${timeStr}</span>
+            </div>
+          </div>
+          <!-- 🔥 帶有該筆資料 ID 的編輯按鈕 -->
+          <a href="edit.html?id=${item.id}" style="padding: 5px 10px; background: #3182ce; color: white; text-decoration: none; border-radius: 4px; font-size: 12px; white-space: nowrap; font-weight: bold;">編輯</a>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+
+  } catch (err) {
+    console.error('查詢備註錯誤：', err);
+    container.innerHTML = '<p style="color: #fc8181; text-align: center;">發生未預期錯誤</p>';
+  }
 });
