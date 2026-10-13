@@ -570,7 +570,7 @@ function displayCoordInfo(data) {
       if (currentStatus === 'show') statusText = " (👁️ 顯示中)";
 
       const noteText = q.notes ? ` | 📝 備註: <span style="color:#ff9800;">${q.notes.replace(/\n/g, '<br>')}</span>` : "";
-      const tasksType = q.tasks_type || q.type || '任務';
+      const tasksType = q.task_type || q.type || '任務';
       html += `<li><b>${tasksType}</b> - 城市: <i>${q.city || effectiveCity}</i> (建築: ${q.building})${statusText}${noteText}</li>`;
     });
     html += `</ul>`;
@@ -666,7 +666,7 @@ window.filterQuests = function() {
 
   const filtered = globalQuestData.filter(q => {
     const building = (q.building || '').toLowerCase();
-    const type = (q.tasks_type || q.type || '').toLowerCase();
+    const type = (q.task_type || q.type || '').toLowerCase();
     const notes = (q.notes || '').toLowerCase();
     const status = q.status || (q.active ? 'completed' : 'pending');
 
@@ -674,7 +674,7 @@ window.filterQuests = function() {
     const matchKeyword = !keyword || building.includes(keyword) || effectiveCity.toLowerCase().includes(keyword) || type.includes(keyword) || notes.includes(keyword);
     
     let matchCity = !cityFilter || (effectiveCity === cityFilter);
-    let matchType = !typeFilter || (q.tasks_type === typeFilter || q.type === typeFilter);
+    let matchType = !typeFilter || (q.task_type === typeFilter || q.type === typeFilter);
     let matchStatus = !statusFilter || (status === statusFilter);
 
     return matchKeyword && matchCity && matchType && matchStatus;
@@ -715,7 +715,7 @@ window.filterQuests = function() {
     tr.innerHTML = `
       <td style="padding: 10px;"><b>${q.building || '未指定建築'}</b> ${nearRouteBadge}</td>
       <td style="padding: 10px;">${displayCity}</td>
-      <td style="padding: 10px;">${q.tasks_type || q.type || '一般任務'}</td>
+      <td style="padding: 10px;">${q.task_type || q.type || '一般任務'}</td>
       <td style="padding: 10px; max-width: 280px;">
         <div style="font-size: 12px; color: #e5e7eb; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${rawNotes}">
           ${firstNoteText}
