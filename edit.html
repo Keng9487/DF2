@@ -2,331 +2,67 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>編輯任務詳細資訊</title>
-  <style>
-    body {
-      background-color: #0b0f19;
-      color: #f3f4f6;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-
-    /* 1. 任務描述頁首 (藍色風格) */
-    .mission-header {
-      background-color: #1d4f91;
-      color: white;
-      padding: 20px;
-      border-radius: 8px;
-      position: relative;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    }
-    .header-content {
-      flex: 1;
-      padding-right: 20px;
-    }
-    .header-content h2 {
-      margin: 0;
-      font-size: 15px;
-      font-weight: normal;
-      line-height: 1.6;
-    }
-    .submitted-label {
-      display: inline-block;
-      background-color: #4b5563;
-      color: white;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      margin-top: 10px;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-    }
-    .comment-icon {
-      width: 22px;
-      height: 22px;
-      fill: white;
-      flex-shrink: 0;
-      opacity: 0.8;
-    }
-
-    /* 2. 返回導航 (Back to Missions) */
-    .back-nav {
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      color: white;
-      font-size: 15px;
-      width: fit-content;
-    }
-    .back-nav:hover {
-      opacity: 0.8;
-    }
-    .back-icon {
-      width: 28px;
-      height: 28px;
-      fill: white;
-      margin-right: 8px;
-    }
-
-    /* 3. 主體表單容器 (灰色風格) */
-    .form-container {
-      background-color: #1f2937;
-      padding: 24px;
-      border-radius: 8px;
-      max-width: 650px;
-      margin: 0 auto;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-      border: 1px solid #374151;
-    }
-
-    .form-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .form-header h3 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: bold;
-      color: white;
-    }
-    .help-icon {
-      width: 18px;
-      height: 18px;
-      fill: #9ca3af;
-      margin-left: 8px;
-      cursor: help;
-    }
-
-    .description-text {
-      font-size: 13px;
-      color: #9ca3af;
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
-
-    /* 輸入框與文本區 */
-    textarea, input[type="text"] {
-      width: 100%;
-      background-color: #0b0f19;
-      color: white;
-      border: 1px solid #374151;
-      border-radius: 4px;
-      padding: 10px;
-      font-size: 13px;
-      box-sizing: border-box;
-      font-family: inherit;
-    }
-    textarea:focus, input:focus {
-      outline: none;
-      border-color: #3b82f6;
-    }
-
-    textarea {
-      height: 160px;
-      resize: none;
-      margin-bottom: 4px;
-    }
-
-    .char-limit {
-      font-size: 11px;
-      color: #6b7280;
-      margin-bottom: 16px;
-      text-align: right;
-    }
-
-    /* Credits 組合元件 */
-    .credits-container {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-      background-color: #0b0f19;
-      border: 1px solid #374151;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .credits-label {
-      padding: 10px 16px;
-      font-size: 13px;
-      color: #9ca3af;
-      background-color: #111827;
-      border-right: 1px solid #374151;
-      font-weight: 500;
-    }
-    .credits-input {
-      flex: 1;
-      border: none !important;
-      background-color: transparent !important;
-    }
-
-    /* 提交按鈕 */
-    .submit-btn {
-      background-color: #1e3a8a;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 10px 22px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .submit-btn:hover {
-      background-color: #1d4ed8;
-    }
-  </style>
-  <!-- 引入 Supabase JS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>編輯地圖標記 - Dead Frontier 2 互動地圖</title>
 </head>
-<body>
+<body style="background: #1a202c; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: sans-serif;">
 
-  <div style="max-width: 800px; margin: 0 auto;">
-
-    <!-- 1. 頂部任務描述資訊區 (結合變數) -->
-    <div class="mission-header">
-      <div class="header-content">
-        <h2 id="dynamic-mission-title">載入中...</h2>
-      </div>
-    </div>
-
-    <!-- 2. 返回主頁按鈕 -->
-    <div class="back-nav" onclick="window.location.href='index.html'">
-      <svg class="back-icon" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-      <span>返回任務清單</span>
-    </div>
-
-    <!-- 3. 主體編輯表單 -->
-    <div class="form-container">
-      <div class="form-header">
-        <h3>新增路線</h3>
-        <svg class="help-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+  <div style="background: #2d3748; padding: 30px; border-radius: 8px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+    <h2 style="margin-top: 0; text-align: center; color: #f7fafc;">編輯地圖標記</h2>
+    
+    <!-- 編輯表單 -->
+    <form id="edit-form">
+      
+      <!-- 標記名稱 -->
+      <div style="margin-bottom: 15px;">
+        <label for="marker-title" style="display: block; margin-bottom: 5px; font-size: 14px; color: #e2e8f0;">標記名稱 / 地點</label>
+        <input type="text" id="marker-title" placeholder="例如：保險箱位置、商人、Boss" required style="width: 100%; padding: 8px; box-sizing: border-box; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 4px;" />
       </div>
 
-      <!-- 攻略與步驟 (Walkthrough / Notes) -->
-      <textarea id="edit-walkthrough" maxlength="500" placeholder="在此輸入攻略內容..."></textarea>
-      <p class="char-limit" id="char-count">(0/500 characters)</p>
-
-      <!-- Credits 貢獻者署名 -->
-      <div class="credits-container">
-        <div class="credits-label">Credits</div>
-        <input type="text" id="edit-credits" class="credits-input" placeholder="例如: SiriusxCanopus">
+      <!-- 標記類別 -->
+      <div style="margin-bottom: 15px;">
+        <label for="marker-category" style="display: block; margin-bottom: 5px; font-size: 14px; color: #e2e8f0;">類別</label>
+        <select id="marker-category" style="width: 100%; padding: 8px; box-sizing: border-box; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 4px;">
+          <option value="loot">物資 / 搜刮點</option>
+          <option value="merchant">商人</option>
+          <option value="boss">Boss 重新生點</option>
+          <option value="safezone">安全區</option>
+        </select>
       </div>
 
-      <!-- 提交按鈕 -->
-      <button class="submit-btn" onclick="saveAndRedirect()">Submit</button>
-    </div>
+      <!-- 詳細描述 -->
+      <div style="margin-bottom: 15px;">
+        <label for="marker-desc" style="display: block; margin-bottom: 5px; font-size: 14px; color: #e2e8f0;">詳細描述 / 備註</label>
+        <textarea id="marker-desc" rows="3" placeholder="輸入相關備註..." style="width: 100%; padding: 8px; box-sizing: border-box; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 4px; resize: vertical;"></textarea>
+      </div>
 
+      <!-- 🔥 貢獻者 (Credits) 欄位：自動帶入且設為唯讀不可更改 -->
+      <div style="margin-bottom: 20px;">
+        <label for="credits" style="display: block; margin-bottom: 5px; font-size: 14px; color: #e2e8f0;">貢獻者 (Credits)</label>
+        <input 
+          type="text" 
+          id="credits" 
+          readonly 
+          style="width: 100%; padding: 8px; box-sizing: border-box; background: #1a202c; color: #a0aec0; border: 1px solid #4a5568; border-radius: 4px; cursor: not-allowed;" 
+        />
+        <small style="color: #718096; font-size: 11px; margin-top: 3px; display: block;">此欄位由系統自動帶入您的登入名稱，無法手動修改。</small>
+      </div>
+
+      <!-- 送出按鈕 -->
+      <button type="submit" style="width: 100%; padding: 10px; background: #3182ce; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer;">儲存標記</button>
+    </form>
+
+    <!-- 訊息提示區 -->
+    <div id="edit-message" style="margin-top: 15px; font-size: 14px; text-align: center;"></div>
+
+    <!-- 返回主頁連結 -->
+    <div style="margin-top: 20px; text-align: center; font-size: 13px;">
+      <a href="index.html" style="color: #63b3ed; text-decoration: none;">← 放棄編輯並返回地圖主頁</a>
+    </div>
   </div>
 
-  <script>
-    // ⚙️ 請替換成您的 Supabase 專案設定
-    const SUPABASE_URL = 'https://yasnbvmngdxkukuxvafc.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlhc25idm1uZ2R4a3VrdXh2YWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mjc0MzUsImV4cCI6MjEwMjQwMzQzNX0.ht7XqIdRczGIdVE-oljEplFLEOHyxb7zZSI_pnDDP4w';
-    
-    // 💡 修正：將變數名稱改為 supabaseClient，避免與 CDN 衝突
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // 取得網址列的任務 ID (例如 edit.html?id=xxx)
-    const urlParams = new URLSearchParams(window.location.search);
-    const taskId = urlParams.get('id');
-
-    if (!taskId) {
-      alert('找不到任務 ID！');
-      window.location.href = 'index.html';
-    }
-
-    // 區域範圍定義（用來自動計算城市名稱）
-    const regionRanges = {
-      "灰木鎮": { minX: 19, maxX: 24, minY: 0, maxY: 6 }
-    };
-
-    function getQuestCity(q) {
-      const x = q.xcoord ?? q.x;
-      const y = q.ycoord ?? q.y;
-      if (x !== undefined && y !== undefined && x !== null && y !== null) {
-        for (const [cityName, range] of Object.entries(regionRanges)) {
-          if (x >= range.minX && x <= range.maxX && y >= range.minY && y <= range.maxY) {
-            return cityName;
-          }
-        }
-      }
-      return q.city || '未標註區域';
-    }
-
-    // 1. 載入任務資料並結合變數生成動態敘述
-    async function loadTaskData() {
-      // 💡 修正：使用 supabaseClient
-      const { data, error } = await supabaseClient
-        .from('task')
-        .select('*')
-        .eq('id', taskId)
-        .single();
-
-      if (error || !data) {
-        console.error('載入任務失敗:', error);
-        alert('無法讀取任務資料！');
-        return;
-      }
-
-      // 萃取變數
-      const building = data.building || '未指定建築';
-      const city = getQuestCity(data);
-      const taskType = data.task_type || data.type || '一般任務';
-
-      // 💡 透過 JavaScript 樣板字串結合變數與敘述
-      const fullDescription = `前往${building},${city}， 目標: ${taskType}。`;
-      
-      // 顯示在網頁頂部
-      document.getElementById('dynamic-mission-title').innerText = fullDescription;
-
-      // 填入表單欄位
-      document.getElementById('edit-walkthrough').value = data.walkthrough || data.notes || '';
-      document.getElementById('edit-credits').value = data.credits || '';
-
-      updateCharCount();
-    }
-
-    // 2. 儲存變更並真實跳轉回主頁
-    async function saveAndRedirect() {
-      const walkthrough = document.getElementById('edit-walkthrough').value;
-      const credits = document.getElementById('edit-credits').value;
-
-      // 💡 修正：使用 supabaseClient
-      const { error } = await supabaseClient
-        .from('task')
-        .update({ 
-          walkthrough, 
-          notes: walkthrough, // 同步更新備註
-          credits 
-        })
-        .eq('id', taskId);
-
-      if (error) {
-        console.error('儲存失敗:', error);
-        alert('儲存失敗，請檢查網路連線！');
-        return;
-      }
-
-      // 儲存成功後，真實跳轉回主頁 (index.html)
-      window.location.href = 'index.html';
-    }
-
-    // 字數計算監聽
-    function updateCharCount() {
-      const text = document.getElementById('edit-walkthrough').value;
-      document.getElementById('char-count').innerText = `(${text.length}/500 characters)`;
-    }
-
-    document.getElementById('edit-walkthrough').addEventListener('input', updateCharCount);
-
-    // 執行初始化載入
-    loadTaskData();
-  </script>
+  <!-- 引入 JavaScript 依賴 (依序載入) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script src="edit.js"></script>
 </body>
 </html>
