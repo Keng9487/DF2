@@ -153,7 +153,7 @@ async function initApp() {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'map' }, () => {
       fetchMapData();
     })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'task' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
       fetchQuestData();
     })
     .subscribe((status) => {
@@ -182,7 +182,7 @@ async function fetchMapData() {
 }
 
 async function fetchQuestData() {
-  const { data, error } = await supabase.from('task').select('*');
+  const { data, error } = await supabase.from('tasks').select('*');
   if (error) {
     console.error('載入 task 失敗:', error);
     return;
@@ -195,7 +195,7 @@ async function fetchQuestData() {
 // 更新任務狀態至 Supabase
 window.updateQuestStatusInSupabase = async function(id, newStatus) {
   const { error } = await supabase
-    .from('task')
+    .from('tasks')
     .update({ status: newStatus })
     .eq('id', id);
 
@@ -229,7 +229,7 @@ window.updateQuestNotesInSupabase = function(id, newNotes) {
     const userEmail = user ? user.email : '未登入訪客';
 
     const { error } = await supabase
-      .from('task')
+      .from('tasks')
       .update({ 
         notes: newNotes,
         updated_by: userEmail // 記錄更改者
