@@ -116,7 +116,6 @@ let isAscending = true;
 
 window.addEventListener('DOMContentLoaded', () => {
   initApp();
-  initAuth();
 });
 
 function hexToRgba(hex, alpha = 0.75) {
@@ -153,14 +152,9 @@ async function initApp() {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'map' }, () => {
       fetchMapData();
     })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'task' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
       fetchQuestData();
     })
-    .subscribe((status) => {
-      if (status === 'SUBSCRIBED') {
-        document.getElementById('sync-status').innerText = "(Supabase 即時連線)";
-      }
-    });
 }
 
 async function fetchMapData() {
@@ -182,9 +176,9 @@ async function fetchMapData() {
 }
 
 async function fetchQuestData() {
-  const { data, error } = await supabase.from('task').select('*');
+  const { data, error } = await supabase.from('tasks').select('*');
   if (error) {
-    console.error('載入 task 失敗:', error);
+    console.error('載入 tasks 失敗:', error);
     return;
   }
   globalQuestData = (data || []).map(doc => ({ id: doc.id, ...doc }));
@@ -195,7 +189,7 @@ async function fetchQuestData() {
 // 更新任務狀態至 Supabase
 window.updateQuestStatusInSupabase = async function(id, newStatus) {
   const { error } = await supabase
-    .from('task')
+    .from('tasks')
     .update({ status: newStatus })
     .eq('id', id);
 
@@ -229,7 +223,7 @@ window.updateQuestNotesInSupabase = function(id, newNotes) {
     const userEmail = user ? user.email : '未登入訪客';
 
     const { error } = await supabase
-      .from('task')
+      .from('tasks')
       .update({ 
         notes: newNotes,
         updated_by: userEmail // 記錄更改者
@@ -254,7 +248,7 @@ function updateFilterOptions() {
 
   globalQuestData.forEach(q => {
     if (q.city) cities.add(q.city);
-    const t = q.task_type || q.type;
+    const t = q.tasks_type || q.type;
     if (t) types.add(t);
   });
 
@@ -576,8 +570,8 @@ function displayCoordInfo(data) {
       if (currentStatus === 'show') statusText = " (👁️ 顯示中)";
 
       const noteText = q.notes ? ` | 📝 備註: <span style="color:#ff9800;">${q.notes.replace(/\n/g, '<br>')}</span>` : "";
-      const taskType = q.task_type || q.type || '任務';
-      html += `<li><b>${taskType}</b> - 城市: <i>${q.city || effectiveCity}</i> (建築: ${q.building})${statusText}${noteText}</li>`;
+      const tasksType = q.tasks_type || q.type || '任務';
+      html += `<li><b>${tasksType}</b> - 城市: <i>${q.city || effectiveCity}</i> (建築: ${q.building})${statusText}${noteText}</li>`;
     });
     html += `</ul>`;
   } else {
@@ -672,7 +666,7 @@ window.filterQuests = function() {
 
   const filtered = globalQuestData.filter(q => {
     const building = (q.building || '').toLowerCase();
-    const type = (q.task_type || q.type || '').toLowerCase();
+    const type = (q.tasks_type || q.type || '').toLowerCase();
     const notes = (q.notes || '').toLowerCase();
     const status = q.status || (q.active ? 'completed' : 'pending');
 
@@ -680,7 +674,7 @@ window.filterQuests = function() {
     const matchKeyword = !keyword || building.includes(keyword) || effectiveCity.toLowerCase().includes(keyword) || type.includes(keyword) || notes.includes(keyword);
     
     let matchCity = !cityFilter || (effectiveCity === cityFilter);
-    let matchType = !typeFilter || (q.task_type === typeFilter || q.type === typeFilter);
+    let matchType = !typeFilter || (q.tasks_type === typeFilter || q.type === typeFilter);
     let matchStatus = !statusFilter || (status === statusFilter);
 
     return matchKeyword && matchCity && matchType && matchStatus;
@@ -721,7 +715,7 @@ window.filterQuests = function() {
     tr.innerHTML = `
       <td style="padding: 10px;"><b>${q.building || '未指定建築'}</b> ${nearRouteBadge}</td>
       <td style="padding: 10px;">${displayCity}</td>
-      <td style="padding: 10px;">${q.task_type || q.type || '一般任務'}</td>
+      <td style="padding: 10px;">${q.tasks_type || q.type || '一般任務'}</td>
       <td style="padding: 10px; max-width: 280px;">
         <div style="font-size: 12px; color: #e5e7eb; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${rawNotes}">
           ${firstNoteText}
