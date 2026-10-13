@@ -176,7 +176,9 @@ async function fetchMapData() {
 }
 
 async function fetchQuestData() {
-  const { data, error } = await supabase.from('tasks').select('*');
+  const { data, error } = await supabase
+    .from('tasks')
+    .select('*, task_notes(*)');
   if (error) {
     console.error('載入 tasks 失敗:', error);
     return;
@@ -689,13 +691,13 @@ window.filterQuests = function() {
     const qId = q.id;
     const currentStatus = q.status || (q.active ? 'completed' : 'pending');
     const displayCity = getQuestCity(q);
-    
-    const isNearRoute = (() => {
-      const coord = q.selectedCoord || questSelectedCoordMap.get(qId);
-      return coord && nearRouteCoords.has(coord);
-    })();
-    const nearRouteBadge = isNearRoute ? `<span style="color:#60a5fa; font-size:11px;">[路線附近]</span>` : '';
-
+    let allNotesText = '';
+    if (q.task_notes && Array.isArray(q.task_notes) && q.task_notes.length > 0) {
+      // 將該任務所有的備註內容用換行串接起來
+      allNotesText = q.task_notes.map(n => `${n.credits ? '[' + n.credits + '] ' : ''}${n.notes}`).join('\n');
+    } else {
+      allNotesText = q.notes || ''; // 相容舊的欄位以防萬一
+    }
     // --- 備註解析：自動帶出時間與編輯者 ---
     const rawNotes = q.notes ? q.notes.trim() : '';
     const noteLines = rawNotes ? rawNotes.split('\n').filter(line => line.trim() !== '') : [];
