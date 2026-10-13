@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (creditsInput) creditsInput.value = displayName;
     } else {
       alert("請先登入後才能新增備註！");
-      window.location.href = 'login.html';
+      window.location.href = '登入.html';
       return;
     }
   } catch (err) {

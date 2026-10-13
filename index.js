@@ -116,7 +116,6 @@ let isAscending = true;
 
 window.addEventListener('DOMContentLoaded', () => {
   initApp();
-  initAuth();
 });
 
 function hexToRgba(hex, alpha = 0.75) {
