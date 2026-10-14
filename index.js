@@ -66,15 +66,14 @@ async function fetchMapData() {
   renderMap(globalRouteMapData);
 }
 
-// 載入任務資料以及關聯的 task_notes 備註資料
+// 載入任務資料與關聯的 task_notes 備註資料
 async function fetchQuestData() {
   const tableBody = document.getElementById('hudTableBody');
   if (tableBody) {
     tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #8b949e; padding: 20px;">載入任務與備註資料中...</td></tr>`;
   }
 
-  // 1. 同時查詢 tasks 與關聯的 task_notes
-  // 透過 Supabase 的巢狀查詢，把 task_notes 的資料一起包進來
+  // 同時查詢 tasks 與關聯的 task_notes（包含備註與貢獻者 credits）
   const { data: tasksData, error: taskError } = await supabase
     .from('tasks')
     .select(`
@@ -94,24 +93,23 @@ async function fetchQuestData() {
     return;
   }
 
-  // 2. 將撈回來的資料進行整理，把備註內容組合成字串方便顯示
   globalQuestData = (tasksData || []).map(doc => {
-    // 整理 task_notes 陣列
-    let formattedNotes = '';
+    // 1. 【專供 index.html 使用】只抽取純備註內容，不帶貢獻者
+    let cleanNotes = '';
     if (doc.task_notes && Array.isArray(doc.task_notes) && doc.task_notes.length > 0) {
-      // 依照時間排序或直接組合，這裡將每一則備註加上貢獻者顯示
-      formattedNotes = doc.task_notes
-        .map(n => `[${n.credits || '匿名'}] ${n.notes}`)
+      cleanNotes = doc.task_notes
+        .map(n => n.notes)
+        .filter(Boolean)
         .join('\n');
     } else {
-      // 如果 task_notes 沒有，相容原本 tasks 表可能自己帶有的 notes 欄位
-      formattedNotes = doc.notes || doc.note || '';
+      cleanNotes = doc.notes || doc.note || '';
     }
 
     return {
       ...doc,
       id: doc.id,
-      notes: formattedNotes // 統一賦值到 q.notes 供表格與地圖渲染使用
+      cleanNotes: cleanNotes,       // 僅純備註（供 index.html 顯示與搜尋）
+      task_notes: doc.task_notes || [] // 保留完整原始資料（供 notes.html 顯示貢獻者）
     };
   });
 
@@ -284,7 +282,8 @@ window.filterQuests = function() {
   const filtered = globalQuestData.filter(q => {
     const building = (q.building || '').toLowerCase();
     const type = (q.task_type || q.type || '').toLowerCase();
-    const notes = (q.notes || '').toLowerCase();
+    // 搜尋時使用 cleanNotes（純備註）
+    const notes = (q.cleanNotes || '').toLowerCase();
     const status = q.status || 'pending';
     const effectiveCity = getQuestCity(q);
 
@@ -306,15 +305,12 @@ window.filterQuests = function() {
     const currentStatus = q.status || 'pending';
     const displayCity = getQuestCity(q);
     
-    // 取得備註內容
-    const rawNotes = (q.notes || '').trim();
+    // 渲染時使用 cleanNotes（不含貢獻者）
+    const rawNotes = (q.cleanNotes || '').trim();
     const noteLines = rawNotes ? rawNotes.split('\n').filter(line => line.trim() !== '') : [];
+    const firstNoteText = noteLines.length > 0 ? noteLines[0] : '<span style="color: #6b7280; font-style: italic;">尚無備註</span>';
     
-    // 第一則備註文字
-    const firstNoteText = noteLines.length > 0 ? noteLines[0] : '<span style="color: #6b7280; font-style: italic;">尚無備註記錄</span>';
-    
-    // 🔥 如果有備註或多則備註，顯示「查看更多備註」按鈕
-    const hasMoreNotes = noteLines.length > 0;
+    // 點擊後跳轉至 notes.html 網頁並帶入任務 ID（讓 notes.html 讀取完整的 task_notes 與貢獻者）
     const moreNotesButtonHtml = `<button onclick="window.location.href='notes.html?id=${qId}'" style="display: inline-block; margin-top: 4px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 查看更多備註</button>`;
 
     const tr = document.createElement('tr');
@@ -328,15 +324,12 @@ window.filterQuests = function() {
       </td>
       <td style="padding: 10px;">${displayCity}</td>
       <td style="padding: 10px;">${q.task_type || q.type || '一般任務'}</td>
-      
-      <!-- 🔥 修改這裡：讓備註欄位可以自動依內容換行並展開高度 -->
       <td style="padding: 10px; max-width: 280px; vertical-align: top;">
         <div style="font-size: 12px; color: #e5e7eb; white-space: pre-wrap; word-break: break-all; line-height: 1.4;">
-          ${rawNotes || '<span style="color: #6b7280; font-style: italic;">尚無備註</span>'}
+          ${firstNoteText}
         </div>
         ${moreNotesButtonHtml}
       </td>
-
       <td style="padding: 10px; vertical-align: top;">
         <button onclick="window.location.href='edit.html?id=${qId}'" style="padding: 4px 10px; background: #374151; color: #60a5fa; border: 1px solid #4b5563; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ 編輯詳情</button>
       </td>
