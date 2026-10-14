@@ -66,25 +66,57 @@ async function fetchMapData() {
   renderMap(globalRouteMapData);
 }
 
-// 載入任務資料
+// 載入任務資料以及關聯的 task_notes 備註資料
 async function fetchQuestData() {
   const tableBody = document.getElementById('hudTableBody');
   if (tableBody) {
-    tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #8b949e; padding: 20px;">載入任務資料中...</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #8b949e; padding: 20px;">載入任務與備註資料中...</td></tr>`;
   }
 
-  const { data, error } = await supabase.from('tasks').select('*');
-  if (error) {
-    console.error('載入 tasks 失敗:', error);
+  // 1. 同時查詢 tasks 與關聯的 task_notes
+  // 透過 Supabase 的巢狀查詢，把 task_notes 的資料一起包進來
+  const { data: tasksData, error: taskError } = await supabase
+    .from('tasks')
+    .select(`
+      *,
+      task_notes (
+        notes,
+        credits,
+        created_at
+      )
+    `);
+
+  if (taskError) {
+    console.error('載入 tasks 失敗:', taskError);
     if (tableBody) {
-      tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #e53e3e; padding: 20px;">載入失敗: ${error.message}</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #e53e3e; padding: 20px;">載入失敗: ${taskError.message}</td></tr>`;
     }
     return;
   }
 
-  globalQuestData = (data || []).map(doc => ({ id: doc.id, ...doc }));
+  // 2. 將撈回來的資料進行整理，把備註內容組合成字串方便顯示
+  globalQuestData = (tasksData || []).map(doc => {
+    // 整理 task_notes 陣列
+    let formattedNotes = '';
+    if (doc.task_notes && Array.isArray(doc.task_notes) && doc.task_notes.length > 0) {
+      // 依照時間排序或直接組合，這裡將每一則備註加上貢獻者顯示
+      formattedNotes = doc.task_notes
+        .map(n => `[${n.credits || '匿名'}] ${n.notes}`)
+        .join('\n');
+    } else {
+      // 如果 task_notes 沒有，相容原本 tasks 表可能自己帶有的 notes 欄位
+      formattedNotes = doc.notes || doc.note || '';
+    }
+
+    return {
+      ...doc,
+      id: doc.id,
+      notes: formattedNotes // 統一賦值到 q.notes 供表格與地圖渲染使用
+    };
+  });
+
   updateFilterOptions();
-  updateMapHighlights(); // 自動在地圖上標記任務
+  updateMapHighlights(); 
   window.filterQuests();
 }
 
