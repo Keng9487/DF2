@@ -50,6 +50,25 @@
             </select>
           </div>
 
+          <!-- 地圖顯示開關控制組 -->
+          <div class="controls-row" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+            <div class="filter-item">
+              <label for="toggle-pending-vis" style="font-size: 13px; color: #cbd5e0;">⭕ 未完成任務:</label>
+              <select id="toggle-pending-vis" onchange="updateMapHighlights()" style="background: #1f2937; color: #fff; border: 1px solid #4b5563; padding: 4px; border-radius: 4px; font-size: 12px;">
+                <option value="show" selected>顯示</option>
+                <option value="hide">隱藏</option>
+              </select>
+            </div>
+
+            <div class="filter-item">
+              <label for="toggle-completed-vis" style="font-size: 13px; color: #cbd5e0;">✅ 已完成任務:</label>
+              <select id="toggle-completed-vis" onchange="updateMapHighlights()" style="background: #1f2937; color: #fff; border: 1px solid #4b5563; padding: 4px; border-radius: 4px; font-size: 12px;">
+                <option value="show" selected>顯示</option>
+                <option value="hide">隱藏</option>
+              </select>
+            </div>
+          </div>
+
           <button class="btn-action" style="margin-left: auto;" onclick="resetFilters()">重設篩選</button>
         </div>
       </div>
