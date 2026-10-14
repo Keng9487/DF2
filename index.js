@@ -305,13 +305,12 @@ window.filterQuests = function() {
     const currentStatus = q.status || 'pending';
     const displayCity = getQuestCity(q);
     
-    // 渲染時使用 cleanNotes（不含貢獻者）
+    // 取得全部的純備註內容（支援多行顯示，不含貢獻者）
     const rawNotes = (q.cleanNotes || '').trim();
-    const noteLines = rawNotes ? rawNotes.split('\n').filter(line => line.trim() !== '') : [];
-    const firstNoteText = noteLines.length > 0 ? noteLines[0] : '<span style="color: #6b7280; font-style: italic;">尚無備註</span>';
+    const displayNotesText = rawNotes ? rawNotes : '<span style="color: #6b7280; font-style: italic;">尚無備註</span>';
     
-    // 點擊後跳轉至 notes.html 網頁並帶入任務 ID（讓 notes.html 讀取完整的 task_notes 與貢獻者）
-    const moreNotesButtonHtml = `<button onclick="window.location.href='notes.html?id=${qId}'" style="display: inline-block; margin-top: 4px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 查看更多備註</button>`;
+    // 點擊後跳轉至 notes.html 網頁並帶入任務 ID
+    const moreNotesButtonHtml = `<button onclick="window.location.href='notes.html?id=${qId}'" style="display: inline-block; margin-top: 6px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 查看更多備註</button>`;
 
     const tr = document.createElement('tr');
     tr.style.borderBottom = '1px solid #1f2937';
@@ -322,14 +321,17 @@ window.filterQuests = function() {
           title="點擊在地圖上定位此建築">
         <b>${q.building || '未指定建築'}</b>
       </td>
-      <td style="padding: 10px;">${displayCity}</td>
-      <td style="padding: 10px;">${q.task_type || q.type || '一般任務'}</td>
+      <td style="padding: 10px; vertical-align: top;">${displayCity}</td>
+      <td style="padding: 10px; vertical-align: top;">${q.task_type || q.type || '一般任務'}</td>
+      
+      <!-- 🔥 這裡改為直接顯示完整的多行備註內容 -->
       <td style="padding: 10px; max-width: 280px; vertical-align: top;">
         <div style="font-size: 12px; color: #e5e7eb; white-space: pre-wrap; word-break: break-all; line-height: 1.4;">
-          ${firstNoteText}
+          ${displayNotesText}
         </div>
         ${moreNotesButtonHtml}
       </td>
+
       <td style="padding: 10px; vertical-align: top;">
         <button onclick="window.location.href='edit.html?id=${qId}'" style="padding: 4px 10px; background: #374151; color: #60a5fa; border: 1px solid #4b5563; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ 編輯詳情</button>
       </td>
@@ -343,7 +345,6 @@ window.filterQuests = function() {
     `;
     tbody.appendChild(tr);
   });
-};
 
 // 更新任務狀態至 Supabase
 window.updateQuestStatusInSupabase = async function(id, newStatus) {
