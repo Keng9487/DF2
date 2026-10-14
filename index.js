@@ -47,6 +47,9 @@ async function initApp() {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
       fetchQuestData();
     })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'task_notes' }, () => {
+      fetchQuestData();
+    })
     .subscribe();
 }
 
@@ -66,14 +69,13 @@ async function fetchMapData() {
   renderMap(globalRouteMapData);
 }
 
-// 載入任務資料與關聯的 task_notes 備註資料
+// 載入任務資料與獨立的 task_notes 備註資料
 async function fetchQuestData() {
   const tableBody = document.getElementById('hudTableBody');
   if (tableBody) {
     tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #8b949e; padding: 20px;">載入任務與備註資料中...</td></tr>`;
   }
 
-  // 同時查詢 tasks 與關聯的 task_notes（包含備註與貢獻者 credits）
   const { data: tasksData, error: taskError } = await supabase
     .from('tasks')
     .select(`
@@ -94,7 +96,7 @@ async function fetchQuestData() {
   }
 
   globalQuestData = (tasksData || []).map(doc => {
-    // 1. 【專供 index.html 使用】只抽取純備註內容，不帶貢獻者
+    // 1. 產生給 index.html 顯示的純備註（不含貢獻者，支援多行）
     let cleanNotes = '';
     if (doc.task_notes && Array.isArray(doc.task_notes) && doc.task_notes.length > 0) {
       cleanNotes = doc.task_notes
@@ -108,8 +110,8 @@ async function fetchQuestData() {
     return {
       ...doc,
       id: doc.id,
-      cleanNotes: cleanNotes,       // 僅純備註（供 index.html 顯示與搜尋）
-      task_notes: doc.task_notes || [] // 保留完整原始資料（供 notes.html 顯示貢獻者）
+      cleanNotes: cleanNotes,
+      task_notes: doc.task_notes || [] // 留給 notes.html 完整讀取貢獻者用
     };
   });
 
@@ -120,7 +122,6 @@ async function fetchQuestData() {
 
 // 取得任務座標
 function getQuestCoord(q) {
-  // 優先讀取 tasks 表格本身帶有的 x, y 欄位
   if (q.x !== undefined && q.y !== undefined && q.x !== null && q.x !== '') {
     return { x: Number(q.x), y: Number(q.y) };
   }
@@ -180,19 +181,15 @@ function renderMap(mapRawData) {
   updateMapHighlights();
 }
 
-// 更新地圖上的任務高亮顯示（未完成與已完成）
 // 更新地圖上的任務高亮顯示（受顯示開關控制）
 window.updateMapHighlights = function() {
-  // 1. 清除所有任務相關的高亮樣式
   document.querySelectorAll('.map-table td').forEach(td => {
     td.classList.remove('quest-completed-highlight', 'quest-pending-highlight', 'quest-locked-highlight');
   });
 
-  // 2. 讀取 HTML 中的顯示開關狀態（若找不到元素則預設為顯示 'show'）
   const showPending = document.getElementById('toggle-pending-vis')?.value !== 'hide';
   const showCompleted = document.getElementById('toggle-completed-vis')?.value !== 'hide';
 
-  // 3. 走訪所有任務並依開關狀態上色
   globalQuestData.forEach(q => {
     const coord = getQuestCoord(q);
     if (!coord) return;
@@ -201,18 +198,13 @@ window.updateMapHighlights = function() {
     if (!targetCell) return;
 
     const status = q.status || 'pending';
-
-    // 如果是已完成，且開關允許顯示
     if (status === 'completed' && showCompleted) {
       targetCell.classList.add('quest-completed-highlight');
-    } 
-    // 如果是未完成 / 顯示中，且開關允許顯示
-    else if (status !== 'completed' && showPending) {
+    } else if (status !== 'completed' && showPending) {
       targetCell.classList.add('quest-pending-highlight');
     }
   });
 
-  // 4. 鎖定的點位額外加上特效
   lockedQuestIds.forEach(qId => {
     const coordStr = questSelectedCoordMap.get(qId);
     if (coordStr) {
@@ -225,7 +217,7 @@ window.updateMapHighlights = function() {
   });
 };
 
-// 【核心功能】點擊任務列的建築名稱時，自動尋找座標並在地圖上平滑捲動與高亮聚焦
+// 點擊任務列的建築名稱時，自動尋找座標並在地圖上平滑捲動與高亮聚焦
 window.focusQuestOnMap = function(questId, buildingName, cityName) {
   const qObj = globalQuestData.find(q => String(q.id) === String(questId));
   if (!qObj) {
@@ -242,17 +234,14 @@ window.focusQuestOnMap = function(questId, buildingName, cityName) {
   const { x, y } = coord;
   const coordKey = `${x},${y}`;
 
-  // 記錄並鎖定
   lockedQuestIds.add(questId);
   questSelectedCoordMap.set(questId, coordKey);
   window.updateMapHighlights();
 
-  // 自動平滑捲動到地圖對應格子
   const targetCell = document.getElementById(`cell-${x}-${y}`);
   if (targetCell) {
     targetCell.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     
-    // 加上短暫的閃爍動畫提示
     targetCell.style.transition = 'background-color 0.3s ease';
     const originalBg = targetCell.style.backgroundColor;
     targetCell.style.backgroundColor = '#f6ad55'; 
@@ -261,7 +250,6 @@ window.focusQuestOnMap = function(questId, buildingName, cityName) {
     }, 1200);
   }
 
-  // 更新下方面板訊息
   const panelMsg = document.getElementById('panel-msg');
   if (panelMsg) {
     panelMsg.innerHTML = `🎯 已定位任務建築：<b>${buildingName}</b> -> 座標 (X: ${x}, Y: ${y}) [${cityName || '未知城市'}]`;
@@ -282,7 +270,6 @@ window.filterQuests = function() {
   const filtered = globalQuestData.filter(q => {
     const building = (q.building || '').toLowerCase();
     const type = (q.task_type || q.type || '').toLowerCase();
-    // 搜尋時使用 cleanNotes（純備註）
     const notes = (q.cleanNotes || '').toLowerCase();
     const status = q.status || 'pending';
     const effectiveCity = getQuestCity(q);
@@ -305,11 +292,9 @@ window.filterQuests = function() {
     const currentStatus = q.status || 'pending';
     const displayCity = getQuestCity(q);
     
-    // 取得全部的純備註內容（支援多行顯示，不含貢獻者）
     const rawNotes = (q.cleanNotes || '').trim();
     const displayNotesText = rawNotes ? rawNotes : '<span style="color: #6b7280; font-style: italic;">尚無備註</span>';
     
-    // 點擊後跳轉至 notes.html 網頁並帶入任務 ID
     const moreNotesButtonHtml = `<button onclick="window.location.href='notes.html?id=${qId}'" style="display: inline-block; margin-top: 6px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 查看更多備註</button>`;
 
     const tr = document.createElement('tr');
@@ -323,15 +308,12 @@ window.filterQuests = function() {
       </td>
       <td style="padding: 10px; vertical-align: top;">${displayCity}</td>
       <td style="padding: 10px; vertical-align: top;">${q.task_type || q.type || '一般任務'}</td>
-      
-      <!-- 🔥 這裡改為直接顯示完整的多行備註內容 -->
       <td style="padding: 10px; max-width: 280px; vertical-align: top;">
         <div style="font-size: 12px; color: #e5e7eb; white-space: pre-wrap; word-break: break-all; line-height: 1.4;">
           ${displayNotesText}
         </div>
         ${moreNotesButtonHtml}
       </td>
-
       <td style="padding: 10px; vertical-align: top;">
         <button onclick="window.location.href='edit.html?id=${qId}'" style="padding: 4px 10px; background: #374151; color: #60a5fa; border: 1px solid #4b5563; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ 編輯詳情</button>
       </td>
@@ -345,6 +327,7 @@ window.filterQuests = function() {
     `;
     tbody.appendChild(tr);
   });
+};
 
 // 更新任務狀態至 Supabase
 window.updateQuestStatusInSupabase = async function(id, newStatus) {
@@ -359,7 +342,7 @@ window.updateQuestStatusInSupabase = async function(id, newStatus) {
   } else {
     const target = globalQuestData.find(q => String(q.id) === String(id));
     if (target) target.status = newStatus;
-    updateMapHighlights(); // 狀態改變時即時更新地圖高亮
+    updateMapHighlights();
   }
 };
 
