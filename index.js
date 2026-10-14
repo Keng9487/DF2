@@ -305,14 +305,24 @@ window.filterQuests = function() {
     const qId = q.id;
     const currentStatus = q.status || 'pending';
     const displayCity = getQuestCity(q);
-    const rawNotes = q.notes ? q.notes.trim() : '';
-    const firstNoteText = rawNotes ? rawNotes.split('\n')[0] : '<span style="color: #6b7280; font-style: italic;">尚無備註</span>';
+    
+    // 取得備註內容
+    const rawNotes = (q.notes || '').trim();
+    const noteLines = rawNotes ? rawNotes.split('\n').filter(line => line.trim() !== '') : [];
+    
+    // 第一則備註文字
+    const firstNoteText = noteLines.length > 0 ? noteLines[0] : '<span style="color: #6b7280; font-style: italic;">尚無備註記錄</span>';
+    
+    // 🔥 如果有備註或多則備註，顯示「查看更多備註」按鈕
+    const hasMoreNotes = noteLines.length > 0;
+    const moreNotesButtonHtml = hasMoreNotes 
+      ? `<button onclick="window.openNotesModal('${qId}', \`${encodeURIComponent(rawNotes)}\`)" style="display: inline-block; margin-top: 4px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 查看更多備註 (${noteLines.length})</button>` 
+      : '';
 
     const tr = document.createElement('tr');
     tr.style.borderBottom = '1px solid #1f2937';
 
     tr.innerHTML = `
-      <!-- 點擊建築名稱即可自動在地圖上搜尋座標並定位聚焦 -->
       <td style="padding: 10px; cursor: pointer; color: #60a5fa;" 
           onclick="window.focusQuestOnMap('${qId}', '${q.building}', '${displayCity}')" 
           title="點擊在地圖上定位此建築">
@@ -324,6 +334,7 @@ window.filterQuests = function() {
         <div style="font-size: 12px; color: #e5e7eb; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${rawNotes}">
           ${firstNoteText}
         </div>
+        ${moreNotesButtonHtml}
       </td>
       <td style="padding: 10px;">
         <button onclick="window.location.href='edit.html?id=${qId}'" style="padding: 4px 10px; background: #374151; color: #60a5fa; border: 1px solid #4b5563; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ 編輯詳情</button>
