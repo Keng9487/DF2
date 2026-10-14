@@ -315,9 +315,7 @@ window.filterQuests = function() {
     
     // 🔥 如果有備註或多則備註，顯示「查看更多備註」按鈕
     const hasMoreNotes = noteLines.length > 0;
-    const moreNotesButtonHtml = hasMoreNotes 
-      ? `<button onclick="window.openNotesModal('${qId}', \`${encodeURIComponent(rawNotes)}\`)" style="display: inline-block; margin-top: 4px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 查看更多備註 (${noteLines.length})</button>` 
-      : '';
+    const moreNotesButtonHtml = `<button onclick="window.location.href='notes.html?id=${qId}'" style="display: inline-block; margin-top: 4px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 查看更多備註</button>`;
 
     const tr = document.createElement('tr');
     tr.style.borderBottom = '1px solid #1f2937';
