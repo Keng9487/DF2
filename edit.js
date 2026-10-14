@@ -5,10 +5,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const messageEl = document.getElementById('edit-message');
   const creditsInput = document.getElementById('credits');
   const headerEl = document.getElementById('task-header');
-  const routeInput = document.getElementById('route-input'); // 對應 HTML 的新路線輸入框
+  const routeInput = document.getElementById('route-input');
   const editForm = document.getElementById('edit-form');
 
-  // 1. 取得網址帶入的任務 ID (例如 edit.html?id=xxx)
   const urlParams = new URLSearchParams(window.location.search);
   const taskId = urlParams.get('id');
 
@@ -18,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // 2. 自動帶入登入者名稱到 credits
+  // 1. 自動帶入登入者名稱
   try {
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     if (session && session.user) {
@@ -28,14 +27,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (creditsInput) creditsInput.value = displayName;
     } else {
       alert("請先登入後才能新增備註！");
-      window.location.href = 'login.html';
+      window.location.href = '登入.html';
       return;
     }
   } catch (err) {
     console.error("驗證失敗：", err);
   }
 
-  // 3. 讀取 tasks 資料並組合 Header 格式：前往{變數1},城市:{變數2} 目標:{變數3}
+  // 2. 載入 Header 資訊
   try {
     const { data: taskData, error: taskError } = await window.supabaseClient
       .from('tasks')
@@ -60,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // 4. 監聽表單送出事件：將新路線寫入 task_notes 資料表
+  // 3. 監聽表單送出
   if (!editForm) return;
 
   editForm.addEventListener('submit', async (e) => {
@@ -75,20 +74,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     messageEl.textContent = '正在儲存備註...';
 
     try {
-      // 將輸入的路線寫入 task_notes 資料表
       const { error: insertError } = await window.supabaseClient
         .from('task_notes')
         .insert([
           {
             task_id: taskId,
-            notes: routeValue,    // 備註內容
-            credits: creditsValue // 貢獻者名稱
+            notes: routeValue,
+            credits: creditsValue
           }
         ]);
 
-      if (insertError) {
-        throw new Error(insertError.message);
-      }
+      if (insertError) throw new Error(insertError.message);
 
       messageEl.style.color = '#68d391';
       messageEl.textContent = '儲存成功！正在返回主頁...';
