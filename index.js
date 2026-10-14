@@ -96,22 +96,21 @@ async function fetchQuestData() {
   }
 
   globalQuestData = (tasksData || []).map(doc => {
-    // 1. 產生給 index.html 顯示的純備註（不含貢獻者，支援多行）
     let cleanNotes = '';
     if (doc.task_notes && Array.isArray(doc.task_notes) && doc.task_notes.length > 0) {
       cleanNotes = doc.task_notes
-        .map(n => n.notes)
+        .map(n => n && n.notes ? String(n.notes).replace(/\t/g, '    ').trim() : '')
         .filter(Boolean)
         .join('\n');
     } else {
-      cleanNotes = doc.notes || doc.note || '';
+      cleanNotes = doc.notes ? String(doc.notes).replace(/\t/g, '    ').trim() : '';
     }
 
     return {
       ...doc,
       id: doc.id,
       cleanNotes: cleanNotes,
-      task_notes: doc.task_notes || [] // 留給 notes.html 完整讀取貢獻者用
+      task_notes: doc.task_notes || [] 
     };
   });
 
@@ -119,7 +118,6 @@ async function fetchQuestData() {
   updateMapHighlights(); 
   window.filterQuests();
 }
-
 // 取得任務座標
 function getQuestCoord(q) {
   if (q.x !== undefined && q.y !== undefined && q.x !== null && q.x !== '') {
@@ -301,19 +299,22 @@ window.filterQuests = function() {
     tr.style.borderBottom = '1px solid #1f2937';
 
     tr.innerHTML = `
-      <td style="padding: 10px; cursor: pointer; color: #60a5fa;" 
+      <td style="padding: 10px; cursor: pointer; color: #60a5fa; vertical-align: top;" 
           onclick="window.focusQuestOnMap('${qId}', '${q.building}', '${displayCity}')" 
           title="點擊在地圖上定位此建築">
         <b>${q.building || '未指定建築'}</b>
       </td>
       <td style="padding: 10px; vertical-align: top;">${displayCity}</td>
       <td style="padding: 10px; vertical-align: top;">${q.task_type || q.type || '一般任務'}</td>
-      <td style="padding: 10px; max-width: 280px; vertical-align: top;">
-        <div style="font-size: 12px; color: #e5e7eb; white-space: pre-wrap; word-break: break-all; line-height: 1.4;">
+      
+      <!-- 修正備註欄位：限制寬度、強制斷行、垂直對齊 -->
+      <td style="padding: 10px; width: 300px; max-width: 300px; vertical-align: top; word-break: break-all; overflow-wrap: break-word;">
+        <div style="font-size: 12px; color: #e5e7eb; white-space: pre-wrap; line-height: 1.4;">
           ${displayNotesText}
         </div>
         ${moreNotesButtonHtml}
       </td>
+
       <td style="padding: 10px; vertical-align: top;">
         <button onclick="window.location.href='edit.html?id=${qId}'" style="padding: 4px 10px; background: #374151; color: #60a5fa; border: 1px solid #4b5563; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ 編輯詳情</button>
       </td>
