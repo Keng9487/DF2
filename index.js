@@ -328,16 +328,19 @@ window.filterQuests = function() {
       </td>
       <td style="padding: 10px;">${displayCity}</td>
       <td style="padding: 10px;">${q.task_type || q.type || '一般任務'}</td>
-      <td style="padding: 10px; max-width: 280px;">
-        <div style="font-size: 12px; color: #e5e7eb; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${rawNotes}">
-          ${firstNoteText}
+      
+      <!-- 🔥 修改這裡：讓備註欄位可以自動依內容換行並展開高度 -->
+      <td style="padding: 10px; max-width: 280px; vertical-align: top;">
+        <div style="font-size: 12px; color: #e5e7eb; white-space: pre-wrap; word-break: break-all; line-height: 1.4;">
+          ${rawNotes || '<span style="color: #6b7280; font-style: italic;">尚無備註</span>'}
         </div>
         ${moreNotesButtonHtml}
       </td>
-      <td style="padding: 10px;">
+
+      <td style="padding: 10px; vertical-align: top;">
         <button onclick="window.location.href='edit.html?id=${qId}'" style="padding: 4px 10px; background: #374151; color: #60a5fa; border: 1px solid #4b5563; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ 編輯詳情</button>
       </td>
-      <td style="padding: 10px;">
+      <td style="padding: 10px; vertical-align: top;">
         <select onchange="window.updateQuestStatusInSupabase('${qId}', this.value)" style="background: #1f2937; color: #fff; border: 1px solid #4b5563; padding: 4px; border-radius: 4px; font-size: 12px;">
           <option value="pending" ${currentStatus === 'pending' ? 'selected' : ''}>⭕ 未完成</option>
           <option value="show" ${currentStatus === 'show' ? 'selected' : ''}>👁️ 顯示中</option>
