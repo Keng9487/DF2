@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>玩家登入 - Dead Frontier 2 地圖系統</title>
+</head>
+<body style="background: #1a202c; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
+
+  <div style="background: #2d3748; padding: 30px; border-radius: 8px; width: 320px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+    <h2 style="margin-top: 0; text-align: center;">玩家登入</h2>
+    
+    <!-- 🔥 這裡的 id 必須是 login-form -->
+    <form id="login-form">
+      <div style="margin-bottom: 15px;">
+        <label style="display:block; margin-bottom: 5px; font-size: 14px;">電子郵件</label>
+        <!-- 🔥 這裡的 id 必須是 login-email -->
+        <input type="email" id="login-email" placeholder="輸入 Email" autocomplete="email" required style="width: 100%; padding: 8px; box-sizing: border-box; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 4px;" />
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display:block; margin-bottom: 5px; font-size: 14px;">密碼</label>
+        <!-- 🔥 這裡的 id 必須是 login-password -->
+        <input type="password" id="login-password" placeholder="輸入密碼" autocomplete="current-password" required style="width: 100%; padding: 8px; box-sizing: border-box; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 4px;" />
+      </div>
+
+      <button type="submit" style="width: 100%; padding: 10px; background: #3182ce; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer;">登入</button>
+    </form>
+
+    <!-- 🔥 這裡的 id 必須是 login-message -->
+    <div id="login-message" style="margin-top: 15px; font-size: 14px; text-align: center;"></div>
+
+    <hr style="border: none; border-top: 1px solid #4a5568; margin: 20px 0;">
+
+    <div style="text-align: center;">
+      <p style="font-size: 13px; color: #a0aec0; margin-bottom: 10px;">還沒有遊戲帳號嗎？</p>
+      <a href="註冊.html" style="display: block; width: 100%; padding: 8px; background: #38a169; color: white; text-decoration: none; font-weight: bold; border-radius: 4px; box-sizing: border-box; text-align: center;">前往註冊帳號</a>
+    </div>
+
+    <div style="margin-top: 15px; text-align: center; font-size: 13px;">
+      <a href="index.html" style="color: #63b3ed; text-decoration: none;">← 返回地圖主頁</a>
+    </div>
+  </div>
+
+  <!-- 引入必要 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script src="登入.js"></script>
+</body>
+</html>

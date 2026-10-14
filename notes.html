@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>詳細備註記錄 - Dead Frontier 2 地圖系統</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-center-layout" style="display: block; padding: 20px;">
+
+  <div class="form-card" style="width: 100%; max-width: 800px; margin: 0 auto;">
+    <!-- 動態標題 -->
+    <h2 id="notes-title" class="form-title">任務詳細備註記錄</h2>
+    
+    <!-- 備註清單容器 -->
+    <div id="notes-list-container" style="margin-bottom: 20px;">
+      <p style="text-align: center; color: #8b949e;">載入備註中...</p>
+    </div>
+
+    <div class="form-footer">
+      <a href="index.html" class="back-link">← 返回地圖主頁</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script src="notes.js"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>編輯與新增路線備註 - Dead Frontier 2 地圖系統</title>
+  <link rel="stylesheet" href="edit.css">
+</head>
+<body class="page-center-layout">
+
+  <div class="form-card">
+    <!-- 動態 Header -->
+    <h2 id="task-header" class="form-title">載入任務資訊中...</h2>
+    
+    <form id="edit-form">
+      <!-- 多行備註輸入框 -->
+      <div class="form-group">
+        <label for="route-input" class="form-label">新增路線 / 備註</label>
+        <textarea 
+          id="route-input" 
+          rows="5" 
+          placeholder="請輸入要新增的路線或詳細備註內容（支援多行）..." 
+          required 
+          class="form-textarea"
+        ></textarea>
+      </div>
+
+      <!-- 貢獻者 (Credits) 欄位 -->
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label for="credits" class="form-label">貢獻者 (Credits)</label>
+        <input 
+          type="text" 
+          id="credits" 
+          readonly 
+          class="form-input-readonly" 
+        />
+        <small class="form-hint">由系統自動帶入您的登入名稱。</small>
+      </div>
+
+      <!-- 儲存備註按鈕 -->
+      <button type="submit" class="submit-btn">儲存備註</button>
+    </form>
+
+    <div id="edit-message" class="form-message"></div>
+
+    <div class="form-footer">
+      <a href="index.html" class="back-link">← 返回地圖主頁</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script src="edit.js"></script>
+</body>
+</html>
