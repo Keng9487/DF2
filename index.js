@@ -99,11 +99,20 @@ async function fetchQuestData() {
     let cleanNotes = '';
     if (doc.task_notes && Array.isArray(doc.task_notes) && doc.task_notes.length > 0) {
       cleanNotes = doc.task_notes
-        .map(n => n && n.notes ? String(n.notes).replace(/\t/g, '    ').trim() : '')
+        .map(n => {
+          if (!n || !n.notes) return '';
+          // 🔥 將每一行開頭的 Tab (\t) 或全形/半形空白去除，但保留文字中間的排版
+          return String(n.notes)
+            .split('\n')
+            .map(line => line.replace(/^[\t\s]+/, '').trim()) // 移除每行開頭的空白與 Tab
+            .join('\n');
+        })
         .filter(Boolean)
         .join('\n');
     } else {
-      cleanNotes = doc.notes ? String(doc.notes).replace(/\t/g, '    ').trim() : '';
+      cleanNotes = doc.notes 
+        ? String(doc.notes).split('\n').map(line => line.replace(/^[\t\s]+/, '').trim()).join('\n') 
+        : '';
     }
 
     return {
@@ -309,7 +318,7 @@ window.filterQuests = function() {
       
       <!-- 修正備註欄位：限制寬度、強制斷行、垂直對齊 -->
       <td style="padding: 10px; width: 300px; max-width: 300px; vertical-align: top; word-break: break-all; overflow-wrap: break-word;">
-        <div style="font-size: 12px; color: #e5e7eb; line-height: 1.4;">
+        <div style="font-size: 12px; color: #e5e7eb; white-space: pre-wrap; line-height: 1.4;">
           ${displayNotesText}
         </div>
         ${moreNotesButtonHtml}
