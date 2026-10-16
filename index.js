@@ -309,7 +309,7 @@ window.filterQuests = function() {
       
       <!-- 修正備註欄位：限制寬度、強制斷行、垂直對齊 -->
       <td style="padding: 10px; width: 300px; max-width: 300px; vertical-align: top; word-break: break-all; overflow-wrap: break-word;">
-        <div style="font-size: 12px; color: #e5e7eb; white-space: pre-wrap; line-height: 1.4;">
+        <div style="font-size: 12px; color: #e5e7eb; line-height: 1.4;">
           ${displayNotesText}
         </div>
         ${moreNotesButtonHtml}
