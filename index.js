@@ -101,17 +101,18 @@ async function fetchQuestData() {
       cleanNotes = doc.task_notes
         .map(n => {
           if (!n || !n.notes) return '';
-          // 🔥 將每一行開頭的 Tab (\t) 或全形/半形空白去除，但保留文字中間的排版
+          // 🔥 關鍵修復：將所有的 \t (Tab) 換成普通空白，並清除每行前後多餘空白
           return String(n.notes)
+            .replace(/\t/g, ' ') 
             .split('\n')
-            .map(line => line.replace(/^[\t\s]+/, '').trim()) // 移除每行開頭的空白與 Tab
+            .map(line => line.trim())
             .join('\n');
         })
         .filter(Boolean)
         .join('\n');
     } else {
       cleanNotes = doc.notes 
-        ? String(doc.notes).split('\n').map(line => line.replace(/^[\t\s]+/, '').trim()).join('\n') 
+        ? String(doc.notes).replace(/\t/g, ' ').split('\n').map(line => line.trim()).join('\n') 
         : '';
     }
 
