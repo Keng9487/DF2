@@ -300,8 +300,17 @@ window.filterQuests = function() {
     const currentStatus = q.status || 'pending';
     const displayCity = getQuestCity(q);
     
+    // 1. 取得原始純備註
     const rawNotes = (q.cleanNotes || '').trim();
-    const displayNotesText = rawNotes ? rawNotes : '<span style="color: #6b7280; font-style: italic;">尚無備註</span>';
+    
+    // 2. 將 \n 換行符號轉為 <br>，同時進行基本的 HTML 跳脫以策安全
+    const formattedNotes = rawNotes 
+      ? rawNotes
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\n/g, '<br>')
+      : '<span style="color: #6b7280; font-style: italic;">尚無備註</span>';
     
     const moreNotesButtonHtml = `<button onclick="window.location.href='notes.html?id=${qId}'" style="display: inline-block; margin-top: 6px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 查看更多備註</button>`;
 
@@ -317,10 +326,10 @@ window.filterQuests = function() {
       <td style="padding: 10px; vertical-align: top;">${displayCity}</td>
       <td style="padding: 10px; vertical-align: top;">${q.task_type || q.type || '一般任務'}</td>
       
-      <!-- 修正備註欄位：限制寬度、強制斷行、垂直對齊 -->
+      <!-- 3. 移除 pre-wrap，改用普通的 div 搭配 innerHTML 與 <br> -->
       <td style="padding: 10px; width: 300px; max-width: 300px; vertical-align: top; word-break: break-all; overflow-wrap: break-word;">
-        <div style="font-size: 12px; color: #e5e7eb; white-space: pre-wrap; line-height: 1.4;">
-          ${displayNotesText}
+        <div style="font-size: 12px; color: #e5e7eb; line-height: 1.4;">
+          ${formattedNotes}
         </div>
         ${moreNotesButtonHtml}
       </td>
