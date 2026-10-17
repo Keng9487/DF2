@@ -6,9 +6,9 @@
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #f4f6f8;
+      background-color: #111827; /* 改為深色背景 */
       padding: 20px;
-      color: #333;
+      color: #f3f4f6; /* 改為亮色文字 */
     }
     .container {
       max-width: 800px;
@@ -16,22 +16,22 @@
     }
     h1 {
       text-align: center;
-      color: #2c3e50;
+      color: #f9fafb; /* 標題改為亮白色 */
       margin-bottom: 25px;
     }
     
     /* 主選單群組 */
     .main-accordion {
-      background: #fff;
-      border: 1px solid #dcdcdc;
+      background: #1f2937; /* 深色卡片背景 */
+      border: 1px solid #374151; /* 深色邊框 */
       border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
       margin-bottom: 15px;
       overflow: hidden;
     }
     .main-header {
-      background: #2c3e50;
-      color: #fff;
+      background: #374151; /* 深色標題欄 */
+      color: #f3f4f6;
       padding: 16px 20px;
       font-size: 18px;
       font-weight: bold;
@@ -42,12 +42,12 @@
       user-select: none;
     }
     .main-header:hover {
-      background: #1a252f;
+      background: #4b5563; /* 懸停時稍微變亮 */
     }
     .main-content {
       display: none;
       padding: 16px;
-      background: #f9f9f9;
+      background: #111827; /* 內容區塊深色背景 */
     }
     .main-accordion.active > .main-content {
       display: block;
@@ -55,8 +55,8 @@
 
     /* 座標區塊 */
     .zone-section {
-      background: #fff;
-      border: 1px solid #e0e0e0;
+      background: #1f2937;
+      border: 1px solid #374151;
       border-radius: 6px;
       margin-bottom: 12px;
       padding: 12px 15px;
@@ -64,16 +64,16 @@
     .zone-title {
       font-size: 15px;
       font-weight: bold;
-      color: #34495e;
-      border-bottom: 2px solid #34495e;
+      color: #93c5fd; /* 改為柔和的亮藍色 */
+      border-bottom: 2px solid #4b5563;
       padding-bottom: 6px;
       margin-bottom: 10px;
     }
 
     /* 建築與筆記卡片 */
     .building-card {
-      background: #fafafa;
-      border: 1px solid #dcdcdc;
+      background: #111827;
+      border: 1px solid #374151;
       border-radius: 4px;
       margin-bottom: 8px;
       padding: 10px;
@@ -86,13 +86,13 @@
     }
     .building-title {
       font-weight: 600;
-      color: #16a085;
+      color: #34d399; /* 改為亮眼的青綠色 */
       font-size: 14px;
     }
     .building-type-badge {
       font-size: 11px;
-      background: #e1f5fe;
-      color: #0288d1;
+      background: #065f46; /* 深色徽章背景 */
+      color: #6ee7b7; /* 徽章文字 */
       padding: 2px 6px;
       border-radius: 4px;
       font-weight: bold;
@@ -104,14 +104,16 @@
     }
     .notes-group label {
       font-size: 11px;
-      color: #7f8c8d;
+      color: #9ca3af; /* 灰階標籤文字 */
       font-weight: bold;
     }
     .notes-input {
       width: 100%;
       height: 50px;
       padding: 6px;
-      border: 1px solid #ccc;
+      background: #1f2937; /* 輸入框深色背景 */
+      color: #f3f4f6; /* 輸入框文字顏色 */
+      border: 1px solid #4b5563;
       border-radius: 4px;
       resize: vertical;
       box-sizing: border-box;
@@ -119,11 +121,11 @@
     }
     .notes-input:focus {
       outline: none;
-      border-color: #3498db;
+      border-color: #60a5fa; /* 聚焦時邊框發光變藍 */
     }
     .save-status {
       font-size: 11px;
-      color: #27ae60;
+      color: #34d399; /* 儲存成功提示改為亮綠色 */
       text-align: right;
       margin-top: 2px;
       height: 14px;
@@ -133,7 +135,7 @@
     }
     .loading-text {
       text-align: center;
-      color: #7f8c8d;
+      color: #9ca3af;
       padding: 10px;
     }
   </style>
@@ -246,7 +248,7 @@ async function loadMenuCoordinates(config, menuKey, contentContainer) {
 
           if (filteredBuildings.length === 0) {
             const emptyMsg = document.createElement("div");
-            emptyMsg.style.cssText = "color: #999; font-size: 13px; padding: 4px 0;";
+            emptyMsg.style.cssText = "color: #6b7280; font-size: 13px; padding: 4px 0;";
             emptyMsg.textContent = "此座標無符合條件的建築資料";
             zoneSection.appendChild(emptyMsg);
           } else {
@@ -308,14 +310,14 @@ async function loadMenuCoordinates(config, menuKey, contentContainer) {
           }
         } else {
           const notFoundMsg = document.createElement("div");
-          notFoundMsg.style.cssText = "color: #999; font-size: 13px; padding: 4px 0;";
+          notFoundMsg.style.cssText = "color: #6b7280; font-size: 13px; padding: 4px 0;";
           notFoundMsg.textContent = `資料庫尚無 ${zoneId} 資料`;
           zoneSection.appendChild(notFoundMsg);
         }
       } catch (err) {
         console.error(`讀取座標 ${zoneId} 失敗:`, err);
         const errMsg = document.createElement("div");
-        errMsg.style.cssText = "color: #c0392b; font-size: 13px; padding: 4px 0;";
+        errMsg.style.cssText = "color: #ef4444; font-size: 13px; padding: 4px 0;";
         errMsg.textContent = "讀取失敗";
         zoneSection.appendChild(errMsg);
       }
