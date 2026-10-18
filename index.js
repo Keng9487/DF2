@@ -457,3 +457,46 @@ function displayCoordInfo(data, x, y) {
   }
   detailsPanel.innerHTML = html;
 }
+
+async function initAllMenus() {
+  const root = document.getElementById("menus-root");
+  root.innerHTML = "";
+
+  // 🔥 讓選單依照 startRow 與 startCol 進行自動上下/左右排序
+  const sortedConfigs = [...menuConfigs].sort((a, b) => {
+    if (a.startRow !== b.startRow) {
+      return a.startRow - b.startRow; // 數值小的排在前面（由上到下）
+    }
+    return a.startCol - b.startCol;   // 若行相同，則依列排序
+  });
+
+  for (const config of sortedConfigs) { // 這裡改用 sortedConfigs
+    const menuKey = config.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
+
+    const mainAccordion = document.createElement("div");
+    mainAccordion.className = "main-accordion";
+
+    const mainHeader = document.createElement("div");
+    mainHeader.className = "main-header";
+    mainHeader.innerHTML = `
+      <span>🏰 ${config.name} (${config.startRow}_${config.startCol} ~ ${config.endRow}_${config.endCol})</span>
+      <span class="icon">＋</span>
+    `;
+
+    const mainContent = document.createElement("div");
+    mainContent.className = "main-content";
+    mainContent.innerHTML = `<div class="loading-text">載入中...</div>`;
+
+    mainAccordion.appendChild(mainHeader);
+    mainAccordion.appendChild(mainContent);
+    root.appendChild(mainAccordion);
+
+    mainHeader.addEventListener("click", () => {
+      const isActive = mainAccordion.classList.contains("active");
+      mainAccordion.classList.toggle("active");
+      mainHeader.querySelector(".icon").textContent = isActive ? "＋" : "－";
+    });
+
+    loadMenuCoordinates(config, menuKey, mainContent);
+  }
+}
