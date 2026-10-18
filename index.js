@@ -351,15 +351,19 @@ window.filterQuests = function() {
 
 // 更新任務狀態至 Supabase
 window.updateQuestStatusInSupabase = async function(id, newStatus) {
-  const { error } = await supabase
+  console.log(`正在嘗試更新任務 ID: ${id} 狀態為: ${newStatus}`);
+
+  const { data, error } = await supabase
     .from('tasks')
     .update({ status: newStatus })
-    .eq('id', id);
+    .eq('id', id)
+    .select(); // 加上 .select() 以便確認資料庫是否有成功回傳更新後的資料
 
   if (error) {
-    console.error('更新狀態失敗:', error);
-    alert('更新失敗！');
+    console.error('更新狀態失敗，詳細錯誤:', error);
+    alert(`更新失敗！\n錯誤代碼: ${error.code}\n錯誤訊息: ${error.message}`);
   } else {
+    console.log('更新成功，資料庫回傳:', data);
     const target = globalQuestData.find(q => String(q.id) === String(id));
     if (target) target.status = newStatus;
     updateMapHighlights();
