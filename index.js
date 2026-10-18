@@ -351,22 +351,33 @@ window.filterQuests = function() {
 
 // 更新任務狀態至 Supabase
 window.updateQuestStatusInSupabase = async function(id, newStatus) {
-  console.log(`正在嘗試更新任務 ID: ${id} 狀態為: ${newStatus}`);
+  console.log(`正在嘗試更新任務 ID: ${id} (型態: ${typeof id}), 狀態為: ${newStatus}`);
+
+  // 如果你的 Supabase tasks 表格 id 是數字型態，這裡會自動轉成數字；如果是文字/UUID則保持不變
+  const parsedId = !isNaN(id) ? Number(id) : id;
 
   const { data, error } = await supabase
     .from('tasks')
     .update({ status: newStatus })
-    .eq('id', id)
-    .select(); // 加上 .select() 以便確認資料庫是否有成功回傳更新後的資料
+    .eq('id', parsedId)
+    .select();
 
   if (error) {
-    console.error('更新狀態失敗，詳細錯誤:', error);
+    console.error('更新失敗，詳細錯誤:', error);
     alert(`更新失敗！\n錯誤代碼: ${error.code}\n錯誤訊息: ${error.message}`);
   } else {
-    console.log('更新成功，資料庫回傳:', data);
-    const target = globalQuestData.find(q => String(q.id) === String(id));
-    if (target) target.status = newStatus;
-    updateMapHighlights();
+    console.log('資料庫回傳結果:', data);
+    
+    // 檢查是否有成功更新到資料
+    if (data && data.length > 0) {
+      console.log('✅ 資料庫狀態更新成功！');
+      const target = globalQuestData.find(q => String(q.id) === String(id));
+      if (target) target.status = newStatus;
+      updateMapHighlights();
+    } else {
+      console.warn('⚠️ 雖然沒有報錯，但回傳陣列為空 (length: 0)。這代表資料庫中找不到這個 ID 的任務！');
+      alert('更新失敗：資料庫找不到此任務 ID，請檢查該任務的主鍵型態是否為數字或 UUID。');
+    }
   }
 };
 
