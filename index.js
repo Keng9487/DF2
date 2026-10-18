@@ -521,5 +521,3 @@ function updateSortIcons(activeKey, isAsc) {
     }
   });
 }
-  }
-}
