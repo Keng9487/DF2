@@ -459,11 +459,7 @@ function displayCoordInfo(data, x, y) {
 }
 
 // 記錄目前的排序欄位與方向
-let currentSortColumn = null;
-let isAscending = true;
-
 window.sortTable = function(columnKey) {
-  // 切換正序/反序
   if (currentSortColumn === columnKey) {
     isAscending = !isAscending;
   } else {
@@ -471,36 +467,17 @@ window.sortTable = function(columnKey) {
     isAscending = true;
   }
 
-  // 進行資料排序
   globalQuestData.sort((a, b) => {
-    let result = 0;
+    // 取得欄位對應的文字值
+    const valA = String(a[columnKey] || '');
+    const valB = String(b[columnKey] || '');
 
-    // 🔥 當點擊「任務建築」或包含地圖座標的欄位時，執行【上下幕座標排序】
-    if (columnKey === 'building' || columnKey === 'coordinate') {
-      // 1. 先比對 Row (橫行 / 上下)
-      const rowA = Number(a.x) || Number(a.startRow) || 0;
-      const rowB = Number(b.x) || Number(b.startRow) || 0;
-      
-      // 2. 再比對 Col (縱列 / 左右)
-      const colA = Number(a.y) || Number(a.startCol) || 0;
-      const colB = Number(b.y) || Number(b.startCol) || 0;
-
-      // 依序比對每一欄：先比對 Row，若相同則比對 Col，若皆相同則比對建築名稱
-      result = (rowA - rowB) || 
-               (colA - colB) || 
-               (String(a.building || '').localeCompare(String(b.building || ''), 'zh-TW'));
-    } 
-    // 其他常規欄位排序（如：城市、類型、狀態等）
-    else {
-      const valA = String(a[columnKey] || '');
-      const valB = String(b[columnKey] || '');
-      result = valA.localeCompare(valB, 'zh-TW');
-    }
+    // 使用中文語系拼音/筆劃順序進行純文字比較
+    let result = valA.localeCompare(valB, 'zh-TW');
 
     return isAscending ? result : -result;
   });
 
-  // 排序完成後，更新 UI 上的箭頭方向並重新渲染列表
   updateSortIcons(columnKey, isAscending);
   window.filterQuests();
 };
