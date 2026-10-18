@@ -76,13 +76,21 @@
       <div class="table-responsive">
         <table class="hud-table" id="missionTable">
           <thead>
-            <tr>
-              <th onclick="sortTable(0)">任務建築 <span class="sort-icon"></span></th>
-              <th onclick="sortTable(1)">任務城市 <span class="sort-icon"></span></th>
-              <th onclick="sortTable(2)">任務類型 <span class="sort-icon"></span></th>
-              <th onclick="sortTable(3)">備註 <span class="sort-icon"></span></th>
-              <th onclick="sortTable(4)">編輯</th>
-              <th onclick="sortTable(5)">狀態 <span class="sort-icon"></span></th>
+            <tr style="border-bottom: 2px solid #374151; text-align: left; color: #9ca3af;">
+              <th class="sortable" data-sort="building" onclick="window.sortTable('building')" style="padding: 10px; cursor: pointer; user-select: none;">
+                任務建築 <span class="sort-icon">↕️</span>
+              </th>
+              <th class="sortable" data-sort="city" onclick="window.sortTable('city')" style="padding: 10px; cursor: pointer; user-select: none;">
+                任務城市 <span class="sort-icon">↕️</span>
+              </th>
+              <th class="sortable" data-sort="task_type" onclick="window.sortTable('task_type')" style="padding: 10px; cursor: pointer; user-select: none;">
+                任務類型 <span class="sort-icon">↕️</span>
+              </th>
+              <th style="padding: 10px;">備註</th>
+              <th style="padding: 10px;">編輯</th>
+              <th class="sortable" data-sort="status" onclick="window.sortTable('status')" style="padding: 10px; cursor: pointer; user-select: none;">
+                狀態 <span class="sort-icon">↕️</span>
+              </th>
             </tr>
           </thead>
           <!-- 🔥 修正：這裡的 ID 必須與 JS 中的 hudTableBody 一致 -->
