@@ -458,45 +458,68 @@ function displayCoordInfo(data, x, y) {
   detailsPanel.innerHTML = html;
 }
 
-async function initAllMenus() {
-  const root = document.getElementById("menus-root");
-  root.innerHTML = "";
+// 記錄目前的排序欄位與方向
+let currentSortColumn = null;
+let isAscending = true;
 
-  // 🔥 讓選單依照 startRow 與 startCol 進行自動上下/左右排序
-  const sortedConfigs = [...menuConfigs].sort((a, b) => {
-    if (a.startRow !== b.startRow) {
-      return a.startRow - b.startRow; // 數值小的排在前面（由上到下）
+window.sortTable = function(columnKey) {
+  // 切換正序/反序
+  if (currentSortColumn === columnKey) {
+    isAscending = !isAscending;
+  } else {
+    currentSortColumn = columnKey;
+    isAscending = true;
+  }
+
+  // 進行資料排序
+  globalQuestData.sort((a, b) => {
+    let result = 0;
+
+    // 🔥 當點擊「任務建築」或包含地圖座標的欄位時，執行【上下幕座標排序】
+    if (columnKey === 'building' || columnKey === 'coordinate') {
+      // 1. 先比對 Row (橫行 / 上下)
+      const rowA = Number(a.x) || Number(a.startRow) || 0;
+      const rowB = Number(b.x) || Number(b.startRow) || 0;
+      
+      // 2. 再比對 Col (縱列 / 左右)
+      const colA = Number(a.y) || Number(a.startCol) || 0;
+      const colB = Number(b.y) || Number(b.startCol) || 0;
+
+      // 依序比對每一欄：先比對 Row，若相同則比對 Col，若皆相同則比對建築名稱
+      result = (rowA - rowB) || 
+               (colA - colB) || 
+               (String(a.building || '').localeCompare(String(b.building || ''), 'zh-TW'));
+    } 
+    // 其他常規欄位排序（如：城市、類型、狀態等）
+    else {
+      const valA = String(a[columnKey] || '');
+      const valB = String(b[columnKey] || '');
+      result = valA.localeCompare(valB, 'zh-TW');
     }
-    return a.startCol - b.startCol;   // 若行相同，則依列排序
+
+    return isAscending ? result : -result;
   });
 
-  for (const config of sortedConfigs) { // 這裡改用 sortedConfigs
-    const menuKey = config.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
+  // 排序完成後，更新 UI 上的箭頭方向並重新渲染列表
+  updateSortIcons(columnKey, isAscending);
+  window.filterQuests();
+};
 
-    const mainAccordion = document.createElement("div");
-    mainAccordion.className = "main-accordion";
-
-    const mainHeader = document.createElement("div");
-    mainHeader.className = "main-header";
-    mainHeader.innerHTML = `
-      <span>🏰 ${config.name} (${config.startRow}_${config.startCol} ~ ${config.endRow}_${config.endCol})</span>
-      <span class="icon">＋</span>
-    `;
-
-    const mainContent = document.createElement("div");
-    mainContent.className = "main-content";
-    mainContent.innerHTML = `<div class="loading-text">載入中...</div>`;
-
-    mainAccordion.appendChild(mainHeader);
-    mainAccordion.appendChild(mainContent);
-    root.appendChild(mainAccordion);
-
-    mainHeader.addEventListener("click", () => {
-      const isActive = mainAccordion.classList.contains("active");
-      mainAccordion.classList.toggle("active");
-      mainHeader.querySelector(".icon").textContent = isActive ? "＋" : "－";
-    });
-
-    loadMenuCoordinates(config, menuKey, mainContent);
+// 更新表頭的排序箭頭圖示
+function updateSortIcons(activeKey, isAsc) {
+  document.querySelectorAll('th.sortable').forEach(th => {
+    const key = th.getAttribute('data-sort');
+    const icon = th.querySelector('.sort-icon');
+    if (icon) {
+      if (key === activeKey) {
+        icon.textContent = isAsc ? ' ▲' : ' ▼';
+        th.style.color = '#60a5fa'; // 高亮當前排序欄位
+      } else {
+        icon.textContent = ' ↕️';
+        th.style.color = '#9ca3af';
+      }
+    }
+  });
+}
   }
 }
