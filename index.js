@@ -28,6 +28,8 @@ let globalQuestData = [];
 let globalRouteMapData = []; 
 let lockedQuestIds = new Set();  
 let questSelectedCoordMap = new Map();
+let currentSortColumn = null;
+let isAscending = true;
 
 // 網頁載入完成後初始化
 window.addEventListener('DOMContentLoaded', () => {
