@@ -481,7 +481,6 @@ window.sortTable = function(columnKey) {
   updateSortIcons(columnKey, isAscending);
   window.filterQuests();
 };
-
 // 更新表頭的排序箭頭圖示
 function updateSortIcons(activeKey, isAsc) {
   document.querySelectorAll('th.sortable').forEach(th => {
