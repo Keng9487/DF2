@@ -498,4 +498,38 @@ function updateSortIcons(activeKey, isAsc) {
       }
     }
   });
+
+// 1. 監聽篩選器變更並自動儲存到 sessionStorage
+function saveFilterState() {
+  const cityFilter = document.getElementById('cityFilter');
+  const searchInput = document.getElementById('searchInput');
+  const statusFilter = document.getElementById('statusFilter');
+
+  const filterState = {
+    city: cityFilter ? cityFilter.value : '',
+    search: searchInput ? searchInput.value : '',
+    status: statusFilter ? statusFilter.value : ''
+  };
+
+  sessionStorage.setItem('questFilterState', JSON.stringify(filterState));
+}
+
+// 2. 網頁載入時恢復篩選條件
+function restoreFilterState() {
+  const savedStateJson = sessionStorage.getItem('questFilterState');
+  if (!savedStateJson) return;
+
+  try {
+    const state = JSON.parse(savedStateJson);
+    
+    const cityFilter = document.getElementById('cityFilter');
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+
+    if (cityFilter && state.city) cityFilter.value = state.city;
+    if (searchInput && state.search) searchInput.value = state.search;
+    if (statusFilter && state.status) statusFilter.value = state.status;
+  } catch (e) {
+    console.error('恢復篩選條件失敗:', e);
+  }
 }
