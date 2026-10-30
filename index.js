@@ -268,10 +268,12 @@ window.focusQuestOnMap = function(questId, buildingName, cityName) {
 
 // 任務列表過濾與渲染
 window.filterQuests = function() {
+  saveFilterState();
   const keyword = document.getElementById('search')?.value.toLowerCase() || '';
   const cityFilter = document.getElementById('filter-city')?.value || '';
   const typeFilter = document.getElementById('filter-type')?.value || '';
   const statusFilter = document.getElementById('filter-status')?.value || '';
+  
 
   const tbody = document.getElementById('hudTableBody');
   if (!tbody) return;
