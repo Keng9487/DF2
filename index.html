@@ -50,22 +50,40 @@
             </select>
           </div>
 
-          <!-- 地圖顯示開關控制組 -->
-          <div class="controls-row" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
-            <div class="filter-item">
-              <label for="toggle-pending-vis" style="font-size: 13px; color: #cbd5e0;">⭕ 未完成任務:</label>
+          <!-- 地圖顯示開關與自選顏色控制組 -->
+          <div class="controls-row" style="display: flex; gap: 12px; margin-bottom: 10px; align-items: center; flex-wrap: wrap;">
+            <!-- ⭕ 未完成任務控制 -->
+            <div class="filter-item" style="display: flex; align-items: center; gap: 5px;">
+              <label for="toggle-pending-vis" style="font-size: 13px; color: #cbd5e0;">⭕ 未完成:</label>
               <select id="toggle-pending-vis" onchange="updateMapHighlights()" style="background: #1f2937; color: #fff; border: 1px solid #4b5563; padding: 4px; border-radius: 4px; font-size: 12px;">
                 <option value="show" selected>顯示</option>
                 <option value="hide">隱藏</option>
               </select>
+              <!-- 自選顏色格子 -->
+              <input type="color" id="picker-pending" value="#ef4444" title="選擇未完成任務方塊顏色" style="cursor: pointer; border: none; background: none; width: 26px; height: 26px; padding: 0; vertical-align: middle;">
             </div>
 
-            <div class="filter-item">
-              <label for="toggle-completed-vis" style="font-size: 13px; color: #cbd5e0;">✅ 已完成任務:</label>
+            <!-- 👁️ 顯示中任務控制 -->
+            <div class="filter-item" style="display: flex; align-items: center; gap: 5px;">
+              <label for="picker-show" style="font-size: 13px; color: #cbd5e0;">👁️ 顯示中:</label>
+              <input type="color" id="picker-show" value="#3b82f6" title="選擇顯示中任務方塊顏色" style="cursor: pointer; border: none; background: none; width: 26px; height: 26px; padding: 0; vertical-align: middle;">
+            </div>
+
+            <!-- ✅ 已完成任務控制 -->
+            <div class="filter-item" style="display: flex; align-items: center; gap: 5px;">
+              <label for="toggle-completed-vis" style="font-size: 13px; color: #cbd5e0;">✅ 已完成:</label>
               <select id="toggle-completed-vis" onchange="updateMapHighlights()" style="background: #1f2937; color: #fff; border: 1px solid #4b5563; padding: 4px; border-radius: 4px; font-size: 12px;">
                 <option value="show" selected>顯示</option>
                 <option value="hide">隱藏</option>
               </select>
+              <!-- 自選顏色格子 -->
+              <input type="color" id="picker-completed" value="#10b981" title="選擇已完成任務方塊顏色" style="cursor: pointer; border: none; background: none; width: 26px; height: 26px; padding: 0; vertical-align: middle;">
+            </div>
+
+            <!-- 🎯 點擊鎖定控制 -->
+            <div class="filter-item" style="display: flex; align-items: center; gap: 5px;">
+              <label for="picker-locked" style="font-size: 13px; color: #cbd5e0;">🎯 鎖定:</label>
+              <input type="color" id="picker-locked" value="#f6ad55" title="選擇點擊鎖定/定位方塊顏色" style="cursor: pointer; border: none; background: none; width: 26px; height: 26px; padding: 0; vertical-align: middle;">
             </div>
           </div>
 
@@ -93,7 +111,6 @@
               </th>
             </tr>
           </thead>
-          <!-- 🔥 修正：這裡的 ID 必須與 JS 中的 hudTableBody 一致 -->
           <tbody id="hudTableBody">
             <tr>
               <td colspan="6" style="text-align: center; color: #8b949e; padding: 20px;">載入任務資料中...</td>
@@ -110,7 +127,7 @@
         <table id="map-table" class="map-table"></table>
       </div>
       <div id="info-panel">
-        <div id="panel-msg">點擊左側任務列可<b>選擇指定同名點位進行鎖定</b>；點擊地圖格子可開始畫線...</div>
+        <div id="panel-msg">點擊左側任務列可<b>選擇指定同名點位進行鎖定</b></div>
         <div id="panel-details" style="margin-top: 6px;"></div>
       </div>
     </div>

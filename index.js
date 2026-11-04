@@ -24,6 +24,13 @@ const regionRanges = {
   "狼堡": { minX: 25, maxX: 30, minY: 13, maxY: 18 },
 };
 
+let questHighlightColors = {
+  pending: localStorage.getItem('color_pending') || 'rgba(239, 68, 68, 0.6)',     // 預設紅
+  show: localStorage.getItem('color_show') || 'rgba(59, 130, 246, 0.6)',          // 預設藍
+  completed: localStorage.getItem('color_completed') || 'rgba(16, 185, 129, 0.6)',// 預設綠
+  locked: localStorage.getItem('color_locked') || 'rgba(246, 173, 85, 0.9)'       // 預設橘
+};
+
 let globalQuestData = [];
 let globalRouteMapData = []; 
 let lockedQuestIds = new Set();  
@@ -33,14 +40,16 @@ let isAscending = true;
 
 // 1. 監聽篩選器變更並自動儲存到 sessionStorage
 function saveFilterState() {
-  const cityFilter = document.getElementById('cityFilter');
-  const searchInput = document.getElementById('searchInput');
-  const statusFilter = document.getElementById('statusFilter');
+  const cityFilter = document.getElementById('filter-city');
+  const searchInput = document.getElementById('search');
+  const statusFilter = document.getElementById('filter-status');
+  const typeFilter = document.getElementById('filter-type');
 
   const filterState = {
     city: cityFilter ? cityFilter.value : '',
     search: searchInput ? searchInput.value : '',
-    status: statusFilter ? statusFilter.value : ''
+    status: statusFilter ? statusFilter.value : '',
+    type: typeFilter ? typeFilter.value : ''
   };
 
   sessionStorage.setItem('questFilterState', JSON.stringify(filterState));
@@ -54,13 +63,15 @@ function restoreFilterState() {
   try {
     const state = JSON.parse(savedStateJson);
     
-    const cityFilter = document.getElementById('cityFilter');
-    const searchInput = document.getElementById('searchInput');
-    const statusFilter = document.getElementById('statusFilter');
+    const cityFilter = document.getElementById('filter-city');
+    const searchInput = document.getElementById('search');
+    const statusFilter = document.getElementById('filter-status');
+    const typeFilter = document.getElementById('filter-type');
 
     if (cityFilter && state.city) cityFilter.value = state.city;
     if (searchInput && state.search) searchInput.value = state.search;
     if (statusFilter && state.status) statusFilter.value = state.status;
+    if (typeFilter && state.type) typeFilter.value = state.type;
   } catch (e) {
     console.error('恢復篩選條件失敗:', e);
   }
@@ -160,7 +171,7 @@ async function fetchQuestData() {
       task_notes: doc.task_notes || [] 
     };
   });
-
+  restoreFilterState();
   updateFilterOptions();
   updateMapHighlights(); 
   window.filterQuests();
@@ -226,43 +237,14 @@ function renderMap(mapRawData) {
   updateMapHighlights();
 }
 
-// 更新地圖上的任務高亮顯示（受顯示開關控制）
-window.updateMapHighlights = function() {
-  document.querySelectorAll('.map-table td').forEach(td => {
-    td.classList.remove('quest-completed-highlight', 'quest-pending-highlight', 'quest-locked-highlight');
-  });
+function hexToRgba(hex, alpha = 0.6) {
+  let c = hex.replace('#', '');
+  if (c.length === 3) c = c.split('').map(x => x + x).join('');
+  const num = parseInt(c, 16);
+  return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
+}
 
-  const showPending = document.getElementById('toggle-pending-vis')?.value !== 'hide';
-  const showCompleted = document.getElementById('toggle-completed-vis')?.value !== 'hide';
-
-  globalQuestData.forEach(q => {
-    const coord = getQuestCoord(q);
-    if (!coord) return;
-
-    const targetCell = document.getElementById(`cell-${coord.x}-${coord.y}`);
-    if (!targetCell) return;
-
-    const status = q.status || 'pending';
-    if (status === 'completed' && showCompleted) {
-      targetCell.classList.add('quest-completed-highlight');
-    } else if (status !== 'completed' && showPending) {
-      targetCell.classList.add('quest-pending-highlight');
-    }
-  });
-
-  lockedQuestIds.forEach(qId => {
-    const coordStr = questSelectedCoordMap.get(qId);
-    if (coordStr) {
-      const [x, y] = coordStr.split(',').map(Number);
-      const targetCell = document.getElementById(`cell-${x}-${y}`);
-      if (targetCell) {
-        targetCell.classList.add('quest-locked-highlight');
-      }
-    }
-  });
-};
-
-// 點擊任務列的建築名稱時，自動尋找座標並在地圖上平滑捲動與高亮聚焦
+// 更新地圖上的任務高亮顯示（支援自定義顏色方塊）
 window.focusQuestOnMap = function(questId, buildingName, cityName) {
   const qObj = globalQuestData.find(q => String(q.id) === String(questId));
   if (!qObj) {
@@ -278,7 +260,21 @@ window.focusQuestOnMap = function(questId, buildingName, cityName) {
 
   const { x, y } = coord;
   const coordKey = `${x},${y}`;
+  const panelMsg = document.getElementById('panel-msg');
 
+  // 檢查如果已經被標記/鎖定，再次點擊時則「取消標記」
+  if (lockedQuestIds.has(questId)) {
+    lockedQuestIds.delete(questId);
+    questSelectedCoordMap.delete(questId);
+    window.updateMapHighlights();
+
+    if (panelMsg) {
+      panelMsg.innerHTML = `❌ 已取消標記任務建築：<b>${buildingName}</b>`;
+    }
+    return;
+  }
+
+  // 若尚未被標記，則執行原本的鎖定與平滑捲動
   lockedQuestIds.add(questId);
   questSelectedCoordMap.set(questId, coordKey);
   window.updateMapHighlights();
@@ -295,7 +291,97 @@ window.focusQuestOnMap = function(questId, buildingName, cityName) {
     }, 1200);
   }
 
+  if (panelMsg) {
+    panelMsg.innerHTML = `🎯 已定位任務建築：<b>${buildingName}</b> -> 座標 (X: ${x}, Y: ${y}) [${cityName || '未知城市'}]`;
+  }
+};
+
+// 支援自定義顏色與狀態顯隱的更新高亮函式
+window.updateMapHighlights = function() {
+  document.querySelectorAll('.map-table td').forEach(td => {
+    td.classList.remove('quest-completed-highlight', 'quest-pending-highlight', 'quest-locked-highlight');
+    td.style.backgroundColor = ''; 
+  });
+
+  const showPending = document.getElementById('toggle-pending-vis')?.value !== 'hide';
+  const showCompleted = document.getElementById('toggle-completed-vis')?.value !== 'hide';
+
+  globalQuestData.forEach(q => {
+    const coord = getQuestCoord(q);
+    if (!coord) return;
+
+    const targetCell = document.getElementById(`cell-${coord.x}-${coord.y}`);
+    if (!targetCell) return;
+
+    const status = q.status || 'pending';
+    
+    if (status === 'completed' && showCompleted) {
+      targetCell.style.backgroundColor = questHighlightColors.completed;
+    } else if (status === 'show' && showCompleted) {
+      targetCell.style.backgroundColor = questHighlightColors.show;
+    } else if (status !== 'completed' && showPending) {
+      targetCell.style.backgroundColor = questHighlightColors.pending;
+    }
+  });
+
+  lockedQuestIds.forEach(qId => {
+    const coordStr = questSelectedCoordMap.get(qId);
+    if (coordStr) {
+      const [x, y] = coordStr.split(',').map(Number);
+      const targetCell = document.getElementById(`cell-${x}-${y}`);
+      if (targetCell) {
+        targetCell.style.backgroundColor = questHighlightColors.locked;
+      }
+    }
+  });
+};
+
+window.focusQuestOnMap = function(questId, buildingName, cityName) {
+  const qObj = globalQuestData.find(q => String(q.id) === String(questId));
+  if (!qObj) {
+    console.error("找不到對應的任務物件 ID:", questId);
+    return;
+  }
+
+  const coord = getQuestCoord(qObj);
+  if (!coord) {
+    alert(`此任務無有效座標 (建築: ${buildingName})！`);
+    return;
+  }
+
+  const { x, y } = coord;
+  const coordKey = `${x},${y}`;
   const panelMsg = document.getElementById('panel-msg');
+
+  // 🔥 檢查如果已經被標記/鎖定，再次點擊時則「取消標記」
+  if (lockedQuestIds.has(questId)) {
+    lockedQuestIds.delete(questId);
+    questSelectedCoordMap.delete(questId);
+    window.updateMapHighlights(); // 更新地圖高亮
+
+    if (panelMsg) {
+      panelMsg.innerHTML = `❌ 已取消標記任務建築：<b>${buildingName}</b>`;
+    }
+    return; // 直接結束，不執行後續的聚焦與捲動
+  }
+
+  // 若尚未被標記，則執行原本的鎖定與平滑捲動
+  lockedQuestIds.add(questId);
+  questSelectedCoordMap.set(questId, coordKey);
+  window.updateMapHighlights();
+
+  const targetCell = document.getElementById(`cell-${x}-${y}`);
+  if (targetCell) {
+    targetCell.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    
+    targetCell.style.transition = 'background-color 0.3s ease';
+    const originalBg = targetCell.style.backgroundColor;
+    targetCell.style.backgroundColor = '#f6ad55'; 
+    setTimeout(() => {
+      targetCell.style.backgroundColor = originalBg;
+    }, 1200);
+  }
+
   if (panelMsg) {
     panelMsg.innerHTML = `🎯 已定位任務建築：<b>${buildingName}</b> -> 座標 (X: ${x}, Y: ${y}) [${cityName || '未知城市'}]`;
   }
@@ -536,3 +622,40 @@ function updateSortIcons(activeKey, isAsc) {
     }
   });
 }
+
+// 初始化色票選擇器數值與即時互動監聽
+document.addEventListener('DOMContentLoaded', () => {
+  const rgbToHex = (rgbaStr) => {
+    const match = rgbaStr.match(/\d+/g);
+    if (!match || match.length < 3) return '#000000';
+    return '#' + [match[0], match[1], match[2]].map(x => {
+      const hex = parseInt(x).toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    }).join('');
+  };
+
+  const pendingPicker = document.getElementById('picker-pending');
+  const showPicker = document.getElementById('picker-show');
+  const completedPicker = document.getElementById('picker-completed');
+  const lockedPicker = document.getElementById('picker-locked');
+
+  if (pendingPicker) pendingPicker.value = rgbToHex(questHighlightColors.pending);
+  if (showPicker) showPicker.value = rgbToHex(questHighlightColors.show);
+  if (completedPicker) completedPicker.value = rgbToHex(questHighlightColors.completed);
+  if (lockedPicker) lockedPicker.value = rgbToHex(questHighlightColors.locked);
+
+  const bindColorPicker = (pickerEl, key, alpha) => {
+    if (!pickerEl) return;
+    pickerEl.addEventListener('input', (e) => {
+      const newRgba = hexToRgba(e.target.value, alpha);
+      questHighlightColors[key] = newRgba;
+      localStorage.setItem(`color_${key}`, newRgba);
+      window.updateMapHighlights();
+    });
+  };
+
+  bindColorPicker(pendingPicker, 'pending', 0.6);
+  bindColorPicker(showPicker, 'show', 0.6);
+  bindColorPicker(completedPicker, 'completed', 0.6);
+  bindColorPicker(lockedPicker, 'locked', 0.9);
+});
