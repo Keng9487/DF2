@@ -171,8 +171,8 @@ async function fetchQuestData() {
       task_notes: doc.task_notes || [] 
     };
   });
-  restoreFilterState();
   updateFilterOptions();
+  restoreFilterState();
   updateMapHighlights(); 
   window.filterQuests();
 }
