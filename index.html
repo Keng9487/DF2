@@ -21,23 +21,33 @@
   <div class="main-layout">
     <div class="panel-box">
       <div class="panel-title">📜 Mission HUD Table</div>
-
       <div class="controls-row">
         <input type="text" id="search" class="search-box" placeholder="🔍 搜尋建築、城市、任務類型或備註..." oninput="filterQuests()">
-        
         <div class="filters-group">
-          <div class="filter-item">
-            <label for="filter-city">城市:</label>
-            <select id="filter-city" onchange="filterQuests()">
-              <option value="">全部城市</option>
-            </select>
+            <!-- 城市複選下拉選單 -->
+          <div class="filter-item" style="position: relative;">
+            <label style="font-size: 13px; color: #cbd5e0;">城市:</label>
+            <div class="custom-dropdown" id="dropdown-city">
+              <button type="button" class="dropdown-toggle" onclick="toggleDropdown('city')" style="background: #1f2937; color: #fff; border: 1px solid #4b5563; padding: 6px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; width: 130px; text-align: left; display: flex; justify-content: space-between; align-items: center;">
+                <span id="city-toggle-text">全部城市</span> <span>▼</span>
+              </button>
+              <div class="dropdown-panel" id="panel-city" style="display: none; position: absolute; top: 100%; left: 0; z-index: 100; background: #1f2937; border: 1px solid #4b5563; border-radius: 4px; padding: 8px; width: max-content; min-width: 140px; max-width: 300px; max-height: 400px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                <!-- 動態載入 Checkbox 選項 -->
+              </div>
+            </div>
           </div>
 
-          <div class="filter-item">
-            <label for="filter-type">類型:</label>
-            <select id="filter-type" onchange="filterQuests()">
-              <option value="">全部類型</option>
-            </select>
+          <!-- 任務類型複選下拉選單 -->
+          <div class="filter-item" style="position: relative;">
+            <label style="font-size: 13px; color: #cbd5e0;">類型:</label>
+            <div class="custom-dropdown" id="dropdown-type">
+              <button type="button" class="dropdown-toggle" onclick="toggleDropdown('type')" style="background: #1f2937; color: #fff; border: 1px solid #4b5563; padding: 6px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; width: 130px; text-align: left; display: flex; justify-content: space-between; align-items: center;">
+                <span id="type-toggle-text">全部類型</span> <span>▼</span>
+              </button>
+              <div class="dropdown-panel" id="panel-type" style="display: none; position: absolute; top: 100%; left: 0; z-index: 100; background: #1f2937; border: 1px solid #4b5563; border-radius: 4px; padding: 8px; width: max-content; min-width: 140px; max-width: 300px; max-height: 400px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                <!-- 動態載入 Checkbox 選項 -->
+              </div>
+            </div>
           </div>
 
           <div class="filter-item">

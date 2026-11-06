@@ -38,45 +38,6 @@ let questSelectedCoordMap = new Map();
 let currentSortColumn = null;
 let isAscending = true;
 
-// 1. 監聽篩選器變更並自動儲存到 sessionStorage
-function saveFilterState() {
-  const cityFilter = document.getElementById('filter-city');
-  const searchInput = document.getElementById('search');
-  const statusFilter = document.getElementById('filter-status');
-  const typeFilter = document.getElementById('filter-type');
-
-  const filterState = {
-    city: cityFilter ? cityFilter.value : '',
-    search: searchInput ? searchInput.value : '',
-    status: statusFilter ? statusFilter.value : '',
-    type: typeFilter ? typeFilter.value : ''
-  };
-
-  sessionStorage.setItem('questFilterState', JSON.stringify(filterState));
-}
-
-// 2. 網頁載入時恢復篩選條件
-function restoreFilterState() {
-  const savedStateJson = sessionStorage.getItem('questFilterState');
-  if (!savedStateJson) return;
-
-  try {
-    const state = JSON.parse(savedStateJson);
-    
-    const cityFilter = document.getElementById('filter-city');
-    const searchInput = document.getElementById('search');
-    const statusFilter = document.getElementById('filter-status');
-    const typeFilter = document.getElementById('filter-type');
-
-    if (cityFilter && state.city) cityFilter.value = state.city;
-    if (searchInput && state.search) searchInput.value = state.search;
-    if (statusFilter && state.status) statusFilter.value = state.status;
-    if (typeFilter && state.type) typeFilter.value = state.type;
-  } catch (e) {
-    console.error('恢復篩選條件失敗:', e);
-  }
-}
-
 // 網頁載入完成後初始化
 window.addEventListener('DOMContentLoaded', () => {
   initApp();
@@ -387,92 +348,7 @@ window.focusQuestOnMap = function(questId, buildingName, cityName) {
   }
 };
 
-// 任務列表過濾與渲染
-window.filterQuests = function() {
-  saveFilterState();
-  const keyword = document.getElementById('search')?.value.toLowerCase() || '';
-  const cityFilter = document.getElementById('filter-city')?.value || '';
-  const typeFilter = document.getElementById('filter-type')?.value || '';
-  const statusFilter = document.getElementById('filter-status')?.value || '';
-  
 
-  const tbody = document.getElementById('hudTableBody');
-  if (!tbody) return;
-  tbody.innerHTML = '';
-
-  const filtered = globalQuestData.filter(q => {
-    const building = (q.building || '').toLowerCase();
-    const type = (q.task_type || q.type || '').toLowerCase();
-    const notes = (q.cleanNotes || '').toLowerCase();
-    const status = q.status || 'pending';
-    const effectiveCity = getQuestCity(q);
-
-    const matchKeyword = !keyword || building.includes(keyword) || effectiveCity.toLowerCase().includes(keyword) || type.includes(keyword) || notes.includes(keyword);
-    const matchCity = !cityFilter || (effectiveCity === cityFilter);
-    const matchType = !typeFilter || (q.task_type === typeFilter || q.type === typeFilter);
-    const matchStatus = !statusFilter || (status === statusFilter);
-
-    return matchKeyword && matchCity && matchType && matchStatus;
-  });
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #8b949e; padding: 20px;">沒有找到符合條件的任務</td></tr>`;
-    return;
-  }
-
-  filtered.forEach(q => {
-    const qId = q.id;
-    const currentStatus = q.status || 'pending';
-    const displayCity = getQuestCity(q);
-    
-    // 1. 取得原始純備註
-    const rawNotes = (q.cleanNotes || '').trim();
-    
-    // 2. 將 \n 換行符號轉為 <br>，同時進行基本的 HTML 跳脫以策安全
-    const formattedNotes = rawNotes 
-      ? rawNotes
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/\n/g, '<br>')
-      : '<span style="color: #6b7280; font-style: italic;">尚無備註</span>';
-    
-    const moreNotesButtonHtml = `<button onclick="window.location.href='notes.html?id=${qId}'" style="display: inline-block; margin-top: 6px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 查看更多備註</button>`;
-
-    const tr = document.createElement('tr');
-    tr.style.borderBottom = '1px solid #1f2937';
-
-    tr.innerHTML = `
-      <td style="padding: 10px; cursor: pointer; color: #60a5fa; vertical-align: top;" 
-          onclick="window.focusQuestOnMap('${qId}', '${q.building}', '${displayCity}')" 
-          title="點擊在地圖上定位此建築">
-        <b>${q.building || '未指定建築'}</b>
-      </td>
-      <td style="padding: 10px; vertical-align: top;">${displayCity}</td>
-      <td style="padding: 10px; vertical-align: top;">${q.task_type || q.type || '一般任務'}</td>
-      
-      <!-- 3. 移除 pre-wrap，改用普通的 div 搭配 innerHTML 與 <br> -->
-      <td style="padding: 10px; width: 300px; max-width: 300px; vertical-align: top; word-break: break-all; overflow-wrap: break-word;">
-        <div style="font-size: 12px; color: #e5e7eb; line-height: 1.4;">
-          ${formattedNotes}
-        </div>
-        ${moreNotesButtonHtml}
-      </td>
-
-      <td style="padding: 10px; vertical-align: top;">
-        <button onclick="window.location.href='edit.html?id=${qId}'" style="padding: 4px 10px; background: #374151; color: #60a5fa; border: 1px solid #4b5563; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ 編輯詳情</button>
-      </td>
-      <td style="padding: 10px; vertical-align: top;">
-        <select onchange="window.updateQuestStatusInSupabase('${qId}', this.value)" style="background: #1f2937; color: #fff; border: 1px solid #4b5563; padding: 4px; border-radius: 4px; font-size: 12px;">
-          <option value="pending" ${currentStatus === 'pending' ? 'selected' : ''}>⭕ 未完成</option>
-          <option value="show" ${currentStatus === 'show' ? 'selected' : ''}>👁️ 顯示中</option>
-          <option value="completed" ${currentStatus === 'completed' ? 'selected' : ''}>✅ 已完成</option>
-        </select>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-};
 
 // 更新任務狀態至 Supabase
 window.updateQuestStatusInSupabase = async function(id, newStatus) {
@@ -505,36 +381,6 @@ window.updateQuestStatusInSupabase = async function(id, newStatus) {
     }
   }
 };
-
-// 更新下拉篩選選項
-function updateFilterOptions() {
-  const citySelect = document.getElementById('filter-city');
-  const typeSelect = document.getElementById('filter-type');
-  if (!citySelect || !typeSelect) return;
-
-  const currentCity = citySelect.value;
-  const currentType = typeSelect.value;
-
-  const cities = new Set();
-  const types = new Set();
-
-  globalQuestData.forEach(q => {
-    const c = getQuestCity(q);
-    if (c) cities.add(c);
-    const t = q.task_type || q.type;
-    if (t) types.add(t);
-  });
-
-  citySelect.innerHTML = '<option value="">全部城市</option>';
-  Array.from(cities).sort().forEach(c => {
-    citySelect.innerHTML += `<option value="${c}" ${c === currentCity ? 'selected' : ''}>${c}</option>`;
-  });
-
-  typeSelect.innerHTML = '<option value="">全部類型</option>';
-  Array.from(types).sort().forEach(t => {
-    typeSelect.innerHTML += `<option value="${t}" ${t === currentType ? 'selected' : ''}>${t}</option>`;
-  });
-}
 
 // 重設篩選條件
 window.resetFilters = function() {
@@ -659,3 +505,177 @@ document.addEventListener('DOMContentLoaded', () => {
   bindColorPicker(completedPicker, 'completed', 0.6);
   bindColorPicker(lockedPicker, 'locked', 0.9);
 });
+
+window.toggleDropdown = function(type) {
+  const panel = document.getElementById(`panel-${type}`);
+  const isVisible = panel.style.display === 'block';
+  // 關閉所有其他下拉選單
+  document.querySelectorAll('.dropdown-panel').forEach(p => p.style.display = 'none');
+  
+  panel.style.display = isVisible ? 'none' : 'block';
+};
+
+// 點擊畫面空白處自動關閉下拉選單
+window.addEventListener('click', (e) => {
+  if (!e.target.closest('.custom-dropdown')) {
+    document.querySelectorAll('.dropdown-panel').forEach(p => p.style.display = 'none');
+  }
+});
+
+// 2. 自動儲存篩選狀態（改抓取 checkbox 的勾選狀態）
+function saveFilterState() {
+  const getCheckedValues = (name) => {
+    return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(cb => cb.value);
+  };
+
+  const filterState = {
+    city: getCheckedValues('city-checkbox'),
+    search: document.getElementById('search')?.value || '',
+    status: document.getElementById('filter-status')?.value || '',
+    type: getCheckedValues('type-checkbox')
+  };
+
+  sessionStorage.setItem('questFilterState', JSON.stringify(filterState));
+}
+
+// 3. 恢復篩選條件
+function restoreFilterState() {
+  const savedStateJson = sessionStorage.getItem('questFilterState');
+  if (!savedStateJson) return;
+
+  try {
+    const state = JSON.parse(savedStateJson);
+    
+    if (Array.isArray(state.city)) {
+      state.city.forEach(val => {
+        const cb = document.querySelector(`input[name="city-checkbox"][value="${val}"]`);
+        if (cb) cb.checked = true;
+      });
+    }
+    const searchInput = document.getElementById('search');
+    if (searchInput && state.search) searchInput.value = state.search;
+
+    const statusFilter = document.getElementById('filter-status');
+    if (statusFilter && state.status) statusFilter.value = state.status;
+
+    if (Array.isArray(state.type)) {
+      state.type.forEach(val => {
+        const cb = document.querySelector(`input[name="type-checkbox"][value="${val}"]`);
+        if (cb) cb.checked = true;
+      });
+    }
+    updateDropdownButtonText('city');
+    updateDropdownButtonText('type');
+  } catch (e) {
+    console.error('恢復篩選條件失敗:', e);
+  }
+}
+
+// 4. 更新按鈕上的顯示文字（例如：「已選擇 2 項」或「全部城市」）
+function updateDropdownButtonText(type) {
+  const checked = document.querySelectorAll(`input[name="${type}-checkbox"]:checked`);
+  const textEl = document.getElementById(`${type}-toggle-text`);
+  if (!textEl) return;
+
+  if (checked.length === 0) {
+    textEl.textContent = type === 'city' ? '全部城市' : '全部類型';
+  } else if (checked.length === 1) {
+    textEl.textContent = checked[0].value;
+  } else {
+    textEl.textContent = `已選擇 ${checked.length} 項`;
+  }
+}
+
+// 5. 任務列表過濾邏輯
+window.filterQuests = function() {
+  saveFilterState();
+  updateDropdownButtonText('city');
+  updateDropdownButtonText('type');
+
+  const keyword = document.getElementById('search')?.value.toLowerCase() || '';
+  
+  const selectedCities = Array.from(document.querySelectorAll('input[name="city-checkbox"]:checked')).map(cb => cb.value);
+  const selectedTypes = Array.from(document.querySelectorAll('input[name="type-checkbox"]:checked')).map(cb => cb.value);
+  const statusFilter = document.getElementById('filter-status')?.value || '';
+
+  const tbody = document.getElementById('hudTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  const filtered = globalQuestData.filter(q => {
+    const building = (q.building || '').toLowerCase();
+    const type = (q.task_type || q.type || '').toLowerCase();
+    const notes = (q.cleanNotes || '').toLowerCase();
+    const status = q.status || 'pending';
+    const effectiveCity = getQuestCity(q);
+
+    const matchKeyword = !keyword || building.includes(keyword) || effectiveCity.toLowerCase().includes(keyword) || type.includes(keyword) || notes.includes(keyword);
+    
+    const matchCity = selectedCities.length === 0 || selectedCities.includes(effectiveCity);
+    const matchType = selectedTypes.length === 0 || selectedTypes.includes(q.task_type) || selectedTypes.includes(q.type);
+    const matchStatus = !statusFilter || (status === statusFilter);
+
+    return matchKeyword && matchCity && matchType && matchStatus;
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #8b949e; padding: 20px;">沒有找到符合條件的任務</td></tr>`;
+    return;
+  }
+
+  filtered.forEach(q => {
+    const qId = q.id;
+    const currentStatus = q.status || 'pending';
+    const displayCity = getQuestCity(q);
+    const rawNotes = (q.cleanNotes || '').trim();
+    const formattedNotes = rawNotes ? rawNotes.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, '<br>') : '<span style="color: #6b7280; font-style: italic;">尚無備註</span>';
+    const moreNotesButtonHtml = `<button onclick="window.location.href='notes.html?id=${qId}'" style="display: inline-block; margin-top: 6px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 查看更多備註</button>`;
+
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #1f2937';
+    tr.innerHTML = `
+      <td style="padding: 10px; cursor: pointer; color: #60a5fa; vertical-align: top;" onclick="window.focusQuestOnMap('${qId}', '${q.building}', '${displayCity}')"><b>${q.building || '未指定建築'}</b></td>
+      <td style="padding: 10px; vertical-align: top;">${displayCity}</td>
+      <td style="padding: 10px; vertical-align: top;">${q.task_type || q.type || '一般任務'}</td>
+      <td style="padding: 10px; width: 300px; max-width: 300px; vertical-align: top; word-break: break-all;"><div style="font-size: 12px; color: #e5e7eb; line-height: 1.4;">${formattedNotes}</div>${moreNotesButtonHtml}</td>
+      <td style="padding: 10px; vertical-align: top;"><button onclick="window.location.href='edit.html?id=${qId}'" style="padding: 4px 10px; background: #374151; color: #60a5fa; border: 1px solid #4b5563; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ 編輯詳情</button></td>
+      <td style="padding: 10px; vertical-align: top;"><select onchange="window.updateQuestStatusInSupabase('${qId}', this.value)" style="background: #1f2937; color: #fff; border: 1px solid #4b5563; padding: 4px; border-radius: 4px; font-size: 12px;"><option value="pending" ${currentStatus === 'pending' ? 'selected' : ''}>⭕ 未完成</option><option value="show" ${currentStatus === 'show' ? 'selected' : ''}>👁️ 顯示中</option><option value="completed" ${currentStatus === 'completed' ? 'selected' : ''}>✅ 已完成</option></select></td>
+    `;
+    tbody.appendChild(tr);
+  });
+};
+
+// 6. 動態生成下拉選單的 Checkbox 選項
+function updateFilterOptions() {
+  const cityPanel = document.getElementById('panel-city');
+  const typePanel = document.getElementById('panel-type');
+  if (!cityPanel || !typePanel) return;
+
+  const currentSelectedCities = new Set(Array.from(document.querySelectorAll('input[name="city-checkbox"]:checked')).map(cb => cb.value));
+  const currentSelectedTypes = new Set(Array.from(document.querySelectorAll('input[name="type-checkbox"]:checked')).map(cb => cb.value));
+
+  const cities = new Set();
+  const types = new Set();
+
+  globalQuestData.forEach(q => {
+    const c = getQuestCity(q);
+    if (c) cities.add(c);
+    const t = q.task_type || q.type;
+    if (t) types.add(t);
+  });
+
+  cityPanel.innerHTML = '';
+  Array.from(cities).sort().forEach(c => {
+    const isChecked = currentSelectedCities.has(c) ? 'checked' : '';
+    cityPanel.innerHTML += `<label style="display: flex; align-items: center; gap: 6px; padding: 4px 0; color: #e5e7eb; font-size: 12px; cursor: pointer;"><input type="checkbox" name="city-checkbox" value="${c}" ${isChecked} onchange="filterQuests()"> ${c}</label>`;
+  });
+
+  typePanel.innerHTML = '';
+  Array.from(types).sort().forEach(t => {
+    const isChecked = currentSelectedTypes.has(t) ? 'checked' : '';
+    typePanel.innerHTML += `<label style="display: flex; align-items: center; gap: 6px; padding: 4px 0; color: #e5e7eb; font-size: 12px; cursor: pointer;"><input type="checkbox" name="type-checkbox" value="${t}" ${isChecked} onchange="filterQuests()"> ${t}</label>`;
+  });
+
+  updateDropdownButtonText('city');
+  updateDropdownButtonText('type');
+}
