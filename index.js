@@ -687,3 +687,14 @@ function updateFilterOptions() {
   updateDropdownButtonText('city');
   updateDropdownButtonText('type');
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  // 取得目前網址的檔案名稱 (例如 index.html 或 高樓.html)
+  const currentPath = decodeURIComponent(window.location.pathname.split('/').pop() || 'index.html');
+  
+  if (currentPath.includes('index') || currentPath === '') {
+    document.getElementById('nav-index')?.classList.add('active');
+  } else if (currentPath.includes('高樓')) {
+    document.getElementById('nav-building')?.classList.add('active');
+  }
+});
