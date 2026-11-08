@@ -138,6 +138,49 @@
       color: #9ca3af;
       padding: 10px;
     }
+    .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #111827;
+    border-bottom: 1px solid #1f2937;
+    padding: 12px 24px;
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+  }
+    .nav-brand {
+      font-weight: bold;
+      font-size: 15px;
+      color: #60a5fa;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 12px;
+    }
+
+    .nav-link {
+      color: #cbd5e0;
+      text-decoration: none;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .nav-link:hover {
+      background-color: #1f2937;
+      color: #60a5fa;
+    }
+
+    /* 當前所在頁面的高亮樣式 */
+    .nav-link.active {
+      background-color: #1e3a8a;
+      color: #93c5fd;
+      font-weight: 500;
+    }
   </style>
   <nav class="navbar">
   <div class="nav-brand">🗺️ 遊戲任務與高樓系統</div>
