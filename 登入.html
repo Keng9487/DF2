@@ -9,25 +9,25 @@
   <div style="background: #2d3748; padding: 30px; border-radius: 8px; width: 320px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
     <h2 style="margin-top: 0; text-align: center;">玩家登入</h2>
     
-    <!-- 🔥 這裡的 id 必須是 loginform -->
-    <form id="loginForm">
+    <!-- 🔥 這裡的 id 必須是 login-form -->
+    <form id="login-form">
       <div style="margin-bottom: 15px;">
         <label style="display:block; margin-bottom: 5px; font-size: 14px;">電子郵件</label>
-        <!-- 🔥 這裡的 id 必須是 emailInput -->
-        <input type="email" id="emailInput" placeholder="輸入 Email" autocomplete="email" required style="width: 100%; padding: 8px; box-sizing: border-box; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 4px;" />
+        <!-- 🔥 這裡的 id 必須是 login-email -->
+        <input type="email" id="login-email" placeholder="輸入 Email" autocomplete="email" required style="width: 100%; padding: 8px; box-sizing: border-box; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 4px;" />
       </div>
 
       <div style="margin-bottom: 20px;">
         <label style="display:block; margin-bottom: 5px; font-size: 14px;">密碼</label>
-        <!-- 🔥 這裡的 id 必須是 passwordInput -->
-        <input type="password" id="passwordInput" placeholder="輸入密碼" autocomplete="current-password" required style="width: 100%; padding: 8px; box-sizing: border-box; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 4px;" />
+        <!-- 🔥 這裡的 id 必須是 login-password -->
+        <input type="password" id="login-password" placeholder="輸入密碼" autocomplete="current-password" required style="width: 100%; padding: 8px; box-sizing: border-box; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 4px;" />
       </div>
 
       <button type="submit" style="width: 100%; padding: 10px; background: #3182ce; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer;">登入</button>
     </form>
 
-    <!-- 🔥 這裡的 id 必須是 errorMsg -->
-    <div id="errorMsg" style="margin-top: 15px; font-size: 14px; text-align: center;"></div>
+    <!-- 🔥 這裡的 id 必須是 login-message -->
+    <div id="login-message" style="margin-top: 15px; font-size: 14px; text-align: center;"></div>
 
     <hr style="border: none; border-top: 1px solid #4a5568; margin: 20px 0;">
 
@@ -42,7 +42,8 @@
   </div>
 
   <!-- 引入必要 JS -->
-  <script src="supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
   <script src="登入.js"></script>
 </body>
 </html>

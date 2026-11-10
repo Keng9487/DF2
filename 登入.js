@@ -1,44 +1,36 @@
-import { supabase } from './supabase.js';
-
+// login.js
 document.addEventListener('DOMContentLoaded', () => {
-  const loginForm = document.getElementById('loginForm');
+  const loginForm = document.getElementById('login-form');
   
-  if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault(); // 防止網頁預設重新整理
-
-      // 1. 取得輸入框的帳號與密碼
-      const email = document.getElementById('emailInput').value.trim();
-      const password = document.getElementById('passwordInput').value.trim();
-      const errorMsgEl = document.getElementById('errorMsg');
-
-      if (!email || !password) {
-        if (errorMsgEl) errorMsgEl.textContent = '請輸入 Email 與密碼！';
-        return;
-      }
-
-      // 清除舊的錯誤訊息
-      if (errorMsgEl) errorMsgEl.textContent = '登入中...';
-
-      // 2. 呼叫 Supabase 登入函式
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-      });
-
-      // 3. 處理登入結果
-      if (error) {
-        console.error('❌ 登入失敗:', error.message);
-        if (errorMsgEl) {
-          errorMsgEl.style.color = '#ef4444';
-          errorMsgEl.textContent = `登入失敗: ${error.message}`;
-        }
-      } else {
-        console.log('✅ 登入成功！Token 已寫入 sessionStorage', data);
-        
-        // 4. 登入成功後，立刻跳轉回你的主頁
-        window.location.href = 'index.html';
-      }
-    });
+  if (!loginForm) {
+    console.error("❌ 找不到 id='login-form' 的表單！");
+    return;
   }
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault(); // 阻止頁面重新整理
+
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const messageEl = document.getElementById('login-message');
+
+    messageEl.style.color = '#e2e8f0';
+    messageEl.textContent = '登入驗證中...';
+
+    const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (error) {
+      messageEl.style.color = '#fc8181';
+      messageEl.textContent = '登入失敗: ' + error.message;
+    } else {
+      messageEl.style.color = '#68d391';
+      messageEl.textContent = '登入成功！正在跳轉回主頁...';
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 1000);
+    }
+  });
 });
