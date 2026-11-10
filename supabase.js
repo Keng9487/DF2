@@ -5,7 +5,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
-    storage: window.sessionStorage, // 確保登入後的 Token 存放在 sessionStorage，關閉分頁自動清除
+    storage: window.sessionStorage, // 確保登入後的 Token 存放在 sessionStorage，關閉分頁自動清除[cite: 1]
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true
