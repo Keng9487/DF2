@@ -2,6 +2,16 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const supabaseUrl = 'https://yasnbvmngdxkukuxvafc.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlhc25idm1uZ2R4a3VrdXh2YWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mjc0MzUsImV4cCI6MjEwMjQwMzQzNX0.ht7XqIdRczGIdVE-oljEplFLEOHyxb7zZSI_pnDDP4w';
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    // 將儲存方式從 localStorage 改為 sessionStorage
+    // 這樣當用戶關閉該瀏覽器分頁時，Session 就會自動清除
+    storage: window.sessionStorage, 
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+})
 
 // 區域範圍定義（用於自動推導城市/區域名稱）
 const regionRanges = {
