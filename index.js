@@ -359,36 +359,35 @@ window.focusQuestOnMap = function(questId, buildingName, cityName) {
 
 
 // 更新任務狀態至 Supabase
-window.updateQuestStatusInSupabase = async function(id, newStatus) {
-  console.log(`正在嘗試更新任務 ID: ${id} (型態: ${typeof id}), 狀態為: ${newStatus}`);
+import { createClient } from '@supabase/supabase-js'
 
-  // 如果你的 Supabase tasks 表格 id 是數字型態，這裡會自動轉成數字；如果是文字/UUID則保持不變
-  const parsedId = !isNaN(id) ? Number(id) : id;
+// 初始化 Supabase
+const supabase = createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY')
 
+async function updateTask(taskId, newStatus) {
+  // 1. 確保 id 型態正確（對應你之前遇到的字串/數字問題，若資料庫是 bigint 建議先轉整數）
+  const parsedId = parseInt(taskId, 10);
+
+  // 2. 執行 Supabase 更新查詢
   const { data, error } = await supabase
-    .from('tasks')
-    .update({ status: newStatus })
-    .eq('id', parsedId)
-    .select();
+    .from('tasks')                      // 你的資料表名稱
+    .update({ status: newStatus })      // 要更新的欄位與內容
+    .eq('id', parsedId)                 // 條件：WHERE id = parsedId
+    .select();                          // 加上 .select() 可以讓資料庫回傳被更新的那筆資料（避免回傳空陣列 `[]`）
 
+  // 3. 錯誤處理
   if (error) {
-    console.error('更新失敗，詳細錯誤:', error);
-    alert(`更新失敗！\n錯誤代碼: ${error.code}\n錯誤訊息: ${error.message}`);
-  } else {
-    console.log('資料庫回傳結果:', data);
-    
-    // 檢查是否有成功更新到資料
-    if (data && data.length > 0) {
-      console.log('✅ 資料庫狀態更新成功！');
-      const target = globalQuestData.find(q => String(q.id) === String(id));
-      if (target) target.status = newStatus;
-      updateMapHighlights();
-    } else {
-      console.warn('⚠️ 雖然沒有報錯，但回傳陣列為空 (length: 0)。這代表資料庫中找不到這個 ID 的任務！');
-      alert('更新失敗：資料庫找不到此任務 ID，請檢查該任務的主鍵型態是否為數字或 UUID。');
-    }
+    console.error('❌ 更新失敗:', error.message);
+    return;
   }
-};
+
+  // 4. 檢查是否有成功更新到資料（對應你先前遇到的「回傳陣列為空」狀況）
+  if (!data || data.length === 0) {
+    console.warn('⚠️ 更新語法正確，但在資料庫中找不到這個 ID 的任務！');
+  } else {
+    console.log('✅ 更新成功！', data);
+  }
+}
 
 // 重設篩選條件
 window.resetFilters = function() {
