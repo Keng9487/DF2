@@ -1,36 +1,64 @@
-// login.js
-document.addEventListener('DOMContentLoaded', () => {
-  const loginForm = document.getElementById('login-form');
-  
-  if (!loginForm) {
-    console.error("❌ 找不到 id='login-form' 的表單！");
-    return;
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+// 1. 初始化 Supabase 客戶端（強制使用 sessionStorage 確保關閉分頁即登出）
+const supabaseUrl = 'https://yasnbvmngdxkukuxvafc.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlhc25idm1uZ2R4a3VrdXh2YWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mjc0MzUsImV4cCI6MjEwMjQwMzQzNX0.ht7XqIdRczGIdVE-oljEplFLEOHyxb7zZSI_pnDDP4w';
+
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    storage: window.sessionStorage, // 關鍵設定：憑證存放在分頁中，關閉分頁自動清除
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
   }
+});
 
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault(); // 阻止頁面重新整理
+// 2. 監聽網頁載入完成，綁定登入按鈕事件
+document.addEventListener('DOMContentLoaded', () => {
+  const loginBtn = document.getElementById('loginBtn');
+  
+  if (loginBtn) {
+    loginBtn.addEventListener('click', async () => {
+      const emailInput = document.getElementById('emailInput');
+      const passwordInput = document.getElementById('passwordInput');
+      const errorMsgEl = document.getElementById('errorMsg');
 
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-    const messageEl = document.getElementById('login-message');
+      const email = emailInput ? emailInput.value.trim() : '';
+      const password = passwordInput ? passwordInput.value.trim() : '';
 
-    messageEl.style.color = '#e2e8f0';
-    messageEl.textContent = '登入驗證中...';
+      // 基本欄位檢查
+      if (!email || !password) {
+        if (errorMsgEl) {
+          errorMsgEl.style.color = '#ef4444';
+          errorMsgEl.textContent = '❌ 請完整輸入 Email 與密碼！';
+        }
+        return;
+      }
 
-    const { data, error } = await window.supabaseClient.auth.signInWithPassword({
-      email: email,
-      password: password
-    });
+      if (errorMsgEl) {
+        errorMsgEl.style.color = '#93c5fd';
+        errorMsgEl.textContent = '⏳ 登入驗證中...';
+      }
 
-    if (error) {
-      messageEl.style.color = '#fc8181';
-      messageEl.textContent = '登入失敗: ' + error.message;
-    } else {
-      messageEl.style.color = '#68d391';
-      messageEl.textContent = '登入成功！正在跳轉回主頁...';
-      setTimeout(() => {
+      // 3. 呼叫 Supabase 登入 API
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      // 4. 處理登入結果
+      if (error) {
+        console.error('❌ 登入失敗:', error.message);
+        if (errorMsgEl) {
+          errorMsgEl.style.color = '#ef4444';
+          errorMsgEl.textContent = `❌ 登入失敗: ${error.message}`;
+        }
+      } else {
+        console.log('✅ 登入成功！Token 已寫入 sessionStorage', data);
+        
+        // 5. 登入成功，跳轉回主畫面 index.html
         window.location.href = 'index.html';
-      }, 1000);
-    }
-  });
+      }
+    });
+  }
 });
