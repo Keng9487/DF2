@@ -362,7 +362,7 @@ window.focusQuestOnMap = function(questId, buildingName, cityName) {
 import { createClient } from '@supabase/supabase-js'
 
 // 初始化 Supabase
-const supabase = createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY')
+const supabase = createClient('supabaseUrl', 'supabaseKey')
 
 async function updateTask(taskId, newStatus) {
   // 1. 確保 id 型態正確（對應你之前遇到的字串/數字問題，若資料庫是 bigint 建議先轉整數）
