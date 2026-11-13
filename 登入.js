@@ -1,3 +1,18 @@
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+// 1. 初始化 Supabase 客戶端（強制使用 sessionStorage 確保關閉分頁即登出）
+const supabaseUrl = 'https://yasnbvmngdxkukuxvafc.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlhc25idm1uZ2R4a3VrdXh2YWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mjc0MzUsImV4cCI6MjEwMjQwMzQzNX0.ht7XqIdRczGIdVE-oljEplFLEOHyxb7zZSI_pnDDP4w';
+
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    storage: window.sessionStorage, // 關鍵設定：憑證存放在分頁中，關閉分頁自動清除
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   console.log('✅ 登入頁面與腳本載入完成'); // 檢查 1
   
