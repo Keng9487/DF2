@@ -6,7 +6,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     // 將儲存方式從 localStorage 改為 sessionStorage
     // 這樣當用戶關閉該瀏覽器分頁時，Session 就會自動清除
-    storage: window.sessionStorage, 
+    storage: window.localStorage, 
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true
@@ -698,3 +698,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('nav-building')?.classList.add('active');
   }
 });
+
+// 監聽當前視窗或分頁即將關閉的事件
+window.addEventListener('beforeunload', async (event) => {
+  // 檢查是不是直接關閉瀏覽器或分頁（相對於站內點擊連結跳轉）
+  // 實務上為了確保安全，只要離開網頁或關閉分頁就直接登出：
+  await supabase.auth.signOut();
+});
+
+// 綁定登出按鈕事件
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', async () => {
+    const { error } = await supabase.auth.signOut();
+    if (!error) {
+      console.log('✅ 已成功登出');
+      // 登出後跳轉回登入頁
+      window.location.href = '登入.html';
+    } else {
+      console.error('❌ 登出失敗:', error.message);
+    }
+  });
+}
