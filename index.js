@@ -11,7 +11,135 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
   }
 })
 
-// 區域範圍定義（用於自動推導城市/區域名稱）
+// 多國語系字典與對照表
+const translations = {
+  'zh-TW': {
+    pageTitle: "Dead Frontier 2 互動地圖 & Supabase 即時共享 HUD 系統",
+    navBrand: "🗺️ 遊戲任務與高樓系統",
+    navIndex: "主頁與地圖",
+    navBuilding: "高樓資訊頁",
+    notLoggedIn: "未登入",
+    loginBtn: "登入",
+    registerBtn: "註冊",
+    headerTitle: "Dead Frontier 2 互動地圖",
+    hudPanelTitle: "📜 Mission HUD Table",
+    searchPlaceholder: "🔍 搜尋建築、城市、任務類型或備註...",
+    filterCityLabel: "城市:",
+    filterTypeLabel: "類型:",
+    filterStatusLabel: "狀態:",
+    allCities: "全部城市",
+    allTypes: "全部類型",
+    statusAll: "全部狀態",
+    statusPending: "⭕ 未完成",
+    statusShow: "👁️ 顯示中",
+    statusCompleted: "✅ 已完成",
+    visPendingLabel: "⭕ 未完成:",
+    visShowLabel: "👁️ 顯示中:",
+    visCompletedLabel: "✅ 已完成:",
+    visLockedLabel: "🎯 鎖定:",
+    optShow: "顯示",
+    optHide: "隱藏",
+    resetFiltersBtn: "重設篩選",
+    thBuilding: "任務建築",
+    thCity: "任務城市",
+    thType: "任務類型",
+    thNotes: "備註",
+    thEdit: "編輯",
+    thStatus: "狀態",
+    loadingQuests: "載入任務資料中...",
+    mapPanelTitle: "🗺️ 互動地圖繪製與鎖定",
+    panelDefaultMsg: "點擊左側任務列可<b>選擇指定同名點位進行鎖定</b>",
+    readFail: "讀取失敗"
+  },
+  'zh-CN': {
+    pageTitle: "Dead Frontier 2 互动地图 & Supabase 实时共享 HUD 系统",
+    navBrand: "🗺️ 游戏任务与高楼系统",
+    navIndex: "主页与地图",
+    navBuilding: "高楼信息页",
+    notLoggedIn: "未登录",
+    loginBtn: "登录",
+    registerBtn: "注册",
+    headerTitle: "Dead Frontier 2 互动地图",
+    hudPanelTitle: "📜 Mission HUD Table",
+    searchPlaceholder: "🔍 搜索建筑、城市、任务类型或备注...",
+    filterCityLabel: "城市:",
+    filterTypeLabel: "类型:",
+    filterStatusLabel: "状态:",
+    allCities: "全部城市",
+    allTypes: "全部类型",
+    statusAll: "全部状态",
+    statusPending: "⭕ 未完成",
+    statusShow: "👁️ 显示中",
+    statusCompleted: "✅ 已完成",
+    visPendingLabel: "⭕ 未完成:",
+    visShowLabel: "👁️ 显示中:",
+    visCompletedLabel: "✅ 已完成:",
+    visLockedLabel: "🎯 锁定:",
+    optShow: "显示",
+    optHide: "隐藏",
+    resetFiltersBtn: "重设筛选",
+    thBuilding: "任务建筑",
+    thCity: "任务城市",
+    thType: "任务类型",
+    thNotes: "备注",
+    thEdit: "编辑",
+    thStatus: "状态",
+    loadingQuests: "加载任务数据中...",
+    mapPanelTitle: "🗺️ 互动地图绘制与锁定",
+    panelDefaultMsg: "点击左侧任务列表可<b>选择指定同名点位进行锁定</b>",
+    readFail: "读取失败"
+  }
+};
+
+// 城市與任務類型簡體/英文對照表
+const localizationMap = {
+  'zh-CN': {
+    "拉文沃爾高地": "拉文沃尔高地", "阿班達爾公園": "阿班达尔公园", "木上村": "木上村",
+    "灰木鎮": "灰木镇", "勒威伯里": "勒威伯里", "達爾博": "达尔博",
+    "庫珀鎮": "库珀镇", "豐弓鎮狩獵區": "丰弓镇狩猎区", "丹茨維爾鎮": "丹茨维尔镇",
+    "阿奇布魯克": "阿奇布鲁克", "西莫代尔": "西莫代尔", "黎明丘": "黎明丘",
+    "哈弗布魯克": "哈弗布鲁克", "南摩赫斯特": "南摩赫斯特", "狼堡": "狼堡",
+    "人類遺骸": "人类遗骸", "尋找物品": "寻找物品", "給東西": "给东西",
+    "完成任務": "完成任务", "追靈者": "追灵者", "逃出": "逃出",
+    "擊殺頭目": "击杀头目", "尋找死人": "寻找死人", "尋找活人": "寻找活人",
+    "搜索物資": "搜索物资"
+  }
+};
+
+function localizeText(text) {
+  const lang = localStorage.getItem('selectedLang') || 'zh-TW';
+  if (lang !== 'zh-TW' && localizationMap[lang] && localizationMap[lang][text]) {
+    return localizationMap[lang][text];
+  }
+  return text;
+}
+
+// 全域語言切換函式
+window.switchLanguage = async function(lang) {
+  localStorage.setItem('selectedLang', lang);
+  document.documentElement.setAttribute('lang', lang);
+  
+  // 更新靜態文字
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (translations[lang] && translations[lang][key]) {
+      el.textContent = translations[lang][key];
+    }
+  });
+
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (translations[lang] && translations[lang][key]) {
+      el.placeholder = translations[lang][key];
+    }
+  });
+
+  // 重新載入對應語系的資料表與畫面
+  await fetchMapData();
+  await fetchQuestData();
+};
+
+// 區域範圍定義
 const regionRanges = {
   "拉文沃爾高地": { minX: 1, maxX: 6, minY: 0, maxY: 6 },
   "阿班達爾公園": { minX: 7, maxX: 12, minY: 0, maxY: 6 },
@@ -31,10 +159,10 @@ const regionRanges = {
 };
 
 let questHighlightColors = {
-  pending: localStorage.getItem('color_pending') || 'rgba(239, 68, 68, 0.6)',     // 預設紅
-  show: localStorage.getItem('color_show') || 'rgba(59, 130, 246, 0.6)',          // 預設藍
-  completed: localStorage.getItem('color_completed') || 'rgba(16, 185, 129, 0.6)',// 預設綠
-  locked: localStorage.getItem('color_locked') || 'rgba(246, 173, 85, 0.9)'       // 預設橘
+  pending: localStorage.getItem('color_pending') || 'rgba(239, 68, 68, 0.6)',
+  show: localStorage.getItem('color_show') || 'rgba(59, 130, 246, 0.6)',
+  completed: localStorage.getItem('color_completed') || 'rgba(16, 185, 129, 0.6)',
+  locked: localStorage.getItem('color_locked') || 'rgba(246, 173, 85, 0.9)'
 };
 
 let globalQuestData = [];
@@ -44,33 +172,39 @@ let questSelectedCoordMap = new Map();
 let currentSortColumn = null;
 let isAscending = true;
 
-// 網頁載入完成後初始化
 window.addEventListener('DOMContentLoaded', () => {
-  initApp();
+  const savedLang = localStorage.getItem('selectedLang') || 'zh-TW';
+  const selectEl = document.getElementById('langSelect');
+  if (selectEl) selectEl.value = savedLang;
+  window.switchLanguage(savedLang);
 });
 
 async function initApp() {
   await fetchMapData();
   await fetchQuestData();
 
-  // Supabase 即時變更訂閱 (Realtime)
+  const currentLang = localStorage.getItem('selectedLang') || 'zh-TW';
+  let mapTable = "地圖";
+  let questTable = "任務";
+  if (currentLang === 'zh-CN') { mapTable = "地图"; questTable = "任务"; }
+
   supabase
     .channel('public-db-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: '地圖' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: mapTable }, () => {
       fetchMapData();
     })
-    .on('postgres_changes', { event: '*', schema: 'public', table: '任務' }, () => {
-      fetchQuestData();
-    })
-    .on('postgres_changes', { event: '*', schema: 'public', table: '任務備註' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: questTable }, () => {
       fetchQuestData();
     })
     .subscribe();
 }
 
-// 載入地圖資料
+// 根據語系動態載入地圖資料表
 async function fetchMapData() {
-  const { data, error } = await supabase.from('地圖').select('*');
+  const currentLang = localStorage.getItem('selectedLang') || 'zh-TW';
+  let mapTableName = "地圖";
+  if (currentLang === 'zh-CN') mapTableName = "地图";
+  const { data, error } = await supabase.from(mapTableName).select('*');
   if (error) {
     console.error('載入 map 失敗:', error);
     return;
@@ -84,18 +218,23 @@ async function fetchMapData() {
   renderMap(globalRouteMapData);
 }
 
-// 載入任務資料與獨立的任務備註資料
+// 根據語系動態載入任務資料表
 async function fetchQuestData() {
+  const currentLang = localStorage.getItem('selectedLang') || 'zh-TW';
+  let questTableName = "任務";
+  let notesTableName = "任務備註";
+  if (currentLang === 'zh-CN') { questTableName = "任务"; notesTableName = "任務備註"; }
   const tableBody = document.getElementById('hudTableBody');
   if (tableBody) {
-    tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #8b949e; padding: 20px;">載入任務與備註資料中...</td></tr>`;
+    const t = translations[currentLang] || translations['zh-TW'];
+    tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #8b949e; padding: 20px;">${t.loadingQuests}</td></tr>`;
   }
 
   const { data: tasksData, error: taskError } = await supabase
-    .from('任務') // 對應新資料表名稱：任務
+    .from(questTableName)
     .select(`
       *,
-      任務備註 (
+      ${notesTableName} (
         備註,
         備註編輯者,
         創立時間
@@ -111,12 +250,14 @@ async function fetchQuestData() {
   }
 
   globalQuestData = (tasksData || []).map(doc => {
+    const notesArray = doc[notesTableName] || doc.任務備註 || doc.任务备注 || [];
     let cleanNotes = '';
-    if (doc.任務備註 && Array.isArray(doc.任務備註) && doc.任務備註.length > 0) {
-      cleanNotes = doc.任務備註
+    if (Array.isArray(notesArray) && notesArray.length > 0) {
+      cleanNotes = notesArray
         .map(n => {
-          if (!n || !n.notes) return '';
-          return String(n.notes)
+          const content = n.備註 || n.備忘 || n.notes || '';
+          if (!content) return '';
+          return String(content)
             .replace(/\t/g, ' ') 
             .split('\n')
             .map(line => line.trim())
@@ -125,16 +266,16 @@ async function fetchQuestData() {
         .filter(Boolean)
         .join('\n');
     } else {
-      cleanNotes = doc.notes 
-        ? String(doc.notes).replace(/\t/g, ' ').split('\n').map(line => line.trim()).join('\n') 
+      cleanNotes = doc.notes || doc.備註 || '' 
+        ? String(doc.notes || doc.備註).replace(/\t/g, ' ').split('\n').map(line => line.trim()).join('\n') 
         : '';
     }
 
     return {
       ...doc,
-      id: doc.ID, // 對應截圖中的大寫 ID
+      id: doc.ID || doc.id,
       cleanNotes: cleanNotes,
-      task_notes: doc.任務備註 || [] 
+      task_notes: notesArray 
     };
   });
   updateFilterOptions();
@@ -143,7 +284,6 @@ async function fetchQuestData() {
   window.filterQuests();
 }
 
-// 取得任務座標（相容截圖中的大寫 X 與 Y）
 function getQuestCoord(q) {
   if (q.X !== undefined && q.Y !== undefined && q.X !== null && q.X !== '') {
     return { x: Number(q.X), y: Number(q.Y) };
@@ -159,7 +299,6 @@ function getQuestCoord(q) {
   return null;
 }
 
-// 根據座標推導城市名稱
 function getCityNameByCoord(X, Y, originalCity) {
   if (originalCity && originalCity.trim() !== '' && originalCity.trim() !== '未標註') {
     return originalCity;
@@ -174,14 +313,13 @@ function getCityNameByCoord(X, Y, originalCity) {
 
 function getQuestCity(q) {
   const coord = getQuestCoord(q);
-  const rawCity = q.城市 || q.city;
+  const rawCity = q.城市 || q.city || q.district;
   if (coord) {
     return getCityNameByCoord(coord.x, coord.y, rawCity);
   }
   return rawCity || '未標註';
 }
 
-// 渲染地圖格線
 function renderMap(mapRawData) {
   const tableContainer = document.getElementById('map-table');
   if (!tableContainer) return;
@@ -215,7 +353,6 @@ function hexToRgba(hex, alpha = 0.6) {
   return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
 }
 
-// 更新高亮函式
 window.updateMapHighlights = function() {
   document.querySelectorAll('.map-table td').forEach(td => {
     td.classList.remove('quest-completed-highlight', 'quest-pending-highlight', 'quest-locked-highlight');
@@ -255,7 +392,6 @@ window.updateMapHighlights = function() {
   });
 };
 
-// 點擊地圖任務聚焦
 window.focusQuestOnMap = function(questId, buildingName, cityName) {
   const qObj = globalQuestData.find(q => String(q.id) === String(questId) || String(q.ID) === String(questId));
   if (!qObj) {
@@ -305,14 +441,17 @@ window.focusQuestOnMap = function(questId, buildingName, cityName) {
   }
 };
 
-// 更新任務狀態至 Supabase（對應大寫 ID 與 狀態 欄位）
 window.updateQuestStatusInSupabase = async function(id, newStatus) {
   const parsedId = !isNaN(id) ? Number(id) : id;
+  const currentLang = localStorage.getItem('selectedLang') || 'zh-TW';
+  let questTableName = "任務";
+  if (currentLang === 'EN') questTableName = "tasks_en";
+  else if (currentLang === 'zh-CN') questTableName = "任务";
 
   const { data, error } = await supabase
-    .from('任務')
-    .update({ 狀態: newStatus }) // 對應截圖中的 狀態 欄位
-    .eq('ID', parsedId)         // 對應截圖中的 ID 欄位
+    .from(questTableName)
+    .update({ 狀態: newStatus })
+    .eq('ID', parsedId)
     .select();
 
   if (error) {
@@ -329,7 +468,6 @@ window.updateQuestStatusInSupabase = async function(id, newStatus) {
   }
 };
 
-// 重設篩選條件
 window.resetFilters = function() {
   const searchEl = document.getElementById('search');
   const statusEl = document.getElementById('filter-status');
@@ -338,7 +476,6 @@ window.resetFilters = function() {
   window.filterQuests();
 };
 
-// 滑鼠懸停地圖格子時顯示詳細資訊
 function displayCoordInfo(data, x, y) {
   const detailsPanel = document.getElementById('panel-details');
   if (!detailsPanel) return;
@@ -349,7 +486,7 @@ function displayCoordInfo(data, x, y) {
     return;
   }
 
-  const effectiveCity = getCityNameByCoord(x, y, data.city || data.城市);
+  const effectiveCity = localizeText(getCityNameByCoord(x, y, data.city || data.城市));
   let html = `<strong>🏢 建築物：</strong> ${buildingsList.join(', ')} (城市: ${effectiveCity})<br>`;
   
   let matchedQuests = globalQuestData.filter(q => {
@@ -364,7 +501,8 @@ function displayCoordInfo(data, x, y) {
       let statusText = " (⭕ 未完成)";
       if (currentStatus === 'completed') statusText = " (✅ 已完成)";
       if (currentStatus === 'show') statusText = " (👁️ 顯示中)";
-      html += `<li><b>${q.類型 || q.type || '任務'}</b> - ${q.建築 || q.building}${statusText}</li>`;
+      const tType = localizeText(q.類型 || q.type || '任務');
+      html += `<li><b>${tType}</b> - ${q.建築 || q.building}${statusText}</li>`;
     });
     html += `</ul>`;
   } else {
@@ -373,7 +511,6 @@ function displayCoordInfo(data, x, y) {
   detailsPanel.innerHTML = html;
 }
 
-// 排序表格欄位
 window.sortTable = function(columnKey) {
   if (currentSortColumn === columnKey) {
     isAscending = !isAscending;
@@ -409,7 +546,6 @@ function updateSortIcons(activeKey, isAsc) {
   });
 }
 
-// 色票選擇器事件綁定
 document.addEventListener('DOMContentLoaded', () => {
   const rgbToHex = (rgbaStr) => {
     const match = rgbaStr.match(/\d+/g);
@@ -507,16 +643,21 @@ function restoreFilterState() {
 }
 
 function updateDropdownButtonText(type) {
+  const currentLang = localStorage.getItem('selectedLang') || 'zh-TW';
   const checked = document.querySelectorAll(`input[name="${type}-checkbox"]:checked`);
   const textEl = document.getElementById(`${type}-toggle-text`);
   if (!textEl) return;
 
   if (checked.length === 0) {
-    textEl.textContent = type === 'city' ? '全部城市' : '全部類型';
+    if (type === 'city') {
+      textEl.textContent = currentLang === 'EN' ? 'All Cities' : (currentLang === 'zh-CN' ? '全部城市' : '全部城市');
+    } else {
+      textEl.textContent = currentLang === 'EN' ? 'All Types' : (currentLang === 'zh-CN' ? '全部类型' : '全部類型');
+    }
   } else if (checked.length === 1) {
     textEl.textContent = checked[0].value;
   } else {
-    textEl.textContent = `已選擇 ${checked.length} 項`;
+    textEl.textContent = currentLang === 'EN' ? `${checked.length} selected` : (currentLang === 'zh-CN' ? `已选择 ${checked.length} 项` : `已選擇 ${checked.length} 項`);
   }
 }
 
@@ -540,9 +681,10 @@ window.filterQuests = function() {
     const notes = (q.cleanNotes || '').toLowerCase();
     const status = q.狀態 || q.status || 'pending';
     const effectiveCity = getQuestCity(q);
+    const localizedCity = localizeText(effectiveCity);
 
-    const matchKeyword = !keyword || building.includes(keyword) || effectiveCity.toLowerCase().includes(keyword) || type.includes(keyword) || notes.includes(keyword);
-    const matchCity = selectedCities.length === 0 || selectedCities.includes(effectiveCity);
+    const matchKeyword = !keyword || building.includes(keyword) || localizedCity.toLowerCase().includes(keyword) || type.includes(keyword) || notes.includes(keyword);
+    const matchCity = selectedCities.length === 0 || selectedCities.includes(localizedCity) || selectedCities.includes(effectiveCity);
     const matchType = selectedTypes.length === 0 || selectedTypes.includes(q.類型) || selectedTypes.includes(q.type);
     const matchStatus = !statusFilter || (status === statusFilter);
 
@@ -557,9 +699,9 @@ window.filterQuests = function() {
   filtered.forEach(q => {
     const qID = q.ID || q.id;
     const currentStatus = q.狀態 || q.status || 'pending';
-    const displayCity = getQuestCity(q);
+    const displayCity = localizeText(getQuestCity(q));
     const buildingName = q.建築 || q.building || '未指定建築';
-    const taskType = q.類型 || q.type || '一般任務';
+    const taskType = localizeText(q.類型 || q.type || '一般任務');
     const rawNotes = (q.cleanNotes || '').trim();
     const formattedNotes = rawNotes ? rawNotes.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, '<br>') : '<span style="color: #6b7280; font-style: italic;">尚無備註</span>';
     const moreNotesButtonHtml = `<button onclick="window.location.href='notes.html?id=${qID}'" style="display: inline-block; margin-top: 6px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 查看更多備註</button>`;
@@ -590,7 +732,7 @@ function updateFilterOptions() {
   const types = new Set();
 
   globalQuestData.forEach(q => {
-    const c = getQuestCity(q);
+    const c = localizeText(getQuestCity(q));
     if (c) cities.add(c);
     const t = q.類型 || q.type;
     if (t) types.add(t);
@@ -604,8 +746,9 @@ function updateFilterOptions() {
 
   typePanel.innerHTML = '';
   Array.from(types).sort().forEach(t => {
-    const isChecked = currentSelectedTypes.has(t) ? 'checked' : '';
-    typePanel.innerHTML += `<label style="display: flex; align-items: center; gap: 6px; padding: 4px 0; color: #e5e7eb; font-size: 12px; cursor: pointer;"><input type="checkbox" name="type-checkbox" value="${t}" ${isChecked} onchange="filterQuests()"> ${t}</label>`;
+    const localizedT = localizeText(t);
+    const isChecked = currentSelectedTypes.has(t) || currentSelectedTypes.has(localizedT) ? 'checked' : '';
+    typePanel.innerHTML += `<label style="display: flex; align-items: center; gap: 6px; padding: 4px 0; color: #e5e7eb; font-size: 12px; cursor: pointer;"><input type="checkbox" name="type-checkbox" value="${t}" ${isChecked} onchange="filterQuests()"> ${localizedT}</label>`;
   });
 
   updateDropdownButtonText('city');
@@ -621,12 +764,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// 監聽當前視窗或分頁即將關閉的事件 (自動登出)
 window.addEventListener('beforeunload', async () => {
   await supabase.auth.signOut();
 });
 
-// 綁定登出按鈕事件
 const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {
   logoutBtn.addEventListener('click', async () => {
