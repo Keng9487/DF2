@@ -6,11 +6,16 @@
   <title>Dead Frontier 2 互動地圖 & Supabase 即時共享 HUD 系統</title>
   <link rel="stylesheet" href="style.css">
   <nav class="navbar">
-  <div class="nav-brand">🗺️ 遊戲任務與高樓系統</div>
-  <div class="nav-links">
-    <a href="index.html" class="nav-link" id="nav-index">主頁與地圖</a>
-    <a href="高樓.html" class="nav-link" id="nav-building">高樓資訊頁</a>
-  </div>
+    <div class="nav-brand" data-i18n="navBrand">🗺️ 遊戲任務系統</div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link" id="nav-index" data-i18n="navIndex">主頁與地圖</a>
+      <a href="高樓.html" class="nav-link" id="nav-building" data-i18n="navBuilding">高樓資訊頁</a>
+      <select id="langSelect" class="lang-select" onchange="window.switchLanguage(this.value)">
+        <option value="zh-TW">繁體中文</option>
+        <option value="zh-CN">简体中文</option>
+        <option value="EN">English</option>
+      </select>
+    </div>
   </nav>
 </head>
 <body>

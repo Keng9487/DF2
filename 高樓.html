@@ -2,7 +2,20 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>多區域地圖與任務記錄系統</title>
+  <title>多區域地圖記錄系統</title>
+  <nav class="navbar">
+    <div class="nav-brand" data-i18n="navBrand">🗺️ 遊戲高樓系統</div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link" id="nav-index" data-i18n="navIndex">主頁與地圖</a>
+      <a href="高樓.html" class="nav-link active" id="nav-building" data-i18n="navBuilding">高樓資訊頁</a>
+      <!-- 語言切換下拉選單 -->
+      <select id="langSelect" class="lang-select" onchange="switchLanguage(this.value)">
+        <option value="zh-TW">繁體中文</option>
+        <option value="EN">English</option>
+        <option value="zh-CN">简体中文</option>
+      </select>
+    </div>
+  </nav>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -138,12 +151,72 @@
       color: #9ca3af;
       padding: 10px;
     }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #111827;
+      border-bottom: 1px solid #1f2937;
+      padding: 12px 24px;
+      color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+    }
+
+    .nav-brand {
+      font-weight: bold;
+      font-size: 15px;
+      color: #60a5fa;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: #cbd5e0;
+      text-decoration: none;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .nav-link:hover {
+      background-color: #1f2937;
+      color: #60a5fa;
+    }
+
+    /* 當前所在頁面的高亮樣式 */
+    .nav-link.active {
+      background-color: #1e3a8a;
+      color: #93c5fd;
+      font-weight: 500;
+    }
+
+    /* 語言下拉選單黑色背景樣式 */
+    .lang-select {
+      background-color: #000000;
+      color: #f3f4f6;
+      border: 1px solid #4b5563;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .lang-select option {
+      background-color: #000000;
+      color: #f3f4f6;
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h1>遊戲世界區域與任務記錄系統</h1>
+    <h1>遊戲世界區域記錄系統</h1>
     <div id="menus-root"></div>
   </div>
 
@@ -151,184 +224,185 @@
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-// 1. 填入您的 Supabase 設定
-const SUPABASE_URL = "https://yasnbvmngdxkukuxvafc.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlhc25idm1uZ2R4a3VrdXh2YWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mjc0MzUsImV4cCI6MjEwMjQwMzQzNX0.ht7XqIdRczGIdVE-oljEplFLEOHyxb7zZSI_pnDDP4w";
+    // 1. 填入您的 Supabase 設定
+    const SUPABASE_URL = "https://yasnbvmngdxkukuxvafc.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlhc25idm1uZ2R4a3VrdXh2YWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mjc0MzUsImV4cCI6MjEwMjQwMzQzNX0.ht7XqIdRczGIdVE-oljEplFLEOHyxb7zZSI_pnDDP4w";
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 2. 定義允許保留的建築類型
-const allowedBuildingTypes = ["Industrial", "Apartment", "Hospital", "Police", "Office","Hotel"];
+    // 2. 定義允許保留的建築類型
+    const allowedBuildingTypes = ["Industrial", "Apartment", "Hospital", "Police", "Office","Hotel"];
 
-// 3. 定義各選單與其對應的座標範圍
-const menuConfigs = [
-  { name: "灰木鎮", startRow: 24, endRow: 24, startCol: 4, endCol: 6 },
-  { name: "丹茨維爾鎮", startRow: 24, endRow: 24, startCol: 7, endCol: 12 },
-  { name: "南摩赫斯特", startRow: 24, endRow: 24, startCol: 13, endCol: 15 },
-  { name: "勒威伯里", startRow: 25, endRow: 27, startCol: 4, endCol: 6 },
-  { name: "阿奇布魯克", startRow: 25, endRow: 27, startCol: 7, endCol: 12 },
-  { name: "狼堡", startRow: 25, endRow: 27, startCol: 13, endCol: 15 },
-];
+    // 3. 定義各選單與其對應的座標範圍
+    const menuConfigs = [
+      { name: "灰木鎮", startRow: 24, endRow: 24, startCol: 4, endCol: 6 },
+      { name: "丹茨維爾鎮", startRow: 24, endRow: 24, startCol: 7, endCol: 12 },
+      { name: "南摩赫斯特", startRow: 24, endRow: 24, startCol: 13, endCol: 15 },
+      { name: "勒威伯里", startRow: 25, endRow: 27, startCol: 4, endCol: 6 },
+      { name: "阿奇布魯克", startRow: 25, endRow: 27, startCol: 7, endCol: 12 },
+      { name: "狼堡", startRow: 25, endRow: 27, startCol: 13, endCol: 15 },
+    ];
 
-async function initAllMenus() {
-  const root = document.getElementById("menus-root");
-  root.innerHTML = "";
+    async function initAllMenus() {
+      const root = document.getElementById("menus-root");
+      root.innerHTML = "";
 
-  for (const config of menuConfigs) {
-    const menuKey = config.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
+      for (const config of menuConfigs) {
+        const menuKey = config.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
 
-    const mainAccordion = document.createElement("div");
-    mainAccordion.className = "main-accordion";
+        const mainAccordion = document.createElement("div");
+        mainAccordion.className = "main-accordion";
 
-    const mainHeader = document.createElement("div");
-    mainHeader.className = "main-header";
-    mainHeader.innerHTML = `
-      <span>🏰 ${config.name} (${config.startRow}_${config.startCol} ~ ${config.endRow}_${config.endCol})</span>
-      <span class="icon">＋</span>
-    `;
+        const mainHeader = document.createElement("div");
+        mainHeader.className = "main-header";
+        mainHeader.innerHTML = `
+          <span>🏰 ${config.name} (${config.startRow}_${config.startCol} ~ ${config.endRow}_${config.endCol})</span>
+          <span class="icon">＋</span>
+        `;
 
-    const mainContent = document.createElement("div");
-    mainContent.className = "main-content";
-    mainContent.innerHTML = `<div class="loading-text">載入中...</div>`;
+        const mainContent = document.createElement("div");
+        mainContent.className = "main-content";
+        mainContent.innerHTML = `<div class="loading-text">載入中...</div>`;
 
-    mainAccordion.appendChild(mainHeader);
-    mainAccordion.appendChild(mainContent);
-    root.appendChild(mainAccordion);
+        mainAccordion.appendChild(mainHeader);
+        mainAccordion.appendChild(mainContent);
+        root.appendChild(mainAccordion);
 
-    mainHeader.addEventListener("click", () => {
-      const isActive = mainAccordion.classList.contains("active");
-      mainAccordion.classList.toggle("active");
-      mainHeader.querySelector(".icon").textContent = isActive ? "＋" : "－";
-    });
+        mainHeader.addEventListener("click", () => {
+          const isActive = mainAccordion.classList.contains("active");
+          mainAccordion.classList.toggle("active");
+          mainHeader.querySelector(".icon").textContent = isActive ? "＋" : "－";
+        });
 
-    loadMenuCoordinates(config, menuKey, mainContent);
-  }
-}
-
-async function loadMenuCoordinates(config, menuKey, contentContainer) {
-  contentContainer.innerHTML = "";
-
-  for (let row = config.startRow; row <= config.endRow; row++) {
-    for (let col = config.startCol; col <= config.endCol; col++) {
-      const zoneId = `${row}_${col}`;
-      
-      const zoneSection = document.createElement("div");
-      zoneSection.className = "zone-section";
-
-      const zoneTitle = document.createElement("div");
-      zoneTitle.className = "zone-title";
-      zoneTitle.textContent = `座標：${zoneId}`;
-      zoneSection.appendChild(zoneTitle);
-
-      // --- Supabase 查詢資料 ---
-      try {
-        const { data: mapData, error: mapError } = await supabase
-          .from("地圖")
-          .select("建築")
-          .eq("座標", zoneId)
-          .maybeSingle();
-
-        if (mapError) throw mapError;
-
-        if (mapData && mapData.建築) {
-          const rawBuildings = mapData.建築;
-          let parsedBuildings = [];
-
-          if (Array.isArray(rawBuildings)) {
-            parsedBuildings = rawBuildings.map(b => {
-              if (typeof b === 'string') {
-                const match = b.match(/^(.*?)\s*\(([^)]+)\)$/);
-                if (match) return { name: match[1].trim(), type: match[2].trim() };
-              }
-              return null;
-            }).filter(Boolean);
-          }
-
-          const filteredBuildings = parsedBuildings.filter(b => allowedBuildingTypes.includes(b.type));
-
-          if (filteredBuildings.length === 0) {
-            const emptyMsg = document.createElement("div");
-            emptyMsg.style.cssText = "color: #6b7280; font-size: 13px; padding: 4px 0;";
-            emptyMsg.textContent = "此座標無符合條件的建築資料";
-            zoneSection.appendChild(emptyMsg);
-          } else {
-            for (const building of filteredBuildings) {
-              const buildingName = building.name;
-              const buildingType = building.type;
-              const noteDocId = `${menuKey}_${zoneId}_${buildingName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_')}`;
-
-              const buildingCard = document.createElement("div");
-              buildingCard.className = "building-card";
-              buildingCard.innerHTML = `
-                <div class="building-header">
-                  <span class="building-title">🏢 ${buildingName}</span>
-                  <span class="building-type-badge">${buildingType}</span>
-                </div>
-                <div class="notes-group">
-                  <label>Notes (筆記):</label>
-                  <textarea class="notes-input" placeholder="輸入備註，離開自動儲存..."></textarea>
-                  <div class="save-status"></div>
-                </div>
-              `;
-
-              const textarea = buildingCard.querySelector(".notes-input");
-              const statusDiv = buildingCard.querySelector(".save-status");
-
-              // 讀取筆記
-              const { data: noteData } = await supabase
-                .from("menu_notes")
-                .select("note")
-                .eq("id", noteDocId)
-                .maybeSingle();
-
-              if (noteData) textarea.value = noteData.note || "";
-
-              // 儲存筆記
-              textarea.addEventListener("blur", async () => {
-                statusDiv.textContent = "儲存中...";
-                const { error } = await supabase.from("menu_notes").upsert({
-                  id: noteDocId,
-                  menu: menuKey,
-                  zone: zoneId,
-                  building: buildingName,
-                  type: buildingType,
-                  note: textarea.value,
-                  updatedAt: new Date().toISOString()
-                });
-
-                if (error) {
-                  console.error("儲存失敗:", error);
-                  statusDiv.textContent = "儲存失敗 ✕";
-                } else {
-                  statusDiv.textContent = "已儲存 ✓";
-                  setTimeout(() => { statusDiv.textContent = ""; }, 2000);
-                }
-              });
-
-              zoneSection.appendChild(buildingCard);
-            }
-          }
-        } else {
-          const notFoundMsg = document.createElement("div");
-          notFoundMsg.style.cssText = "color: #6b7280; font-size: 13px; padding: 4px 0;";
-          notFoundMsg.textContent = `資料庫尚無 ${zoneId} 資料`;
-          zoneSection.appendChild(notFoundMsg);
-        }
-      } catch (err) {
-        console.error(`讀取座標 ${zoneId} 失敗:`, err);
-        const errMsg = document.createElement("div");
-        errMsg.style.cssText = "color: #ef4444; font-size: 13px; padding: 4px 0;";
-        errMsg.textContent = "讀取失敗";
-        zoneSection.appendChild(errMsg);
+        loadMenuCoordinates(config, menuKey, mainContent);
       }
-
-      contentContainer.appendChild(zoneSection);
     }
-  }
-}
 
-initAllMenus();
+    async function loadMenuCoordinates(config, menuKey, contentContainer) {
+      contentContainer.innerHTML = "";
+
+      for (let row = config.startRow; row <= config.endRow; row++) {
+        for (let col = config.startCol; col <= config.endCol; col++) {
+          const zoneId = `${row}_${col}`;
+          
+          const zoneSection = document.createElement("div");
+          zoneSection.className = "zone-section";
+
+          const zoneTitle = document.createElement("div");
+          zoneTitle.className = "zone-title";
+          zoneTitle.textContent = `座標：${zoneId}`;
+          zoneSection.appendChild(zoneTitle);
+
+          // --- Supabase 查詢資料 ---
+          try {
+            const { data: mapData, error: mapError } = await supabase
+              .from("地圖")
+              .select("建築")
+              .eq("座標", zoneId)
+              .maybeSingle();
+
+            if (mapError) throw mapError;
+
+            if (mapData && mapData.建築) {
+              const rawBuildings = mapData.建築;
+              let parsedBuildings = [];
+
+              if (Array.isArray(rawBuildings)) {
+                parsedBuildings = rawBuildings.map(b => {
+                  if (typeof b === 'string') {
+                    const match = b.match(/^(.*?)\s*\(([^)]+)\)$/);
+                    if (match) return { name: match[1].trim(), type: match[2].trim() };
+                  }
+                  return null;
+                }).filter(Boolean);
+              }
+
+              const filteredBuildings = parsedBuildings.filter(b => allowedBuildingTypes.includes(b.type));
+
+              if (filteredBuildings.length === 0) {
+                const emptyMsg = document.createElement("div");
+                emptyMsg.style.cssText = "color: #6b7280; font-size: 13px; padding: 4px 0;";
+                emptyMsg.textContent = "此座標無符合條件的建築資料";
+                zoneSection.appendChild(emptyMsg);
+              } else {
+                for (const building of filteredBuildings) {
+                  const buildingName = building.name;
+                  const buildingType = building.type;
+                  const noteDocId = `${menuKey}_${zoneId}_${buildingName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_')}`;
+
+                  const buildingCard = document.createElement("div");
+                  buildingCard.className = "building-card";
+                  buildingCard.innerHTML = `
+                    <div class="building-header">
+                      <span class="building-title">🏢 ${buildingName}</span>
+                      <span class="building-type-badge">${buildingType}</span>
+                    </div>
+                    <div class="notes-group">
+                      <label>Notes (筆記):</label>
+                      <textarea class="notes-input" placeholder="輸入備註，離開自動儲存..."></textarea>
+                      <div class="save-status"></div>
+                    </div>
+                  `;
+
+                  const textarea = buildingCard.querySelector(".notes-input");
+                  const statusDiv = buildingCard.querySelector(".save-status");
+
+                  // 讀取筆記
+                  const { data: noteData } = await supabase
+                    .from("menu_notes")
+                    .select("note")
+                    .eq("id", noteDocId)
+                    .maybeSingle();
+
+                  if (noteData) textarea.value = noteData.note || "";
+
+                  // 儲存筆記
+                  textarea.addEventListener("blur", async () => {
+                    statusDiv.textContent = "儲存中...";
+                    const { error } = await supabase.from("menu_notes").upsert({
+                      id: noteDocId,
+                      menu: menuKey,
+                      zone: zoneId,
+                      building: buildingName,
+                      type: buildingType,
+                      note: textarea.value,
+                      updatedAt: new Date().toISOString()
+                    });
+
+                    if (error) {
+                      console.error("儲存失敗:", error);
+                      statusDiv.textContent = "儲存失敗 ✕";
+                    } else {
+                      statusDiv.textContent = "已儲存 ✓";
+                      setTimeout(() => { statusDiv.textContent = ""; }, 2000);
+                    }
+                  });
+
+                  zoneSection.appendChild(buildingCard);
+                }
+              }
+            } else {
+              const notFoundMsg = document.createElement("div");
+              notFoundMsg.style.cssText = "color: #6b7280; font-size: 13px; padding: 4px 0;";
+              notFoundMsg.textContent = `資料庫尚無 ${zoneId} 資料`;
+              zoneSection.appendChild(notFoundMsg);
+            }
+          } catch (err) {
+            console.error(`讀取座標 ${zoneId} 失敗:`, err);
+            const errMsg = document.createElement("div");
+            errMsg.style.cssText = "color: #ef4444; font-size: 13px; padding: 4px 0;";
+            errMsg.textContent = "讀取失敗";
+            zoneSection.appendChild(errMsg);
+          }
+
+          contentContainer.appendChild(zoneSection);
+        }
+      }
+    }
+
+    initAllMenus();
   </script>
 
 </body>
 </html>
+```[cite: 7]
