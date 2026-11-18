@@ -230,8 +230,8 @@ async function loadMenuCoordinates(config, menuKey, contentContainer) {
 
         if (mapError) throw mapError;
 
-        if (mapData && mapData.buildings) {
-          const rawBuildings = mapData.buildings;
+        if (mapData && mapData.建築) {
+          const rawBuildings = mapData.建築;
           let parsedBuildings = [];
 
           if (Array.isArray(rawBuildings)) {
