@@ -419,7 +419,7 @@
 
           try {
             const { data: mapData, error: mapError } = await supabase
-              .from("mapTableName")
+              .from(mapTableName)
               .select("建築")
               .eq("座標", zoneId)
               .maybeSingle();
@@ -482,7 +482,7 @@
                   const statusDiv = buildingCard.querySelector(".save-status");
 
                   const { data: noteData } = await supabase
-                    .from("notesTableName")
+                    .from(notesTableName)
                     .select("備註")
                     .eq("ID", noteDocId)
                     .maybeSingle();
