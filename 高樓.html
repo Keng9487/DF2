@@ -455,7 +455,7 @@
                   // 儲存筆記
                   textarea.addEventListener("blur", async () => {
                     statusDiv.textContent = t.saving;
-                    const { error } = await supabase.from("menu_notes").upsert({
+                    const { error } = await supabase.from("建築備註").upsert({
                       id: noteDocId,
                       menu: menuKey,
                       zone: zoneId,
