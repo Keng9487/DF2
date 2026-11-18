@@ -4,7 +4,9 @@ const supabaseUrl = 'https://yasnbvmngdxkukuxvafc.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlhc25idm1uZ2R4a3VrdXh2YWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mjc0MzUsImV4cCI6MjEwMjQwMzQzNX0.ht7XqIdRczGIdVE-oljEplFLEOHyxb7zZSI_pnDDP4w';
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
-    storage: window.localStorage, 
+    // 將儲存方式從 localStorage 改為 sessionStorage
+    // 這樣當用戶關閉該瀏覽器分頁時，Session 就會自動清除
+    storage: window.sessionStorage, 
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true
@@ -56,13 +58,13 @@ async function initApp() {
   // Supabase 即時變更訂閱 (Realtime)
   supabase
     .channel('public-db-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: '地圖' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'map' }, () => {
       fetchMapData();
     })
-    .on('postgres_changes', { event: '*', schema: 'public', table: '任務' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
       fetchQuestData();
     })
-    .on('postgres_changes', { event: '*', schema: 'public', table: '任務備註' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'task_notes' }, () => {
       fetchQuestData();
     })
     .subscribe();
@@ -70,7 +72,7 @@ async function initApp() {
 
 // 載入地圖資料
 async function fetchMapData() {
-  const { data, error } = await supabase.from('地圖').select('*');
+  const { data, error } = await supabase.from('map').select('*');
   if (error) {
     console.error('載入 map 失敗:', error);
     return;
@@ -84,7 +86,7 @@ async function fetchMapData() {
   renderMap(globalRouteMapData);
 }
 
-// 載入任務資料與獨立的任務備註資料
+// 載入任務資料與獨立的 task_notes 備註資料
 async function fetchQuestData() {
   const tableBody = document.getElementById('hudTableBody');
   if (tableBody) {
@@ -92,18 +94,18 @@ async function fetchQuestData() {
   }
 
   const { data: tasksData, error: taskError } = await supabase
-    .from('任務')
+    .from('tasks')
     .select(`
       *,
-      任務備註 (
-        備註,
-        備註編輯者,
-        創立時間
+      task_notes (
+        notes,
+        credits,
+        created_at
       )
     `);
 
   if (taskError) {
-    console.error('載入 任務 失敗:', taskError);
+    console.error('載入 tasks 失敗:', taskError);
     if (tableBody) {
       tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #e53e3e; padding: 20px;">載入失敗: ${taskError.message}</td></tr>`;
     }
@@ -112,8 +114,8 @@ async function fetchQuestData() {
 
   globalQuestData = (tasksData || []).map(doc => {
     let cleanNotes = '';
-    if (doc.任務備註 && Array.isArray(doc.任務備註) && doc.任務備註.length > 0) {
-      cleanNotes = doc.任務備註
+    if (doc.task_notes && Array.isArray(doc.task_notes) && doc.task_notes.length > 0) {
+      cleanNotes = doc.task_notes
         .map(n => {
           if (!n || !n.notes) return '';
           // 🔥 關鍵修復：將所有的 \t (Tab) 換成普通空白，並清除每行前後多餘空白
@@ -133,9 +135,9 @@ async function fetchQuestData() {
 
     return {
       ...doc,
-      id: doc.ID,
+      id: doc.id,
       cleanNotes: cleanNotes,
-      task_notes: doc.任務備註 || [] 
+      task_notes: doc.task_notes || [] 
     };
   });
   updateFilterOptions();
@@ -157,7 +159,7 @@ function getQuestCoord(q) {
 }
 
 // 根據座標推導城市名稱
-function getCityNameByCoord(X, Y, originalCity) {
+function getCityNameByCoord(x, y, originalCity) {
   if (originalCity && originalCity.trim() !== '' && originalCity.trim() !== '未標註') {
     return originalCity;
   }
@@ -174,7 +176,7 @@ function getQuestCity(q) {
   if (coord) {
     return getCityNameByCoord(coord.x, coord.y, q.city);
   }
-  return q.城市 || '未標註';
+  return q.city || '未標註';
 }
 
 // 渲染地圖格線
@@ -280,7 +282,7 @@ window.updateMapHighlights = function() {
     const targetCell = document.getElementById(`cell-${coord.x}-${coord.y}`);
     if (!targetCell) return;
 
-    const status = q.狀態 || 'pending';
+    const status = q.status || 'pending';
     
     if (status === 'completed' && showCompleted) {
       targetCell.style.backgroundColor = questHighlightColors.completed;
@@ -291,8 +293,8 @@ window.updateMapHighlights = function() {
     }
   });
 
-  lockedQuestIds.forEach(qID => {
-    const coordStr = questSelectedCoordMap.get(qID);
+  lockedQuestIds.forEach(qId => {
+    const coordStr = questSelectedCoordMap.get(qId);
     if (coordStr) {
       const [x, y] = coordStr.split(',').map(Number);
       const targetCell = document.getElementById(`cell-${x}-${y}`);
@@ -364,9 +366,9 @@ window.updateQuestStatusInSupabase = async function(id, newStatus) {
   const parsedId = !isNaN(id) ? Number(id) : id;
 
   const { data, error } = await supabase
-    .from('任務')
-    .update({ 狀態: newStatus })
-    .eq('ID', parsedId)
+    .from('tasks')
+    .update({ status: newStatus })
+    .eq('id', parsedId)
     .select();
 
   if (error) {
@@ -379,7 +381,7 @@ window.updateQuestStatusInSupabase = async function(id, newStatus) {
     if (data && data.length > 0) {
       console.log('✅ 資料庫狀態更新成功！');
       const target = globalQuestData.find(q => String(q.id) === String(id));
-      if (target) target.狀態 = newStatus;
+      if (target) target.status = newStatus;
       updateMapHighlights();
     } else {
       console.warn('⚠️ 雖然沒有報錯，但回傳陣列為空 (length: 0)。這代表資料庫中找不到這個 ID 的任務！');
@@ -422,11 +424,11 @@ function displayCoordInfo(data, x, y) {
   if (matchedQuests.length > 0) {
     html += `<b style="color:#ffeb3b;">🎯 包含任務：</b><ul>`;
     matchedQuests.forEach(q => {
-      const currentStatus = q.狀態 || 'pending';
+      const currentStatus = q.status || 'pending';
       let statusText = " (⭕ 未完成)";
       if (currentStatus === 'completed') statusText = " (✅ 已完成)";
       if (currentStatus === 'show') statusText = " (👁️ 顯示中)";
-      html += `<li><b>${q.類型 || q.type || '任務'}</b> - ${q.building}${statusText}</li>`;
+      html += `<li><b>${q.task_type || q.type || '任務'}</b> - ${q.building}${statusText}</li>`;
     });
     html += `</ul>`;
   } else {
@@ -609,16 +611,16 @@ window.filterQuests = function() {
   tbody.innerHTML = '';
 
   const filtered = globalQuestData.filter(q => {
-    const building = (q.建築 || '').toLowerCase();
-    const type = (q.類型 || q.type || '').toLowerCase();
+    const building = (q.building || '').toLowerCase();
+    const type = (q.task_type || q.type || '').toLowerCase();
     const notes = (q.cleanNotes || '').toLowerCase();
-    const status = q.狀態 || 'pending';
+    const status = q.status || 'pending';
     const effectiveCity = getQuestCity(q);
 
     const matchKeyword = !keyword || building.includes(keyword) || effectiveCity.toLowerCase().includes(keyword) || type.includes(keyword) || notes.includes(keyword);
     
     const matchCity = selectedCities.length === 0 || selectedCities.includes(effectiveCity);
-    const matchType = selectedTypes.length === 0 || selectedTypes.includes(q.類型) || selectedTypes.includes(q.type);
+    const matchType = selectedTypes.length === 0 || selectedTypes.includes(q.task_type) || selectedTypes.includes(q.type);
     const matchStatus = !statusFilter || (status === statusFilter);
 
     return matchKeyword && matchCity && matchType && matchStatus;
@@ -630,22 +632,22 @@ window.filterQuests = function() {
   }
 
   filtered.forEach(q => {
-    const qID = q.ID;
-    const currentStatus = q.狀態 || 'pending';
+    const qId = q.id;
+    const currentStatus = q.status || 'pending';
     const displayCity = getQuestCity(q);
     const rawNotes = (q.cleanNotes || '').trim();
     const formattedNotes = rawNotes ? rawNotes.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, '<br>') : '<span style="color: #6b7280; font-style: italic;">尚無備註</span>';
-    const moreNotesButtonHtml = `<button onclick="window.location.href='notes.html?id=${qID}'" style="display: inline-block; margin-top: 6px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 查看更多備註</button>`;
+    const moreNotesButtonHtml = `<button onclick="window.location.href='notes.html?id=${qId}'" style="display: inline-block; margin-top: 6px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 查看更多備註</button>`;
 
     const tr = document.createElement('tr');
     tr.style.borderBottom = '1px solid #1f2937';
     tr.innerHTML = `
-      <td style="padding: 10px; cursor: pointer; color: #60a5fa; vertical-align: top;" onclick="window.focusQuestOnMap('${qID}', '${q.建築}', '${displayCity}')"><b>${q.建築 || '未指定建築'}</b></td>
+      <td style="padding: 10px; cursor: pointer; color: #60a5fa; vertical-align: top;" onclick="window.focusQuestOnMap('${qId}', '${q.building}', '${displayCity}')"><b>${q.building || '未指定建築'}</b></td>
       <td style="padding: 10px; vertical-align: top;">${displayCity}</td>
-      <td style="padding: 10px; vertical-align: top;">${q.類型 || q.type || '一般任務'}</td>
+      <td style="padding: 10px; vertical-align: top;">${q.task_type || q.type || '一般任務'}</td>
       <td style="padding: 10px; width: 300px; max-width: 300px; vertical-align: top; word-break: break-all;"><div style="font-size: 12px; color: #e5e7eb; line-height: 1.4;">${formattedNotes}</div>${moreNotesButtonHtml}</td>
-      <td style="padding: 10px; vertical-align: top;"><button onclick="window.location.href='edit.html?id=${qID}'" style="padding: 4px 10px; background: #374151; color: #60a5fa; border: 1px solid #4b5563; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ 編輯詳情</button></td>
-      <td style="padding: 10px; vertical-align: top;"><select onchange="window.updateQuestStatusInSupabase('${qID}', this.value)" style="background: #1f2937; color: #fff; border: 1px solid #4b5563; padding: 4px; border-radius: 4px; font-size: 12px;"><option value="pending" ${currentStatus === 'pending' ? 'selected' : ''}>⭕ 未完成</option><option value="show" ${currentStatus === 'show' ? 'selected' : ''}>👁️ 顯示中</option><option value="completed" ${currentStatus === 'completed' ? 'selected' : ''}>✅ 已完成</option></select></td>
+      <td style="padding: 10px; vertical-align: top;"><button onclick="window.location.href='edit.html?id=${qId}'" style="padding: 4px 10px; background: #374151; color: #60a5fa; border: 1px solid #4b5563; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ 編輯詳情</button></td>
+      <td style="padding: 10px; vertical-align: top;"><select onchange="window.updateQuestStatusInSupabase('${qId}', this.value)" style="background: #1f2937; color: #fff; border: 1px solid #4b5563; padding: 4px; border-radius: 4px; font-size: 12px;"><option value="pending" ${currentStatus === 'pending' ? 'selected' : ''}>⭕ 未完成</option><option value="show" ${currentStatus === 'show' ? 'selected' : ''}>👁️ 顯示中</option><option value="completed" ${currentStatus === 'completed' ? 'selected' : ''}>✅ 已完成</option></select></td>
     `;
     tbody.appendChild(tr);
   });
@@ -666,7 +668,7 @@ function updateFilterOptions() {
   globalQuestData.forEach(q => {
     const c = getQuestCity(q);
     if (c) cities.add(c);
-    const t = q.類型 || q.type;
+    const t = q.task_type || q.type;
     if (t) types.add(t);
   });
 
@@ -696,25 +698,3 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('nav-building')?.classList.add('active');
   }
 });
-
-// 監聽當前視窗或分頁即將關閉的事件
-window.addEventListener('beforeunload', async (event) => {
-  // 檢查是不是直接關閉瀏覽器或分頁（相對於站內點擊連結跳轉）
-  // 實務上為了確保安全，只要離開網頁或關閉分頁就直接登出：
-  await supabase.auth.signOut();
-});
-
-// 綁定登出按鈕事件
-const logoutBtn = document.getElementById('logoutBtn');
-if (logoutBtn) {
-  logoutBtn.addEventListener('click', async () => {
-    const { error } = await supabase.auth.signOut();
-    if (!error) {
-      console.log('✅ 已成功登出');
-      // 登出後跳轉回登入頁
-      window.location.href = '登入.html';
-    } else {
-      console.error('❌ 登出失敗:', error.message);
-    }
-  });
-}
