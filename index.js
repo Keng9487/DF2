@@ -72,7 +72,7 @@ async function initApp() {
 
 // 載入地圖資料
 async function fetchMapData() {
-  const { data, error } = await supabase.from('map').select('*');
+  const { data, error } = await supabase.from('地圖').select('*');
   if (error) {
     console.error('載入 map 失敗:', error);
     return;
