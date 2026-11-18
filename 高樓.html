@@ -450,7 +450,7 @@
                     .eq("ID", noteDocId)
                     .maybeSingle();
 
-                  if (noteData) textarea.value = noteData.note || "";
+                  if (noteData) textarea.value = noteData.備註 || "";
 
                   // 儲存筆記
                   textarea.addEventListener("blur", async () => {
