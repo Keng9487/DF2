@@ -4,8 +4,6 @@ const supabaseUrl = 'https://yasnbvmngdxkukuxvafc.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlhc25idm1uZ2R4a3VrdXh2YWZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4Mjc0MzUsImV4cCI6MjEwMjQwMzQzNX0.ht7XqIdRczGIdVE-oljEplFLEOHyxb7zZSI_pnDDP4w';
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
-    // 將儲存方式從 localStorage 改為 sessionStorage
-    // 這樣當用戶關閉該瀏覽器分頁時，Session 就會自動清除
     storage: window.localStorage, 
     autoRefreshToken: true,
     persistSession: true,
@@ -72,7 +70,7 @@ async function initApp() {
 
 // 載入地圖資料
 async function fetchMapData() {
-  const { data, error } = await supabase.from('map').select('*');
+  const { data, error } = await supabase.from('地圖').select('*');
   if (error) {
     console.error('載入 map 失敗:', error);
     return;
