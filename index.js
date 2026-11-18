@@ -72,7 +72,7 @@ async function initApp() {
 
 // 載入地圖資料
 async function fetchMapData() {
-  const { data, error } = await supabase.from('地圖').select('*');
+  const { data, error } = await supabase.from('map').select('*');
   if (error) {
     console.error('載入 map 失敗:', error);
     return;
@@ -428,7 +428,7 @@ function displayCoordInfo(data, x, y) {
       let statusText = " (⭕ 未完成)";
       if (currentStatus === 'completed') statusText = " (✅ 已完成)";
       if (currentStatus === 'show') statusText = " (👁️ 顯示中)";
-      html += `<li><b>${q.task_type || q.type || '任務'}</b> - ${q.building}${statusText}</li>`;
+      html += `<li><b>${q.類型 || q.type || '任務'}</b> - ${q.building}${statusText}</li>`;
     });
     html += `</ul>`;
   } else {
@@ -611,16 +611,16 @@ window.filterQuests = function() {
   tbody.innerHTML = '';
 
   const filtered = globalQuestData.filter(q => {
-    const building = (q.building || '').toLowerCase();
-    const type = (q.task_type || q.type || '').toLowerCase();
+    const building = (q.建築 || '').toLowerCase();
+    const type = (q.類型 || q.type || '').toLowerCase();
     const notes = (q.cleanNotes || '').toLowerCase();
-    const status = q.status || 'pending';
+    const status = q.狀態 || 'pending';
     const effectiveCity = getQuestCity(q);
 
     const matchKeyword = !keyword || building.includes(keyword) || effectiveCity.toLowerCase().includes(keyword) || type.includes(keyword) || notes.includes(keyword);
     
     const matchCity = selectedCities.length === 0 || selectedCities.includes(effectiveCity);
-    const matchType = selectedTypes.length === 0 || selectedTypes.includes(q.task_type) || selectedTypes.includes(q.type);
+    const matchType = selectedTypes.length === 0 || selectedTypes.includes(q.類型) || selectedTypes.includes(q.type);
     const matchStatus = !statusFilter || (status === statusFilter);
 
     return matchKeyword && matchCity && matchType && matchStatus;
@@ -633,7 +633,7 @@ window.filterQuests = function() {
 
   filtered.forEach(q => {
     const qID = q.ID;
-    const currentStatus = q.任務狀態 || 'pending';
+    const currentStatus = q.狀態 || 'pending';
     const displayCity = getQuestCity(q);
     const rawNotes = (q.cleanNotes || '').trim();
     const formattedNotes = rawNotes ? rawNotes.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, '<br>') : '<span style="color: #6b7280; font-style: italic;">尚無備註</span>';
@@ -668,7 +668,7 @@ function updateFilterOptions() {
   globalQuestData.forEach(q => {
     const c = getQuestCity(q);
     if (c) cities.add(c);
-    const t = q.task_type || q.type;
+    const t = q.類型 || q.type;
     if (t) types.add(t);
   });
 
