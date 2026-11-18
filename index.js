@@ -58,13 +58,13 @@ async function initApp() {
   // Supabase 即時變更訂閱 (Realtime)
   supabase
     .channel('public-db-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'map' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: '地圖' }, () => {
       fetchMapData();
     })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: '任務' }, () => {
       fetchQuestData();
     })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'task_notes' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: '任務備註' }, () => {
       fetchQuestData();
     })
     .subscribe();
@@ -86,7 +86,7 @@ async function fetchMapData() {
   renderMap(globalRouteMapData);
 }
 
-// 載入任務資料與獨立的 task_notes 備註資料
+// 載入任務資料與獨立的任務備註資料
 async function fetchQuestData() {
   const tableBody = document.getElementById('hudTableBody');
   if (tableBody) {
@@ -94,18 +94,18 @@ async function fetchQuestData() {
   }
 
   const { data: tasksData, error: taskError } = await supabase
-    .from('tasks')
+    .from('任務')
     .select(`
       *,
-      task_notes (
-        notes,
-        credits,
-        created_at
+      任務備註 (
+        備註,
+        備註編輯者,
+        創立時間
       )
     `);
 
   if (taskError) {
-    console.error('載入 tasks 失敗:', taskError);
+    console.error('載入 任務 失敗:', taskError);
     if (tableBody) {
       tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #e53e3e; padding: 20px;">載入失敗: ${taskError.message}</td></tr>`;
     }
@@ -114,8 +114,8 @@ async function fetchQuestData() {
 
   globalQuestData = (tasksData || []).map(doc => {
     let cleanNotes = '';
-    if (doc.task_notes && Array.isArray(doc.task_notes) && doc.task_notes.length > 0) {
-      cleanNotes = doc.task_notes
+    if (doc.任務備註 && Array.isArray(doc.任務備註) && doc.任務備註.length > 0) {
+      cleanNotes = doc.任務備註
         .map(n => {
           if (!n || !n.notes) return '';
           // 🔥 關鍵修復：將所有的 \t (Tab) 換成普通空白，並清除每行前後多餘空白
@@ -135,9 +135,9 @@ async function fetchQuestData() {
 
     return {
       ...doc,
-      id: doc.id,
+      id: doc.ID,
       cleanNotes: cleanNotes,
-      task_notes: doc.task_notes || [] 
+      task_notes: doc.任務備註 || [] 
     };
   });
   updateFilterOptions();
@@ -159,7 +159,7 @@ function getQuestCoord(q) {
 }
 
 // 根據座標推導城市名稱
-function getCityNameByCoord(x, y, originalCity) {
+function getCityNameByCoord(X, Y, originalCity) {
   if (originalCity && originalCity.trim() !== '' && originalCity.trim() !== '未標註') {
     return originalCity;
   }
@@ -176,7 +176,7 @@ function getQuestCity(q) {
   if (coord) {
     return getCityNameByCoord(coord.x, coord.y, q.city);
   }
-  return q.city || '未標註';
+  return q.城市 || '未標註';
 }
 
 // 渲染地圖格線
@@ -293,8 +293,8 @@ window.updateMapHighlights = function() {
     }
   });
 
-  lockedQuestIds.forEach(qId => {
-    const coordStr = questSelectedCoordMap.get(qId);
+  lockedQuestIds.forEach(qID => {
+    const coordStr = questSelectedCoordMap.get(qID);
     if (coordStr) {
       const [x, y] = coordStr.split(',').map(Number);
       const targetCell = document.getElementById(`cell-${x}-${y}`);
@@ -366,9 +366,9 @@ window.updateQuestStatusInSupabase = async function(id, newStatus) {
   const parsedId = !isNaN(id) ? Number(id) : id;
 
   const { data, error } = await supabase
-    .from('tasks')
+    .from('任務')
     .update({ status: newStatus })
-    .eq('id', parsedId)
+    .eq('ID', parsedId)
     .select();
 
   if (error) {
@@ -632,22 +632,22 @@ window.filterQuests = function() {
   }
 
   filtered.forEach(q => {
-    const qId = q.id;
-    const currentStatus = q.status || 'pending';
+    const qID = q.ID;
+    const currentStatus = q.任務狀態 || 'pending';
     const displayCity = getQuestCity(q);
     const rawNotes = (q.cleanNotes || '').trim();
     const formattedNotes = rawNotes ? rawNotes.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, '<br>') : '<span style="color: #6b7280; font-style: italic;">尚無備註</span>';
-    const moreNotesButtonHtml = `<button onclick="window.location.href='notes.html?id=${qId}'" style="display: inline-block; margin-top: 6px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 查看更多備註</button>`;
+    const moreNotesButtonHtml = `<button onclick="window.location.href='notes.html?id=${qID}'" style="display: inline-block; margin-top: 6px; padding: 2px 8px; background: #1e3a8a; color: #93c5fd; border: none; border-radius: 3px; font-size: 11px; cursor: pointer;">📖 查看更多備註</button>`;
 
     const tr = document.createElement('tr');
     tr.style.borderBottom = '1px solid #1f2937';
     tr.innerHTML = `
-      <td style="padding: 10px; cursor: pointer; color: #60a5fa; vertical-align: top;" onclick="window.focusQuestOnMap('${qId}', '${q.building}', '${displayCity}')"><b>${q.building || '未指定建築'}</b></td>
+      <td style="padding: 10px; cursor: pointer; color: #60a5fa; vertical-align: top;" onclick="window.focusQuestOnMap('${qID}', '${q.建築}', '${displayCity}')"><b>${q.建築 || '未指定建築'}</b></td>
       <td style="padding: 10px; vertical-align: top;">${displayCity}</td>
-      <td style="padding: 10px; vertical-align: top;">${q.task_type || q.type || '一般任務'}</td>
+      <td style="padding: 10px; vertical-align: top;">${q.類型 || q.type || '一般任務'}</td>
       <td style="padding: 10px; width: 300px; max-width: 300px; vertical-align: top; word-break: break-all;"><div style="font-size: 12px; color: #e5e7eb; line-height: 1.4;">${formattedNotes}</div>${moreNotesButtonHtml}</td>
-      <td style="padding: 10px; vertical-align: top;"><button onclick="window.location.href='edit.html?id=${qId}'" style="padding: 4px 10px; background: #374151; color: #60a5fa; border: 1px solid #4b5563; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ 編輯詳情</button></td>
-      <td style="padding: 10px; vertical-align: top;"><select onchange="window.updateQuestStatusInSupabase('${qId}', this.value)" style="background: #1f2937; color: #fff; border: 1px solid #4b5563; padding: 4px; border-radius: 4px; font-size: 12px;"><option value="pending" ${currentStatus === 'pending' ? 'selected' : ''}>⭕ 未完成</option><option value="show" ${currentStatus === 'show' ? 'selected' : ''}>👁️ 顯示中</option><option value="completed" ${currentStatus === 'completed' ? 'selected' : ''}>✅ 已完成</option></select></td>
+      <td style="padding: 10px; vertical-align: top;"><button onclick="window.location.href='edit.html?id=${qID}'" style="padding: 4px 10px; background: #374151; color: #60a5fa; border: 1px solid #4b5563; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ 編輯詳情</button></td>
+      <td style="padding: 10px; vertical-align: top;"><select onchange="window.updateQuestStatusInSupabase('${qID}', this.value)" style="background: #1f2937; color: #fff; border: 1px solid #4b5563; padding: 4px; border-radius: 4px; font-size: 12px;"><option value="pending" ${currentStatus === 'pending' ? 'selected' : ''}>⭕ 未完成</option><option value="show" ${currentStatus === 'show' ? 'selected' : ''}>👁️ 顯示中</option><option value="completed" ${currentStatus === 'completed' ? 'selected' : ''}>✅ 已完成</option></select></td>
     `;
     tbody.appendChild(tr);
   });
