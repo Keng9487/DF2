@@ -280,7 +280,7 @@ window.updateMapHighlights = function() {
     const targetCell = document.getElementById(`cell-${coord.x}-${coord.y}`);
     if (!targetCell) return;
 
-    const status = q.status || 'pending';
+    const status = q.狀態 || 'pending';
     
     if (status === 'completed' && showCompleted) {
       targetCell.style.backgroundColor = questHighlightColors.completed;
@@ -365,7 +365,7 @@ window.updateQuestStatusInSupabase = async function(id, newStatus) {
 
   const { data, error } = await supabase
     .from('任務')
-    .update({ status: newStatus })
+    .update({ 狀態: newStatus })
     .eq('ID', parsedId)
     .select();
 
@@ -379,7 +379,7 @@ window.updateQuestStatusInSupabase = async function(id, newStatus) {
     if (data && data.length > 0) {
       console.log('✅ 資料庫狀態更新成功！');
       const target = globalQuestData.find(q => String(q.id) === String(id));
-      if (target) target.status = newStatus;
+      if (target) target.狀態 = newStatus;
       updateMapHighlights();
     } else {
       console.warn('⚠️ 雖然沒有報錯，但回傳陣列為空 (length: 0)。這代表資料庫中找不到這個 ID 的任務！');
@@ -422,7 +422,7 @@ function displayCoordInfo(data, x, y) {
   if (matchedQuests.length > 0) {
     html += `<b style="color:#ffeb3b;">🎯 包含任務：</b><ul>`;
     matchedQuests.forEach(q => {
-      const currentStatus = q.status || 'pending';
+      const currentStatus = q.狀態 || 'pending';
       let statusText = " (⭕ 未完成)";
       if (currentStatus === 'completed') statusText = " (✅ 已完成)";
       if (currentStatus === 'show') statusText = " (👁️ 顯示中)";
