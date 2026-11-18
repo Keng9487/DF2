@@ -223,9 +223,9 @@ async function loadMenuCoordinates(config, menuKey, contentContainer) {
       // --- Supabase 查詢資料 ---
       try {
         const { data: mapData, error: mapError } = await supabase
-          .from("map")
-          .select("buildings")
-          .eq("id", zoneId)
+          .from("地圖")
+          .select("建築")
+          .eq("座標", zoneId)
           .maybeSingle();
 
         if (mapError) throw mapError;
