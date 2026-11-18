@@ -390,6 +390,21 @@
     async function loadMenuCoordinates(config, menuKey, contentContainer, t) {
       contentContainer.innerHTML = "";
 
+      // 1. 取得當前選擇的語系（對應 langSelect 的值）
+      const currentLang = localStorage.getItem('selectedLang') || 'zh-TW';
+
+      // 2. 根據語系動態決定要查詢的 Supabase 資料表名稱
+      let mapTableName = "地圖"; // 預設繁體中文
+      let notesTableName = "建築備註"; // 預設備註表
+
+      if (currentLang === 'EN') {
+        mapTableName = "Map";
+        notesTableName = "Menu_notes";
+      } else if (currentLang === '日本語') {
+        mapTableName = "Map";
+        notesTableName = "注記";
+      }
+
       for (let row = config.startRow; row <= config.endRow; row++) {
         for (let col = config.startCol; col <= config.endCol; col++) {
           const zoneId = `${row}_${col}`;
