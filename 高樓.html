@@ -456,13 +456,13 @@
                   textarea.addEventListener("blur", async () => {
                     statusDiv.textContent = t.saving;
                     const { error } = await supabase.from("建築備註").upsert({
-                      id: noteDocId,
-                      menu: menuKey,
-                      zone: zoneId,
-                      building: buildingName,
-                      type: buildingType,
-                      note: textarea.value,
-                      updatedAt: new Date().toISOString()
+                      ID: noteDocId,
+                      菜單: menuKey,
+                      座標: zoneId,
+                      建築: buildingName,
+                      類型: buildingType,
+                      備註: textarea.value,
+                      上傳時間: new Date().toISOString()
                     });
 
                     if (error) {
