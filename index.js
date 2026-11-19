@@ -48,7 +48,7 @@ const translations = {
     thStatus: "狀態",
     loadingQuests: "載入任務資料中...",
     mapPanelTitle: "🗺️ 互動地圖繪製與鎖定",
-    panelDefaultMsg: "點擊左側任務列可<b>選擇指定同名點位進行鎖定</b>",
+    panelDefaultMsg: "點擊左側任務列可選擇指定同名點位進行鎖定",
     readFail: "讀取失敗"
   },
   'zh-CN': {
@@ -86,7 +86,7 @@ const translations = {
     thStatus: "状态",
     loadingQuests: "加载任务数据中...",
     mapPanelTitle: "🗺️ 互动地图绘制与锁定",
-    panelDefaultMsg: "点击左侧任务列表可<b>选择指定同名点位进行锁定</b>",
+    panelDefaultMsg: "点击左侧任务列表可选择指定同名点位进行锁定",
     readFail: "读取失败"
   }
 };
