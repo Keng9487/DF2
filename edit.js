@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const editForm = document.getElementById('edit-form');
 
   const urlParams = new URLSearchParams(window.location.search);
-  const taskId = urlParams.get('id');
+  const taskId = urlParams.get('ID');
 
   if (!taskId) {
     alert("未指定任務 ID！");
@@ -37,9 +37,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 2. 載入 Header 資訊
   try {
     const { data: taskData, error: taskError } = await window.supabaseClient
-      .from('tasks')
+      .from('任務')
       .select('*')
-      .eq('id', taskId)
+      .eq('ID', taskId)
       .single();
 
     if (taskError) throw taskError;
@@ -75,12 +75,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
       const { error: insertError } = await window.supabaseClient
-        .from('task_notes')
+        .from('任務備註')
         .insert([
           {
-            task_id: taskId,
-            notes: routeValue,
-            credits: creditsValue
+            任務ID: taskId,
+            備註: routeValue,
+            備註編輯者: creditsValue
           }
         ]);
 
