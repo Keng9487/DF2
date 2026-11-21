@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const editForm = document.getElementById('edit-form');
 
   const urlParams = new URLSearchParams(window.location.search);
-  const taskId = urlParams.get('ID');
+  const taskId = urlParams.get('id');
 
   if (!taskId) {
     alert("未指定任務 ID！");
@@ -45,9 +45,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (taskError) throw taskError;
 
     if (taskData) {
-      const var1 = taskData.building || '未指定建築';
-      const var2 = taskData.city || '未標註城市';
-      const var3 = taskData.task_type || taskData.type || '一般任務';
+      const var1 = taskData.建築 || '未指定建築';
+      const var2 = taskData.城市 || '未標註城市';
+      const var3 = taskData.類型 || taskData.type || '一般任務';
 
       if (headerEl) {
         headerEl.textContent = `前往${var1},城市:${var2} 目標:${var3}`;
