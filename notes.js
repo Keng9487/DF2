@@ -114,33 +114,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         titleEl.textContent = t.titleTemplate(buildingName);
       }
 
-      const notes = taskData[currentTables.notesRelation] || taskData.task_notes || [];
+      const notes = taskData[currentTables.notesRelation] || taskData.備註 || [];
       if (notes.length === 0) {
         container.innerHTML = `<p style="text-align: center; color: #8b949e; font-style: italic;">${t.emptyNotes}</p>`;
         return;
       }
 
       // 依照建立時間由新到舊排序
-      notes.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      notes.sort((a, b) => new Date(b.創立時間) - new Date(a.created_at));
 
       let html = '';
       notes.forEach(note => {
-        const timeStr = new Date(note.created_at).toLocaleString([], {
+        const timeStr = new Date(note.創立時間).toLocaleString([], {
           year: 'numeric',
           month: '2-digit',
           day: '2-digit',
           hour: '2-digit',
           minute: '2-digit'
         });
-        const creditsStr = note.credits ? `[${note.credits}]` : t.anonymous;
+        const creditsStr = note.備註編輯者 ? `[${note.備註編輯者}]` : t.anonymous;
 
         const escapeHtml = (str) => {
           return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         };
-        const formattedNotes = escapeHtml(note.notes || '').replace(/\n/g, '<br>');
+        const formattedNotes = escapeHtml(note.備註 || '').replace(/\n/g, '<br>');
 
         // 2. 嚴格權限判斷：比對備註的 credits（或 user_id）是否與當前登入使用者相符
-        const isOwner = currentUserName && (note.credits === currentUserName || note.user_id === user?.id);
+        const isOwner = currentUserName && (note.備註編輯者 === currentUserName || note.user_id === user?.id);
 
         // 3. 只有自己的備註才渲染刪除按鈕
         const deleteBtnHtml = isOwner
