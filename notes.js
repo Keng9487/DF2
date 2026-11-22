@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const { error } = await window.supabaseClient
         .from(currentTables.notesTable)
         .delete()
-        .eq('id', noteId);
+        .eq('ID', noteId);
 
       if (error) throw error;
 
