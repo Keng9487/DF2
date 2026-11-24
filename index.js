@@ -102,8 +102,8 @@ const localizationMap = {
     "人類遺骸": "人类遗骸", "尋找物品": "寻找物品", "給東西": "给东西",
     "完成任務": "完成任务", "追靈者": "追灵者", "逃出": "逃出",
     "擊殺頭目": "击杀头目", "尋找死人": "寻找死人", "尋找活人": "寻找活人",
-    "搜索物資": "搜索物资","殲滅":"殲滅","血液樣本*6":"血液樣本*6","血液樣本*5":"血液樣本*5",
-    "血液樣本*4":"血液樣本*4"
+    "搜索物資": "搜索物资","殲滅":"殲滅","血液樣本*6":"血液様本*6","血液樣本*5":"血液様本*5",
+    "血液様本*4":"血液樣本*4","逃出":"逃出"
   }
 };
 
@@ -512,6 +512,22 @@ function displayCoordInfo(data, x, y) {
   detailsPanel.innerHTML = html;
 }
 
+function getSortValue(q, columnKey) {
+  switch (columnKey) {
+    case 'building':
+      return q.建築 ?? q.building ?? '';
+    case 'city':
+      return localizeText(getQuestCity(q));
+    case 'task_type':
+    case 'type':
+      return localizeText(q.類型 ?? q.type ?? '');
+    case 'status':
+      return q.狀態 ?? q.status ?? '';
+    default:
+      return q[columnKey] ?? '';
+  }
+}
+
 window.sortTable = function(columnKey) {
   if (currentSortColumn === columnKey) {
     isAscending = !isAscending;
@@ -520,10 +536,13 @@ window.sortTable = function(columnKey) {
     isAscending = true;
   }
 
+  const currentLang = localStorage.getItem('selectedLang') || 'zh-TW';
+  const locale = currentLang === 'zh-CN' ? 'zh-CN' : 'zh-TW';
+
   globalQuestData.sort((a, b) => {
-    const valA = String(a[columnKey] || '');
-    const valB = String(b[columnKey] || '');
-    let result = valA.localeCompare(valB, 'zh-TW');
+    const valA = String(getSortValue(a, columnKey));
+    const valB = String(getSortValue(b, columnKey));
+    const result = valA.localeCompare(valB, locale, { numeric: true, sensitivity: 'base' });
     return isAscending ? result : -result;
   });
 
@@ -766,7 +785,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('beforeunload', async () => {
-  await supabase.auth.signOut();
 });
 
 const logoutBtn = document.getElementById('logoutBtn');
