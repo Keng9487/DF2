@@ -15,7 +15,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 const translations = {
   'zh-TW': {
     pageTitle: "Dead Frontier 2 互動地圖 & Supabase 即時共享 HUD 系統",
-    navBrand: "🗺️ 遊戲任務與高樓系統",
+    navBrand: "🗺️ 遊戲任務系統",
     navIndex: "主頁與地圖",
     navBuilding: "高樓資訊頁",
     notLoggedIn: "未登入",
@@ -53,7 +53,7 @@ const translations = {
   },
   'zh-CN': {
     pageTitle: "Dead Frontier 2 互动地图 & Supabase 实时共享 HUD 系统",
-    navBrand: "🗺️ 游戏任务与高楼系统",
+    navBrand: "🗺️ 游戏任务系统",
     navIndex: "主页与地图",
     navBuilding: "高楼信息页",
     notLoggedIn: "未登录",
