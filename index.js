@@ -448,6 +448,8 @@ window.updateQuestStatusInSupabase = async function(id, newStatus) {
   let questTableName = "任務";
   if (currentLang === 'EN') questTableName = "tasks_en";
   else if (currentLang === 'zh-CN') questTableName = "任务";
+  console.log('準備更新:', { questTableName, rawId: id, parsedId, newStatus });
+
 
   const { data, error } = await supabase
     .from(questTableName)
